@@ -4,9 +4,12 @@ public class PlayerController : MonoBehaviour
 {
 
     private Rigidbody2D p_RB;
-
-    public float p_spd;
     private Vector2 p_Dir;
+
+    [Header("Movimentação")]
+    [SerializeField]public float p_spd;
+    
+    
 
 
     void Awake()
