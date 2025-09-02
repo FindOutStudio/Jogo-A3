@@ -99,6 +99,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""LaunchTeleport"",
+                    ""type"": ""Button"",
+                    ""id"": ""c0b60714-efb1-4a75-8f1d-56a6cf6f3277"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -167,6 +176,28 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""22c8c7e2-88e1-4c99-bbb1-e988178ff629"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LaunchTeleport"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""accf30d7-15bf-48e7-b1c0-1b4a83ab3e23"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LaunchTeleport"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -176,6 +207,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
+        m_Player_LaunchTeleport = m_Player.FindAction("LaunchTeleport", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
@@ -257,6 +289,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Move;
+    private readonly InputAction m_Player_LaunchTeleport;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -272,6 +305,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Move".
         /// </summary>
         public InputAction @Move => m_Wrapper.m_Player_Move;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/LaunchTeleport".
+        /// </summary>
+        public InputAction @LaunchTeleport => m_Wrapper.m_Player_LaunchTeleport;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -301,6 +338,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
+            @LaunchTeleport.started += instance.OnLaunchTeleport;
+            @LaunchTeleport.performed += instance.OnLaunchTeleport;
+            @LaunchTeleport.canceled += instance.OnLaunchTeleport;
         }
 
         /// <summary>
@@ -315,6 +355,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
+            @LaunchTeleport.started -= instance.OnLaunchTeleport;
+            @LaunchTeleport.performed -= instance.OnLaunchTeleport;
+            @LaunchTeleport.canceled -= instance.OnLaunchTeleport;
         }
 
         /// <summary>
@@ -362,5 +405,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMove(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "LaunchTeleport" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLaunchTeleport(InputAction.CallbackContext context);
     }
 }
