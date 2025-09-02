@@ -1,27 +1,54 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D rb;
     private Vector2 moveDir;
+    private PlayerInputActions inputActions;
 
     [Header("Movimentação")]
-    [SerializeField] public float moveSpd = 5;
-    [SerializeField] public float maxSpd = 10;
-    [SerializeField] public float accel = 2;
-    [SerializeField] public float deccel = 2;
-    [SerializeField] public float TurnVel = 3;
+    [SerializeField] private float moveSpd = 5f;
+    [SerializeField] private float maxSpd = 10f;
+    [SerializeField] private float accel = 2f;
+    [SerializeField] private float deccel = 2f;
+    [SerializeField] private float TurnVel = 3f;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        inputActions = new PlayerInputActions();
+    }
+
+    private void OnEnable()
+    {
+        inputActions.Player.Enable();
+        inputActions.Player.Move.performed += OnMovePerformed;
+        inputActions.Player.Move.canceled += OnMoveCanceled;
+    }
+
+    private void OnDisable()
+    {
+        inputActions.Player.Move.performed -= OnMovePerformed;
+        inputActions.Player.Move.canceled -= OnMoveCanceled;
+        inputActions.Player.Disable();
+    }
+
+    private void OnMovePerformed(InputAction.CallbackContext ctx)
+    {
+        moveDir = ctx.ReadValue<Vector2>();
+    }
+
+    private void OnMoveCanceled(InputAction.CallbackContext ctx)
+    {
+        moveDir = Vector2.zero;
     }
 
     void Update()
     {
-        moveDir.x = Input.GetAxisRaw("Horizontal");
-        moveDir.y = Input.GetAxisRaw("Vertical");
-        moveDir.Normalize();
+        if (moveDir.sqrMagnitude > 1f)
+            moveDir.Normalize();
+
         RotatePlayer();
     }
 
@@ -33,15 +60,16 @@ public class PlayerController : MonoBehaviour
     void HandleMovement()
     {
         Vector2 targetVelocity = moveDir * moveSpd;
-        Vector2 force = Vector2.zero;
+        Vector2 force;
+
         if (moveDir.magnitude > 0)
-        {
+
             force = (targetVelocity - rb.linearVelocity) * accel;
-        }
+
         else
-        {
+
             force = (targetVelocity - rb.linearVelocity) * deccel;
-        }
+
         rb.AddForce(force);
         rb.linearVelocity = Vector2.ClampMagnitude(rb.linearVelocity, maxSpd);
     }
