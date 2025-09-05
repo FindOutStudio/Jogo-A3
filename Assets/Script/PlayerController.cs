@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D rb;
     private Vector2 moveDir;
+    private Vector2 aimDir;
     private PlayerInputActions inputActions;
 
     // --- Variáveis de Movimentação ---
@@ -17,22 +18,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float TurnVel = 3f;
 
     // --- Variáveis da Coroa e Teletransporte ---
-    [Header("Coroa e Teletransporte")]
-    [SerializeField] private GameObject crownPrefab;
-    [SerializeField] public float maxDistance = 15f;
-    [SerializeField] private float launchSpd = 15f;
-    [SerializeField] private float returnSpd = 20f;
-    [SerializeField] private float returnDelay = 0.5f;
-    [SerializeField] private float teleportCooldown = 2f;
-    [SerializeField] private float invulnerabilityDuration = 0.5f;
-    [SerializeField] public float damageRadius = 2f;
-    [SerializeField] public float damage = 25f;
-    [SerializeField] public LayerMask crownCollisionLayers;
+    [Header("Coroa Bumerangue")]
+    [SerializeField] private CrownController crownPrefab;
+    [SerializeField] private Transform crownLaunchPoint;
+    public bool HasCrown { get; private set; } = true;
 
-    private Crown currentCrown;
-    private bool hasCrown = true;
-    private float lastTeleportTime;
-    public bool isInvulnerable { get; private set; }
+
+    // --- Variáveis de Lançamento da Coroa ---
+    [SerializeField] private float MaxDistance = 10f;
+    [SerializeField] private float VelLaunch = 15f;
+    [SerializeField] private float VelReturn = 10f;
+    [SerializeField] private float Delay = 0.5f;
+
 
     void Awake()
     {
@@ -45,14 +42,19 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.Enable();
         inputActions.Player.Move.performed += OnMovePerformed;
         inputActions.Player.Move.canceled += OnMoveCanceled;
-        inputActions.Player.LaunchTeleport.performed += LaunchTeleport;
+        inputActions.Player.Aim.performed += OnAimPerformed; 
+        inputActions.Player.Aim.canceled += OnAimCanceled;
+        inputActions.Player.ThrowCrown.performed += OnThrowCrownPerformed;
+
     }
 
     private void OnDisable()
     {
         inputActions.Player.Move.performed -= OnMovePerformed;
         inputActions.Player.Move.canceled -= OnMoveCanceled;
-        inputActions.Player.LaunchTeleport.performed -= LaunchTeleport;
+        inputActions.Player.Aim.performed -= OnAimPerformed;
+        inputActions.Player.Aim.canceled -= OnAimCanceled;
+        inputActions.Player.ThrowCrown.performed -= OnThrowCrownPerformed;
         inputActions.Player.Disable();
     }
 
@@ -66,17 +68,27 @@ public class PlayerController : MonoBehaviour
         moveDir = Vector2.zero;
     }
 
-    public void LaunchTeleport(InputAction.CallbackContext ctx)
+    // Gerencia a mira do gamepad
+    private void OnAimPerformed(InputAction.CallbackContext ctx)
     {
-        if (hasCrown)
+        aimDir = ctx.ReadValue<Vector2>();
+    }
+
+    private void OnAimCanceled(InputAction.CallbackContext ctx)
+    {
+        aimDir = Vector2.zero;
+    }
+
+    private void OnThrowCrownPerformed(InputAction.CallbackContext ctx)
+    {
+        if (HasCrown)
         {
+            HasCrown = false;
             LaunchCrown();
         }
-        else if (currentCrown != null)
-        {
-            TeleportToCrown();
-        }
     }
+
+
 
     void Update()
     {
@@ -84,7 +96,19 @@ public class PlayerController : MonoBehaviour
         {
             moveDir.Normalize();
         }
-        RotatePlayer();
+
+        // Lógica de mira para o mouse
+        if (InputSystem.GetDevice<Keyboard>()?.IsActuated(1) == true || InputSystem.GetDevice<Mouse>()?.IsActuated(1) == true)
+        {
+            // Pega a posição do mouse na tela e converte para o mundo do jogo
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            aimDir = (mousePos - transform.position).normalized;
+        }
+        else if (aimDir.sqrMagnitude == 0) // Se não estiver usando o mouse, use a direção do movimento para a mira
+        {
+            aimDir = moveDir;
+        }
+
     }
 
     void FixedUpdate()
@@ -110,86 +134,14 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = Vector2.ClampMagnitude(rb.linearVelocity, maxSpd);
     }
 
-    void RotatePlayer()
+    void LaunchCrown()
     {
-        if (moveDir != Vector2.zero)
-        {
-            float angle = Mathf.Atan2(moveDir.y, moveDir.x) * Mathf.Rad2Deg;
-            Quaternion targetRotation = Quaternion.AngleAxis(angle, Vector3.forward);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, TurnVel * Time.deltaTime);
-        }
+        // Instancia a coroa e a inicializa
+        CrownController newCrown = Instantiate(crownPrefab, crownLaunchPoint.position, Quaternion.identity);
+        newCrown.Initialize(this, aimDir, MaxDistance, VelLaunch, VelReturn, Delay);
     }
-
-    private void LaunchCrown()
-    {
-        Vector2 launchDirection;
-
-        // Se estiver usando mouse, a direção é a posição do mouse.
-        if (Gamepad.current == null)
-        {
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-            launchDirection = (mousePos - transform.position).normalized;
-        }
-        // Se estiver usando gamepad, a direção é a do joystick direito.
-        else
-        {
-            Vector2 aimDir = Gamepad.current.rightStick.ReadValue();
-            // Se o joystick de mira não estiver sendo usado, use a direção de movimento
-            if (aimDir == Vector2.zero)
-            {
-                launchDirection = moveDir;
-            }
-            else
-            {
-                launchDirection = aimDir;
-            }
-        }
-
-        // Se a direção de lançamento ainda for zero, use a direção para a qual o jogador está virado.
-        if (launchDirection == Vector2.zero)
-        {
-            launchDirection = transform.right;
-        }
-
-        // Garante que a direção é válida antes de tentar instanciar
-        if (launchDirection == Vector2.zero) return;
-
-        GameObject crownGO = Instantiate(crownPrefab, transform.position, Quaternion.identity);
-        currentCrown = crownGO.GetComponent<Crown>();
-
-        currentCrown.Initialize(launchDirection, transform, this, launchSpd, returnSpd, returnDelay, crownCollisionLayers);
-
-        hasCrown = false;
-    }
-
-    private void TeleportToCrown()
-    {
-        if (Time.time >= lastTeleportTime + teleportCooldown)
-        {
-            currentCrown.StartTeleport();
-            lastTeleportTime = Time.time;
-        }
-    }
-
     public void CrownReturned()
     {
-        currentCrown = null;
-        hasCrown = true;
-    }
-
-    public void SetInvulnerable()
-    {
-        if (isInvulnerable) return;
-
-        StartCoroutine(InvulnerabilityRoutine());
-    }
-
-    private IEnumerator InvulnerabilityRoutine()
-    {
-        isInvulnerable = true;
-
-        yield return new WaitForSeconds(invulnerabilityDuration);
-
-        isInvulnerable = false;
+        HasCrown = true;
     }
 }

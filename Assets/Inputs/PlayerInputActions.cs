@@ -101,9 +101,18 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""LaunchTeleport"",
+                    ""name"": ""Aim"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""aee4cf7f-9e45-499d-9db2-61802978b5aa"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ThrowCrown"",
                     ""type"": ""Button"",
-                    ""id"": ""c0b60714-efb1-4a75-8f1d-56a6cf6f3277"",
+                    ""id"": ""556c3ed2-1f91-44e6-92ce-2ebcacab6100"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -179,23 +188,45 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""22c8c7e2-88e1-4c99-bbb1-e988178ff629"",
-                    ""path"": ""<Mouse>/leftButton"",
+                    ""id"": ""b1baed0a-682d-491b-9eae-f93fde55bac5"",
+                    ""path"": ""<Gamepad>/rightStick"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""LaunchTeleport"",
+                    ""action"": ""Aim"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""accf30d7-15bf-48e7-b1c0-1b4a83ab3e23"",
-                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""id"": ""882c6d46-4452-4415-a675-adac38da2f30"",
+                    ""path"": ""<Mouse>/position"",
                     ""interactions"": """",
+                    ""processors"": ""DeltaTimeScale"",
+                    ""groups"": """",
+                    ""action"": ""Aim"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cb47109b-901e-4e5e-ae6b-0596dcf014fd"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": ""Press"",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""LaunchTeleport"",
+                    ""action"": ""ThrowCrown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c961f4d7-7cf4-4910-a706-2d32e59c6281"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ThrowCrown"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -207,7 +238,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
-        m_Player_LaunchTeleport = m_Player.FindAction("LaunchTeleport", throwIfNotFound: true);
+        m_Player_Aim = m_Player.FindAction("Aim", throwIfNotFound: true);
+        m_Player_ThrowCrown = m_Player.FindAction("ThrowCrown", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
@@ -289,7 +321,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Move;
-    private readonly InputAction m_Player_LaunchTeleport;
+    private readonly InputAction m_Player_Aim;
+    private readonly InputAction m_Player_ThrowCrown;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -306,9 +339,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Move => m_Wrapper.m_Player_Move;
         /// <summary>
-        /// Provides access to the underlying input action "Player/LaunchTeleport".
+        /// Provides access to the underlying input action "Player/Aim".
         /// </summary>
-        public InputAction @LaunchTeleport => m_Wrapper.m_Player_LaunchTeleport;
+        public InputAction @Aim => m_Wrapper.m_Player_Aim;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ThrowCrown".
+        /// </summary>
+        public InputAction @ThrowCrown => m_Wrapper.m_Player_ThrowCrown;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -338,9 +375,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
-            @LaunchTeleport.started += instance.OnLaunchTeleport;
-            @LaunchTeleport.performed += instance.OnLaunchTeleport;
-            @LaunchTeleport.canceled += instance.OnLaunchTeleport;
+            @Aim.started += instance.OnAim;
+            @Aim.performed += instance.OnAim;
+            @Aim.canceled += instance.OnAim;
+            @ThrowCrown.started += instance.OnThrowCrown;
+            @ThrowCrown.performed += instance.OnThrowCrown;
+            @ThrowCrown.canceled += instance.OnThrowCrown;
         }
 
         /// <summary>
@@ -355,9 +395,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
-            @LaunchTeleport.started -= instance.OnLaunchTeleport;
-            @LaunchTeleport.performed -= instance.OnLaunchTeleport;
-            @LaunchTeleport.canceled -= instance.OnLaunchTeleport;
+            @Aim.started -= instance.OnAim;
+            @Aim.performed -= instance.OnAim;
+            @Aim.canceled -= instance.OnAim;
+            @ThrowCrown.started -= instance.OnThrowCrown;
+            @ThrowCrown.performed -= instance.OnThrowCrown;
+            @ThrowCrown.canceled -= instance.OnThrowCrown;
         }
 
         /// <summary>
@@ -406,11 +449,18 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMove(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "LaunchTeleport" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Aim" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnLaunchTeleport(InputAction.CallbackContext context);
+        void OnAim(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ThrowCrown" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnThrowCrown(InputAction.CallbackContext context);
     }
 }
