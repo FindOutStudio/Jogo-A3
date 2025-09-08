@@ -7,6 +7,7 @@ public class CrownController : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 launchDir;
     private Vector3 initialPosition;
+    public bool IsStopped => rb.linearVelocity.magnitude < 0.1f;
 
     // Variáveis passadas pelo PlayerController
     private float maxDistance;
@@ -61,16 +62,16 @@ public class CrownController : MonoBehaviour
         // Se colidir com um objeto específico, ela para e retorna
         // Exemplo: Tag "Obstacle" ou Layer "Wall"
         if (other.CompareTag("Obstacle"))
-        {
-            rb.linearVelocity = Vector2.zero;
-            StartCoroutine(ReturnToPlayerAfterDelay());
-        }
+    {
+        rb.linearVelocity = Vector2.zero; // Para o movimento imediatamente
+        isReturning = true;         // Ativa o retorno direto
+    }
 
         // Se colidir com o jogador e já estiver retornando, ela "volta" para ele
         if (isReturning && other.gameObject == player.gameObject)
         {
-            player.CrownReturned(); // Chama o método do player
-            Destroy(gameObject); // Destrói a coroa
+            player.CrownReturned();
+            Destroy(gameObject);
         }
     }
 

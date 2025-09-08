@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 moveDir;
     private Vector2 aimDir;
     private PlayerInputActions inputActions;
+    private CrownController crownInstance;
 
     // --- Variáveis de Movimentação ---
     [Header("Movimentação")]
@@ -15,7 +16,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxSpd = 10f;
     [SerializeField] private float accel = 2f;
     [SerializeField] private float deccel = 2f;
-    [SerializeField] private float TurnVel = 3f;
 
     // --- Variáveis da Coroa e Teletransporte ---
     [Header("Coroa Bumerangue")]
@@ -25,8 +25,8 @@ public class PlayerController : MonoBehaviour
 
 
     // --- Variáveis de Lançamento da Coroa ---
-    [SerializeField] private float MaxDistance = 10f;
-    [SerializeField] private float VelLaunch = 15f;
+    [SerializeField] private float MaxDistance = 8f;
+    [SerializeField] private float VelLaunch = 10f;
     [SerializeField] private float VelReturn = 10f;
     [SerializeField] private float Delay = 0.5f;
 
@@ -42,7 +42,7 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.Enable();
         inputActions.Player.Move.performed += OnMovePerformed;
         inputActions.Player.Move.canceled += OnMoveCanceled;
-        inputActions.Player.Aim.performed += OnAimPerformed; 
+        inputActions.Player.Aim.performed += OnAimPerformed;
         inputActions.Player.Aim.canceled += OnAimCanceled;
         inputActions.Player.ThrowCrown.performed += OnThrowCrownPerformed;
 
@@ -82,12 +82,17 @@ public class PlayerController : MonoBehaviour
     private void OnThrowCrownPerformed(InputAction.CallbackContext ctx)
     {
         if (HasCrown)
-        {
-            HasCrown = false;
-            LaunchCrown();
-        }
+    {
+        HasCrown = false;
+        LaunchCrown();
     }
-
+    else if (crownInstance != null)
+    {
+        TeleportToCrown(crownInstance.transform.position);
+        Destroy(crownInstance.gameObject);
+        crownInstance = null;
+    }
+    }
 
 
     void Update()
@@ -98,15 +103,9 @@ public class PlayerController : MonoBehaviour
         }
 
         // Lógica de mira para o mouse
-        if (InputSystem.GetDevice<Keyboard>()?.IsActuated(1) == true || InputSystem.GetDevice<Mouse>()?.IsActuated(1) == true)
         {
-            // Pega a posição do mouse na tela e converte para o mundo do jogo
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             aimDir = (mousePos - transform.position).normalized;
-        }
-        else if (aimDir.sqrMagnitude == 0) // Se não estiver usando o mouse, use a direção do movimento para a mira
-        {
-            aimDir = moveDir;
         }
 
     }
@@ -136,12 +135,19 @@ public class PlayerController : MonoBehaviour
 
     void LaunchCrown()
     {
-        // Instancia a coroa e a inicializa
         CrownController newCrown = Instantiate(crownPrefab, crownLaunchPoint.position, Quaternion.identity);
-        newCrown.Initialize(this, aimDir, MaxDistance, VelLaunch, VelReturn, Delay);
+        newCrown.Initialize(this, aimDir.normalized, MaxDistance, VelLaunch, VelReturn, Delay);
+        crownInstance = newCrown;
     }
     public void CrownReturned()
     {
+        HasCrown = true;
+        Debug.Log("Coroa retornou! Pode lançar novamente.");
+    }
+    
+    public void TeleportToCrown(Vector3 crownPosition)
+    {
+        transform.position = crownPosition;
         HasCrown = true;
     }
 }
