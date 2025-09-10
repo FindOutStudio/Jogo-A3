@@ -770,6 +770,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 6263449837906887648, guid: 595038b53ba4a9c4db6bb86a3bb66b63, type: 3}
+      propertyPath: VelLaunch
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 6263449837906887648, guid: 595038b53ba4a9c4db6bb86a3bb66b63, type: 3}
+      propertyPath: VelReturn
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 8044775217846974058, guid: 595038b53ba4a9c4db6bb86a3bb66b63, type: 3}
       propertyPath: m_LocalPosition.x
       value: -11.385845
@@ -993,7 +1001,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.44313726, g: 0.6313726, b: 0.34901962, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1207,7 +1215,7 @@ Transform:
   m_GameObject: {fileID: 2053987282}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.06, y: -9.46, z: 0}
+  m_LocalPosition: {x: 1.06, y: -9.73, z: 0}
   m_LocalScale: {x: 31.917154, y: 0.525, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

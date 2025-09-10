@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float deccel = 2f;
 
     // --- Variáveis da Coroa e Teletransporte ---
-    [Header("Coroa Bumerangue")]
+    [Header("Coroa e Lançamento")]
     [SerializeField] private CrownController crownPrefab;
     [SerializeField] private Transform crownLaunchPoint;
     public bool HasCrown { get; private set; } = true;
@@ -82,16 +82,16 @@ public class PlayerController : MonoBehaviour
     private void OnThrowCrownPerformed(InputAction.CallbackContext ctx)
     {
         if (HasCrown)
-    {
+        {
         HasCrown = false;
         LaunchCrown();
-    }
+        }
     else if (crownInstance != null)
-    {
+        {
         TeleportToCrown(crownInstance.transform.position);
         Destroy(crownInstance.gameObject);
         crownInstance = null;
-    }
+        }
     }
 
 
@@ -103,16 +103,15 @@ public class PlayerController : MonoBehaviour
         }
 
         // Lógica de mira para o mouse
-        {
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            aimDir = (mousePos - transform.position).normalized;
-        }
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        aimDir = (mousePos - transform.position).normalized;
 
     }
 
     void FixedUpdate()
     {
         HandleMovement();
+
     }
 
     void HandleMovement()
