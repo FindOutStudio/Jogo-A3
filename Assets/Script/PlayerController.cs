@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 aimDir;
     private PlayerInputActions inputActions;
     private CrownController crownInstance;
+    public ParticleSystem dust;
 
     // --- Variáveis de Movimentação ---
     [Header("Movimentação")]
@@ -116,6 +117,7 @@ public class PlayerController : MonoBehaviour
 
     void HandleMovement()
     {
+       
         Vector2 targetVelocity = moveDir * moveSpd;
         Vector2 force;
 
@@ -148,5 +150,10 @@ public class PlayerController : MonoBehaviour
     {
         transform.position = crownPosition;
         HasCrown = true;
+    }
+
+    void CreateDust()
+    {
+        dust.Play();
     }
 }
