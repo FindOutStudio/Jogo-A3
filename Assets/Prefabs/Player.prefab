@@ -47,7 +47,7 @@ GameObject:
   - component: {fileID: 7782958148662901508}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -141,6 +141,7 @@ MonoBehaviour:
   deccel: 11
   crownPrefab: {fileID: 2531474156665532719, guid: 0d87a50486d9f1a43b3c847221efc097, type: 3}
   crownLaunchPoint: {fileID: 6903736971759105995}
+  rastroDeTeiaPrefab: {fileID: 2614509707347182237, guid: 9f8df620150e316448d18c185fdd686d, type: 3}
   MaxDistance: 6
   VelLaunch: 15
   VelReturn: 20

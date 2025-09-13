@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private CrownController crownPrefab;
     [SerializeField] private Transform crownLaunchPoint;
     public bool HasCrown { get; private set; } = true;
+    public GameObject rastroDeTeiaPrefab;
 
 
     // --- Variáveis de Lançamento da Coroa ---
@@ -143,10 +144,27 @@ public class PlayerController : MonoBehaviour
         HasCrown = true;
         Debug.Log("Coroa retornou! Pode lançar novamente.");
     }
-    
+
     public void TeleportToCrown(Vector3 crownPosition)
     {
+        Vector3 oldPlayerPosition = transform.position;
+
         transform.position = crownPosition;
         HasCrown = true;
+
+        Vector3 direction = crownPosition - oldPlayerPosition;
+        float distance = direction.magnitude;
+        Vector3 midpoint = oldPlayerPosition + (direction / 2f);
+
+        GameObject novoRastro = Instantiate(rastroDeTeiaPrefab, midpoint, Quaternion.identity);
+
+        novoRastro.transform.LookAt(crownPosition);
+
+        Vector3 newScale = novoRastro.transform.localScale;
+        newScale.z = distance;
+        novoRastro.transform.localScale = newScale;
+
+        ParticleSystem ps = novoRastro.GetComponent<ParticleSystem>();
+        Destroy(novoRastro, ps.main.duration);
     }
 }
