@@ -84,16 +84,32 @@ public class PlayerController : MonoBehaviour
     {
         if (HasCrown)
         {
-        HasCrown = false;
-        LaunchCrown();
+            HasCrown = false;
+
+            // 1) Recalcula a direção da mira na hora do disparo
+            Vector2 dir;
+            if (Gamepad.current != null && Gamepad.current.rightStick.IsActuated())
+            {
+                dir = inputActions.Player.Aim.ReadValue<Vector2>();
+                if (dir.sqrMagnitude > 1f) dir.Normalize();
+            }
+            else
+            {
+                Vector3 mouseW = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+                dir = ((Vector2)(mouseW - crownLaunchPoint.position)).normalized;
+            }
+
+            // 2) Passa essa direção diretamente pro lançamento
+            LaunchCrown(dir);
         }
-    else if (crownInstance != null)
+        else if (crownInstance != null)
         {
-        TeleportToCrown(crownInstance.transform.position);
-        Destroy(crownInstance.gameObject);
-        crownInstance = null;
+            TeleportToCrown(crownInstance.transform.position);
+            Destroy(crownInstance.gameObject);
+            crownInstance = null;
         }
     }
+
 
 
     void Update()
@@ -105,9 +121,26 @@ public class PlayerController : MonoBehaviour
 
         // Lógica de mira para o mouse
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        aimDir = (mousePos - transform.position).normalized;
+        Vector2 mouseAim = (mousePos - transform.position).normalized;
 
-    }
+        // Checa se o gamepad está conectado e o stick direito está ativo
+        if (Gamepad.current != null && Gamepad.current.rightStick.IsActuated())
+        {
+            // Se o stick está sendo usado, use a direção dele
+            aimDir = inputActions.Player.Aim.ReadValue<Vector2>();
+
+            // Normaliza a direção da mira do gamepad, pois o stick pode não chegar a 1.0
+            if (aimDir.sqrMagnitude > 1f)
+            {
+                aimDir.Normalize();
+            }
+        }
+        else
+        {
+            // Se o gamepad não estiver ativo, use a mira do mouse
+            aimDir = mouseAim;
+        }
+}
 
     void FixedUpdate()
     {
@@ -133,12 +166,27 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = Vector2.ClampMagnitude(rb.linearVelocity, maxSpd);
     }
 
-    void LaunchCrown()
+    void LaunchCrown(Vector2 launchDirection)
     {
-        CrownController newCrown = Instantiate(crownPrefab, crownLaunchPoint.position, Quaternion.identity);
-        newCrown.Initialize(this, aimDir.normalized, MaxDistance, VelLaunch, VelReturn, Delay);
+        CrownController newCrown = Instantiate(
+            crownPrefab,
+            crownLaunchPoint.position,
+            Quaternion.identity
+        );
+
+        // passa a direção recalculada
+        newCrown.Initialize(
+            this,
+            launchDirection,
+            MaxDistance,
+            VelLaunch,
+            VelReturn,
+            Delay
+        );
+
         crownInstance = newCrown;
     }
+
     public void CrownReturned()
     {
         HasCrown = true;

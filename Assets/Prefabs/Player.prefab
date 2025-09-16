@@ -145,7 +145,7 @@ MonoBehaviour:
   MaxDistance: 5
   VelLaunch: 15
   VelReturn: 20
-  Delay: 0.7
+  Delay: 0.5
 --- !u!50 &362850839701047152
 Rigidbody2D:
   serializedVersion: 5
