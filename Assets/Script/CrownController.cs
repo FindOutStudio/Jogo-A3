@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 public class CrownController : MonoBehaviour
@@ -14,6 +14,7 @@ public class CrownController : MonoBehaviour
     private float velLaunch;
     private float velReturn;
     private float delay;
+
 
     private bool isReturning = false;
 
@@ -50,6 +51,8 @@ public class CrownController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (player == null) return;
+
         if (isReturning)
         {
             Vector2 returnDir = (player.transform.position - transform.position).normalized;
@@ -59,13 +62,15 @@ public class CrownController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (player == null) return;
+
         // Se colidir com um objeto específico, ela para e retorna
         // Exemplo: Tag "Obstacle" ou Layer "Wall"
         if (other.CompareTag("Obstacle"))
-    {
-        rb.linearVelocity = Vector2.zero; // Para o movimento imediatamente
-        isReturning = true;         // Ativa o retorno direto
-    }
+        {
+            rb.linearVelocity = Vector2.zero; // Para o movimento imediatamente
+            isReturning = true;         // Ativa o retorno direto
+        }
 
         // Se colidir com o jogador e já estiver retornando, ela "volta" para ele
         if (isReturning && other.gameObject == player.gameObject)

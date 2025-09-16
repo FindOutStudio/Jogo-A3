@@ -135,6 +135,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a2f57337d5c82e428a0ce413524bb07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  webDamageZonePrefab: {fileID: 2540552615738515958, guid: 5de9f779335f5cd4ca08a8989a166838, type: 3}
+  teleportEffect: {fileID: 0}
   moveSpd: 7
   maxSpd: 10
   accel: 16
@@ -142,7 +144,7 @@ MonoBehaviour:
   crownPrefab: {fileID: 2531474156665532719, guid: 0d87a50486d9f1a43b3c847221efc097, type: 3}
   crownLaunchPoint: {fileID: 6903736971759105995}
   rastroDeTeiaPrefab: {fileID: 2614509707347182237, guid: 9f8df620150e316448d18c185fdd686d, type: 3}
-  MaxDistance: 5
+  MaxDistance: 15
   VelLaunch: 15
   VelReturn: 20
   Delay: 0.5
