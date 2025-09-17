@@ -166,14 +166,18 @@ MonoBehaviour:
   lookAroundSpeed: 60
   chaseSpeed: 3.5
   chaseDuration: 5
-  attackCooldown: 3
+  attackCooldown: 1.5
   formationRadius: 2
   formationSlot: -1
   damageAmount: 1
-  retreatSpeed: 6
+  retreatSpeed: 7
   retreatDuration: 0.3
   postAttackDelay: 0.5
   ignoreCollisionTime: 0.4
+  playerTransform: {fileID: 0}
+  patrolWaitTime: 1
+  visionRange: 8
+  visionAngle: 360
 --- !u!58 &7946973999830222240
 CircleCollider2D:
   m_ObjectHideFlags: 0

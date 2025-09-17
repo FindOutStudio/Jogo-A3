@@ -144,7 +144,7 @@ MonoBehaviour:
   crownPrefab: {fileID: 2531474156665532719, guid: 0d87a50486d9f1a43b3c847221efc097, type: 3}
   crownLaunchPoint: {fileID: 6903736971759105995}
   rastroDeTeiaPrefab: {fileID: 2614509707347182237, guid: 9f8df620150e316448d18c185fdd686d, type: 3}
-  MaxDistance: 15
+  MaxDistance: 5
   VelLaunch: 15
   VelReturn: 20
   Delay: 0.5
