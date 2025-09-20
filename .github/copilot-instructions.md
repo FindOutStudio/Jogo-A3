@@ -1,13 +1,8 @@
 <!-- UNITY CODE ASSIST INSTRUCTIONS START -->
-- Project name: JOGO A3
+- Project name: Jogo-A3
 - Unity version: Unity 6000.0.51f1
-- Active scene:
-  - Tags:
-    - Untagged, Respawn, Finish, EditorOnly, MainCamera, Player, GameController, Enemy, Obstacle
-  - Layers:
-    - Default, TransparentFX, Ignore Raycast, CrownColision, Water, UI, Player, Enemy, Crown, Web
 - Active game object:
-  - Name: webDamageZonePrefab
+  - Name: Grid
   - Tag: Untagged
   - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

@@ -13,7 +13,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject teleportEffect;
 
 
-
     // --- Variáveis de Movimentação ---
     [Header("Movimentação")]
     [SerializeField] private float moveSpd = 5f;
@@ -59,17 +58,17 @@ public class PlayerController : MonoBehaviour
     }
 
     private void OnDisable()
-{
-    if (inputActions != null)
     {
-        inputActions.Player.Move.performed -= OnMovePerformed;
-        inputActions.Player.Move.canceled -= OnMoveCanceled;
-        inputActions.Player.Aim.performed -= OnAimPerformed;
-        inputActions.Player.Aim.canceled -= OnAimCanceled;
-        inputActions.Player.ThrowCrown.performed -= OnThrowCrownPerformed;
-        inputActions.Player.Disable();
+        if (inputActions != null)
+        {
+            inputActions.Player.Move.performed -= OnMovePerformed;
+            inputActions.Player.Move.canceled -= OnMoveCanceled;
+            inputActions.Player.Aim.performed -= OnAimPerformed;
+            inputActions.Player.Aim.canceled -= OnAimCanceled;
+            inputActions.Player.ThrowCrown.performed -= OnThrowCrownPerformed;
+            inputActions.Player.Disable();
+        }
     }
-}
 
     private void OnMovePerformed(InputAction.CallbackContext ctx)
     {
@@ -81,7 +80,6 @@ public class PlayerController : MonoBehaviour
         moveDir = Vector2.zero;
     }
 
-    // Gerencia a mira do gamepad
     private void OnAimPerformed(InputAction.CallbackContext ctx)
     {
         aimDir = ctx.ReadValue<Vector2>();
@@ -94,11 +92,10 @@ public class PlayerController : MonoBehaviour
 
     public void OnThrowCrownPerformed(InputAction.CallbackContext context)
     {
-        if (!context.performed || !HasCrown) return;
+        if (!context.performed) return;
 
-        Vector2 dir = Vector2.right; // direção padrão, evita erro CS0165
+        Vector2 dir = Vector2.right;
 
-        // Calcula direção da mira
         if (Gamepad.current != null && Gamepad.current.rightStick.IsActuated())
         {
             dir = inputActions.Player.Aim.ReadValue<Vector2>();
@@ -110,18 +107,44 @@ public class PlayerController : MonoBehaviour
             dir = ((Vector2)(mouseW - crownLaunchPoint.position)).normalized;
         }
 
-        // Se ainda não lançou a coroa
-        if (crownInstance == null)
+        if (HasCrown)
         {
             LaunchCrown(dir);
         }
-        // Se já lançou, teleporta
-        else
+        else if (crownInstance != null)
         {
-            TeleportToCrown(crownInstance.transform.position);
+            Vector3 ricochetPoint = crownInstance.GetLastRicochetPoint();
+
+            // Se a coroa não ricocheteou, o ponto de ricochete é Vector3.zero.
+            // Neste caso, vamos desenhar o rastro em linha reta, do jogador até a coroa.
+            if (ricochetPoint == Vector3.zero)
+            {
+                Vector3 playerPos = transform.position;
+                Vector3 crownPos = crownInstance.transform.position;
+
+                Vector3 direction = crownPos - playerPos;
+                float distance = direction.magnitude;
+                Vector3 midpoint = playerPos + direction / 2f;
+
+                GameObject zonaDeDano = Instantiate(webDamageZonePrefab, midpoint, Quaternion.identity);
+                zonaDeDano.transform.right = direction.normalized;
+                zonaDeDano.transform.localScale = new Vector3(distance, 0.2f, 1f);
+
+                transform.position = crownPos;
+                if (teleportEffect != null)
+                {
+                    Instantiate(teleportEffect, transform.position, Quaternion.identity);
+                }
+            }
+            else // A coroa ricocheteou, desenhamos o rastro em duas partes
+            {
+                TeleportAndDrawWeb(crownInstance.transform.position, ricochetPoint);
+            }
+
+            // Destrói a coroa e libera o lançamento
             Destroy(crownInstance.gameObject);
             crownInstance = null;
-            CrownReturned(); // libera novo lançamento
+            CrownReturned();
         }
     }
 
@@ -132,17 +155,13 @@ public class PlayerController : MonoBehaviour
             moveDir.Normalize();
         }
 
-        // Lógica de mira para o mouse
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 mouseAim = (mousePos - transform.position).normalized;
 
-        // Checa se o gamepad está conectado e o stick direito está ativo
         if (Gamepad.current != null && Gamepad.current.rightStick.IsActuated())
         {
-            // Se o stick está sendo usado, use a direção dele
             aimDir = inputActions.Player.Aim.ReadValue<Vector2>();
 
-            // Normaliza a direção da mira do gamepad, pois o stick pode não chegar a 1.0
             if (aimDir.sqrMagnitude > 1f)
             {
                 aimDir.Normalize();
@@ -150,7 +169,6 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            // Se o gamepad não estiver ativo, use a mira do mouse
             aimDir = mouseAim;
         }
     }
@@ -158,7 +176,6 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         HandleMovement();
-
     }
 
     void HandleMovement()
@@ -187,58 +204,63 @@ public class PlayerController : MonoBehaviour
             Quaternion.identity
         );
 
-        // passa a direção recalculada
         newCrown.Initialize(
             this,
             launchDirection,
             MaxDistance,
             VelLaunch,
             VelReturn,
-            Delay
+            Delay,
+            rastroDeTeiaPrefab
         );
 
         crownInstance = newCrown;
+        HasCrown = false;
     }
 
     public void CrownReturned()
     {
         HasCrown = true;
-        Debug.Log("Coroa retornou! Pode lançar novamente.");
     }
 
-    private void TeleportToCrown(Vector3 crownPosition)
+    private void TeleportAndDrawWeb(Vector3 crownPosition, Vector3 ricochetPoint)
     {
-        // Calcula direção e distância entre jogador e coroa
-        Vector3 direction = crownPosition - transform.position;
-        float distance = direction.magnitude;
-        Vector3 midpoint = transform.position + direction / 2f;
+        Vector3 playerPos = transform.position;
 
-        // Instancia o rastro físico (dano)
-        GameObject zonaDeDano = Instantiate(webDamageZonePrefab, midpoint, Quaternion.identity);
-        zonaDeDano.transform.right = direction.normalized;
-        zonaDeDano.transform.localScale = new Vector3(distance, 0.2f, 1f); // fino no eixo Y
+        if (ricochetPoint != Vector3.zero)
+        {
+            Vector3 direction1 = ricochetPoint - playerPos;
+            float distance1 = direction1.magnitude;
+            Vector3 midpoint1 = playerPos + direction1 / 2f;
 
-        // Teleporta o jogador para a coroa
+            GameObject zonaDeDano1 = Instantiate(webDamageZonePrefab, midpoint1, Quaternion.identity);
+            zonaDeDano1.transform.right = direction1.normalized;
+            zonaDeDano1.transform.localScale = new Vector3(distance1, 0.2f, 1f);
+        }
+
+        Vector3 direction2 = crownPosition - ricochetPoint;
+        float distance2 = direction2.magnitude;
+        Vector3 midpoint2 = ricochetPoint + direction2 / 2f;
+
+        GameObject zonaDeDano2 = Instantiate(webDamageZonePrefab, midpoint2, Quaternion.identity);
+        zonaDeDano2.transform.right = direction2.normalized;
+        zonaDeDano2.transform.localScale = new Vector3(distance2, 0.2f, 1f);
+
         transform.position = crownPosition;
 
-        // Efeito visual de teleporte (se houver)
         if (teleportEffect != null)
         {
             Instantiate(teleportEffect, transform.position, Quaternion.identity);
         }
-
-        // Libera o lançamento novamente
-        CrownReturned();
     }
 
 
     public void TakeDamage(int amount)
-{
-    if (isInvulnerable) return;
+    {
+        if (isInvulnerable) return;
 
-    StartCoroutine(DamageFlash());
-    // Aqui você pode reduzir vida, etc.
-}
+        StartCoroutine(DamageFlash());
+    }
 
     private IEnumerator DamageFlash()
     {
@@ -257,5 +279,4 @@ public class PlayerController : MonoBehaviour
 
         isInvulnerable = false;
     }
-
 }

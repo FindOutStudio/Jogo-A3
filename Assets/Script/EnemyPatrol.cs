@@ -41,8 +41,11 @@ public class EnemyPatrol : MonoBehaviour
     public int formationSlot = -1;
     private bool isAttacking = false;
     [SerializeField] private int damageAmount = 1;
+
+    // NOVAS VARIÁVEIS para o recuo
     [SerializeField] private float retreatSpeed = 6f;
     [SerializeField] private float retreatDuration = 0.3f;
+
     [SerializeField] private float postAttackDelay = 0.5f;
     [SerializeField] private float ignoreCollisionTime = 0.4f;
     [SerializeField] private Transform playerTransform;
@@ -224,7 +227,6 @@ public class EnemyPatrol : MonoBehaviour
         currentState = EnemyState.Attacking;
         isAttacking = true;
 
-        // ✅ Verifica cooldown antes de tudo
         if (Time.time < lastAttackTime + attackCooldown)
         {
             Debug.Log($"{name} está em cooldown de ataque.");
@@ -232,18 +234,15 @@ public class EnemyPatrol : MonoBehaviour
             yield break;
         }
 
-        // ✅ Tenta entrar na fila de ataque
         while (!AttackQueueManager.Instance.RequestAttackSlot(this))
         {
             Debug.Log($"{name} esperando vaga na fila...");
             yield return new WaitForSeconds(0.5f);
         }
 
-        // ✅ Calcula posição na formação
         formationSlot = AttackQueueManager.Instance.GetQueueIndex(this);
         Vector3 targetPos = GetFormationPosition();
 
-        // ✅ Aproximação suave até a posição de ataque
         while (Vector2.Distance(transform.position, targetPos) > 0.5f)
         {
             Vector2 dir = (targetPos - transform.position).normalized;
@@ -256,13 +255,11 @@ public class EnemyPatrol : MonoBehaviour
             yield return null;
         }
 
-        // ✅ Executa ataque
         Debug.Log($"{name} atacou o jogador!");
         lastAttackTime = Time.time;
 
-        yield return new WaitForSeconds(2f); // tempo de ataque
+        yield return new WaitForSeconds(2f);
 
-        // ✅ Libera slot e volta à perseguição
         AttackQueueManager.Instance.ReleaseSlot(this);
         isAttacking = false;
         currentState = EnemyState.Chasing;
@@ -276,7 +273,6 @@ public class EnemyPatrol : MonoBehaviour
         float angleStep = 360f / AttackQueueManager.Instance.maxAttackers;
         float angle = formationSlot * angleStep;
 
-        // ✅ Espaçamento extra para evitar sobreposição com o jogador
         float spacing = formationRadius + 1f + 0.5f * formationSlot;
 
         Vector3 offset = new Vector3(
@@ -309,9 +305,9 @@ public class EnemyPatrol : MonoBehaviour
         isAttacking = true;
 
         // Aplica dano imediato
-        playerController.TakeDamage(1); // ou use damageAmount se tiver
+        //playerController.TakeDamage(1); // ou use damageAmount se tiver
 
-        // Recuo visual
+        // Recuo visual (agora usa as novas variáveis)
         Vector2 retreatDir = (transform.position - playerController.transform.position).normalized;
         float timer = 0f;
 
@@ -342,45 +338,42 @@ public class EnemyPatrol : MonoBehaviour
         float angle = Vector2.Angle(transform.right, dirToPlayer.normalized);
         return angle < visionAngle / 2f;
     }
-    
+
     void OnDrawGizmosSelected()
-{
-    if (player == null) return;
-
-    Gizmos.color = CanSeePlayer(false) ? Color.red : Color.cyan;
-
-    Vector3 origin = transform.position;
-    Vector3 forward = transform.right;
-
-    float halfAngle = viewAngle / 2f;
-    Quaternion leftRayRotation = Quaternion.Euler(0, 0, -halfAngle);
-    Quaternion rightRayRotation = Quaternion.Euler(0, 0, halfAngle);
-
-    Vector3 leftRayDirection = leftRayRotation * forward;
-    Vector3 rightRayDirection = rightRayRotation * forward;
-
-    Gizmos.DrawLine(origin, origin + leftRayDirection * viewDistance);
-    Gizmos.DrawLine(origin, origin + rightRayDirection * viewDistance);
-
-    int segments = 20;
-    for (int i = 0; i <= segments; i++)
     {
-        float angle = -halfAngle + (viewAngle * i / segments);
-        Quaternion segmentRotation = Quaternion.Euler(0, 0, angle);
-        Vector3 segmentDirection = segmentRotation * forward;
-        Gizmos.DrawLine(origin, origin + segmentDirection * viewDistance);
-    }
+        if (player == null) return;
 
-    Gizmos.color = Color.yellow;
-    if (patrolPoints != null)
-    {
-        foreach (Transform point in patrolPoints)
+        Gizmos.color = CanSeePlayer(false) ? Color.red : Color.cyan;
+
+        Vector3 origin = transform.position;
+        Vector3 forward = transform.right;
+
+        float halfAngle = viewAngle / 2f;
+        Quaternion leftRayRotation = Quaternion.Euler(0, 0, -halfAngle);
+        Quaternion rightRayRotation = Quaternion.Euler(0, 0, halfAngle);
+
+        Vector3 leftRayDirection = leftRayRotation * forward;
+        Vector3 rightRayDirection = rightRayRotation * forward;
+
+        Gizmos.DrawLine(origin, origin + leftRayDirection * viewDistance);
+        Gizmos.DrawLine(origin, origin + rightRayDirection * viewDistance);
+
+        int segments = 20;
+        for (int i = 0; i <= segments; i++)
         {
-            Gizmos.DrawSphere(point.position, 0.2f);
+            float angle = -halfAngle + (viewAngle * i / segments);
+            Quaternion segmentRotation = Quaternion.Euler(0, 0, angle);
+            Vector3 segmentDirection = segmentRotation * forward;
+            Gizmos.DrawLine(origin, origin + segmentDirection * viewDistance);
+        }
+
+        Gizmos.color = Color.yellow;
+        if (patrolPoints != null)
+        {
+            foreach (Transform point in patrolPoints)
+            {
+                Gizmos.DrawSphere(point.position, 0.2f);
+            }
         }
     }
-}
-
-
-
 }

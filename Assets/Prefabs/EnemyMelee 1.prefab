@@ -170,7 +170,7 @@ MonoBehaviour:
   formationRadius: 2
   formationSlot: -1
   damageAmount: 1
-  retreatSpeed: 7
+  retreatSpeed: 2
   retreatDuration: 0.3
   postAttackDelay: 0.5
   ignoreCollisionTime: 0.4

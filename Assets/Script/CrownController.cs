@@ -8,13 +8,13 @@ public class CrownController : MonoBehaviour
     private Vector2 launchDir;
     private Vector3 initialPosition;
     public bool IsStopped => rb.linearVelocity.magnitude < 0.1f;
+    private Vector3 lastRicochetPoint;
 
-    // Variáveis passadas pelo PlayerController
     private float maxDistance;
     private float velLaunch;
     private float velReturn;
     private float delay;
-
+    public GameObject rastroPrefab;
 
     private bool isReturning = false;
 
@@ -23,7 +23,7 @@ public class CrownController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
-    public void Initialize(PlayerController playerRef, Vector2 direction, float maxDist, float launchSpd, float returnSpd, float delayTime)
+    public void Initialize(PlayerController playerRef, Vector2 direction, float maxDist, float launchSpd, float returnSpd, float delayTime, GameObject webTrailPrefab)
     {
         player = playerRef;
         launchDir = direction;
@@ -32,18 +32,19 @@ public class CrownController : MonoBehaviour
         velReturn = returnSpd;
         delay = delayTime;
 
+        rastroPrefab = webTrailPrefab;
+
         initialPosition = transform.position;
-        rb.linearVelocity = launchDir * velLaunch;
+        rb.AddForce(launchDir * velLaunch, ForceMode2D.Impulse);
     }
 
     void Update()
     {
         if (!isReturning)
         {
-            // Checa se a coroa alcançou a distância máxima
             if (Vector3.Distance(initialPosition, transform.position) >= maxDistance)
             {
-                rb.linearVelocity = Vector2.zero; // Para de se mover
+                rb.linearVelocity = Vector2.zero;
                 StartCoroutine(ReturnToPlayerAfterDelay());
             }
         }
@@ -53,30 +54,52 @@ public class CrownController : MonoBehaviour
     {
         if (player == null) return;
 
-        if (isReturning)
-        {
-            Vector2 returnDir = (player.transform.position - transform.position).normalized;
-            rb.linearVelocity = returnDir * velReturn;
-        }
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (player == null) return;
-
-        // Se colidir com um objeto específico, ela para e retorna
-        // Exemplo: Tag "Obstacle" ou Layer "Wall"
-        if (other.CompareTag("Obstacle"))
-        {
-            rb.linearVelocity = Vector2.zero; // Para o movimento imediatamente
-            isReturning = true;         // Ativa o retorno direto
-        }
-
-        // Se colidir com o jogador e já estiver retornando, ela "volta" para ele
-        if (isReturning && other.gameObject == player.gameObject)
+        // Nova verificação de distância para destruir a coroa
+        if (isReturning && Vector3.Distance(transform.position, player.transform.position) < 0.5f)
         {
             player.CrownReturned();
             Destroy(gameObject);
+            return;
+        }
+
+        if (isReturning)
+        {
+            Vector2 returnDir = (player.transform.position - transform.position).normalized;
+            rb.velocity = returnDir * velReturn;
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (isReturning) return;
+
+        if (collision.gameObject.CompareTag("Obstacle"))
+        {
+            lastRicochetPoint = collision.contacts[0].point;
+
+            Vector2 incomingDirection = rb.linearVelocity.normalized;
+            Vector2 normal = collision.contacts[0].normal;
+            Vector2 newDirection = Vector2.Reflect(incomingDirection, normal);
+
+            rb.velocity = Vector2.zero;
+            rb.AddForce(newDirection * velLaunch, ForceMode2D.Impulse);
+
+            if (rastroPrefab != null)
+            {
+                GameObject newRastro = Instantiate(rastroPrefab, collision.contacts[0].point, Quaternion.identity);
+                newRastro.transform.right = newDirection;
+            }
+        }
+    }
+
+    // O OnTriggerEnter2D também foi simplificado, ele não destrói mais a coroa
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            // A coroa para de se mover quando toca o jogador
+            rb.velocity = Vector2.zero;
+            isReturning = false;
         }
     }
 
@@ -84,5 +107,10 @@ public class CrownController : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         isReturning = true;
+    }
+
+    public Vector3 GetLastRicochetPoint()
+    {
+        return lastRicochetPoint;
     }
 }
