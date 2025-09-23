@@ -42,6 +42,9 @@ public class EnemyPatrol : MonoBehaviour
     private bool isAttacking = false;
     [SerializeField] private int damageAmount = 1;
 
+    [Header("Dano")]
+    public int meleeDamage = 10;
+
     // NOVAS VARIÁVEIS para o recuo
     [SerializeField] private float retreatSpeed = 6f;
     [SerializeField] private float retreatDuration = 0.3f;
@@ -218,9 +221,6 @@ public class EnemyPatrol : MonoBehaviour
 
         currentBehavior = StartCoroutine(PatrolRoutine());
     }
-
-
-
     private IEnumerator AttackRoutine()
     {
         Debug.Log($"{name} entrou na AttackRoutine");
@@ -337,6 +337,18 @@ public class EnemyPatrol : MonoBehaviour
 
         float angle = Vector2.Angle(transform.right, dirToPlayer.normalized);
         return angle < visionAngle / 2f;
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            PlayerController playerController = collision.gameObject.GetComponent<PlayerController>();
+            if (playerController != null)
+            {
+                playerController.TakeDamage(meleeDamage); // CHAMA TAKE DAMAGE AQUI!
+            }
+        }
     }
 
     void OnDrawGizmosSelected()

@@ -15,6 +15,7 @@ public class CrownController : MonoBehaviour
     private float velReturn;
     private float delay;
     public GameObject rastroPrefab;
+    private bool canCollideWithObstacle = false;
 
     private bool isReturning = false;
 
@@ -36,6 +37,7 @@ public class CrownController : MonoBehaviour
 
         initialPosition = transform.position;
         rb.AddForce(launchDir * velLaunch, ForceMode2D.Impulse);
+        StartCoroutine(EnableCollisionAfterDelay());
     }
 
     void Update()
@@ -73,6 +75,8 @@ public class CrownController : MonoBehaviour
     {
         if (isReturning) return;
 
+        if (!canCollideWithObstacle) return;
+
         if (collision.gameObject.CompareTag("Obstacle"))
         {
             lastRicochetPoint = collision.contacts[0].point;
@@ -81,7 +85,8 @@ public class CrownController : MonoBehaviour
             Vector2 normal = collision.contacts[0].normal;
             Vector2 newDirection = Vector2.Reflect(incomingDirection, normal);
 
-            rb.velocity = Vector2.zero;
+            // Certifique-se de que a velocidade linear é totalmente zerada
+            rb.linearVelocity = Vector2.zero;
             rb.AddForce(newDirection * velLaunch, ForceMode2D.Impulse);
 
             if (rastroPrefab != null)
@@ -112,5 +117,11 @@ public class CrownController : MonoBehaviour
     public Vector3 GetLastRicochetPoint()
     {
         return lastRicochetPoint;
+    }
+
+    private IEnumerator EnableCollisionAfterDelay()
+    {
+        yield return new WaitForSeconds(0.1f);
+        canCollideWithObstacle = true;
     }
 }

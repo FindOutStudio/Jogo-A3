@@ -148,6 +148,11 @@ MonoBehaviour:
   VelLaunch: 15
   VelReturn: 20
   Delay: 0.5
+  dashForce: 100
+  dashDuration: 2
+  dashCooldown: 1
+  shadowPrefab: {fileID: 0}
+  shadowInterval: 0.1
 --- !u!50 &362850839701047152
 Rigidbody2D:
   serializedVersion: 5
@@ -249,6 +254,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 556c3ed2-1f91-44e6-92ce-2ebcacab6100
     m_ActionName: 'Player/ThrowCrown[/Mouse/leftButton,/XInputControllerWindows/rightTrigger]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 376d233d-8453-4666-a53a-7f9dbc6dbab8
+    m_ActionName: 'Player/Dash[/Keyboard/leftShift]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player

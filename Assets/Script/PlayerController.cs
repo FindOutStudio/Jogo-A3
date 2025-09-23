@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxSpd = 10f;
     [SerializeField] private float accel = 2f;
     [SerializeField] private float deccel = 2f;
+    private bool isDashing = false; // NOVA VARIÁVEL
 
     // --- Variáveis da Coroa e Teletransporte ---
     [Header("Coroa e Lançamento")]
@@ -34,6 +35,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float VelReturn = 10f;
     [SerializeField] private float Delay = 0.5f;
     private bool isInvulnerable = false;
+
+    [Header("Dash")]
+    [SerializeField] private float dashForce = 15f;
+    [SerializeField] private float dashDuration = 0.2f;
+    [SerializeField] private float dashCooldown = 1f;
+    private bool canDash = true;
+
+    [Header("Efeitos")]
+    [SerializeField] private GameObject shadowPrefab;
+    [SerializeField] private float shadowInterval = 0.05f;
 
 
 
@@ -53,6 +64,7 @@ public class PlayerController : MonoBehaviour
             inputActions.Player.Aim.performed += OnAimPerformed;
             inputActions.Player.Aim.canceled += OnAimCanceled;
             inputActions.Player.ThrowCrown.performed += OnThrowCrownPerformed;
+            inputActions.Player.Dash.performed += OnDashPerformed;
         }
 
     }
@@ -67,6 +79,7 @@ public class PlayerController : MonoBehaviour
             inputActions.Player.Aim.canceled -= OnAimCanceled;
             inputActions.Player.ThrowCrown.performed -= OnThrowCrownPerformed;
             inputActions.Player.Disable();
+            inputActions.Player.Dash.performed -= OnDashPerformed;
         }
     }
 
@@ -175,7 +188,10 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        HandleMovement();
+        if (!isDashing) // NOVA CONDIÇÃO
+        {
+            HandleMovement();
+        }
     }
 
     void HandleMovement()
@@ -279,4 +295,68 @@ public class PlayerController : MonoBehaviour
 
         isInvulnerable = false;
     }
+
+    public void OnDashPerformed(InputAction.CallbackContext context)
+    {
+        // Apenas realiza o dash se o botão foi pressionado E o jogador está se movendo
+        if (!context.performed || !canDash || moveDir == Vector2.zero)
+        {
+            return;
+        }
+
+        // A direção do dash será a direção exata do movimento
+        Vector2 dashDirection = moveDir.normalized;
+
+        StartCoroutine(DashRoutine(dashDirection));
+    }
+
+    private IEnumerator DashRoutine(Vector2 direction)
+    {
+        canDash = false;
+        isInvulnerable = true;
+        isDashing = true; // DEFINE COMO TRUE
+
+        // Desabilita todas as ações do jogador para que nenhum input funcione
+        inputActions.Player.Disable();
+
+        // Aplica o impulso do dash
+        rb.velocity = Vector2.zero; // Garante que não haja velocidade anterior
+        rb.AddForce(direction * dashForce, ForceMode2D.Impulse);
+
+        // Opcional: Para impedir que outras forças ajam durante o dash
+        float originalGravity = rb.gravityScale;
+        rb.gravityScale = 0;
+
+        float timer = 0f;
+        float intervalTimer = 0f;
+
+        // Loop que acontece durante toda a duração do dash
+        while (timer < dashDuration)
+        {
+            timer += Time.deltaTime;
+            intervalTimer += Time.deltaTime;
+
+            if (intervalTimer >= shadowInterval)
+            {
+                GameObject shadow = Instantiate(shadowPrefab, transform.position, transform.rotation);
+                Destroy(shadow, 0.5f);
+                intervalTimer = 0f;
+            }
+
+            yield return null;
+        }
+
+        rb.gravityScale = originalGravity;
+        isInvulnerable = false;
+        isDashing = false; // DEFINE COMO FALSE
+
+        // Reabilita as ações do jogador
+        inputActions.Player.Enable();
+
+        // Cooldown do dash
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
+    }
+
+
 }
