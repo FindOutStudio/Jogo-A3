@@ -2368,6 +2368,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8418984865395020449, guid: 595038b53ba4a9c4db6bb86a3bb66b63, type: 3}
+      propertyPath: m_Size.x
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 8418984865395020449, guid: 595038b53ba4a9c4db6bb86a3bb66b63, type: 3}
+      propertyPath: m_Size.y
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 8418984865395020449, guid: 595038b53ba4a9c4db6bb86a3bb66b63, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: f063fa933ed651d47b2cae924b5cfc2f, type: 3}
+    - target: {fileID: 8418984865395020449, guid: 595038b53ba4a9c4db6bb86a3bb66b63, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 4166179454481059635, guid: 595038b53ba4a9c4db6bb86a3bb66b63, type: 3}
@@ -3022,7 +3038,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 1
+  orthographic: 0
   orthographic size: 8.4
   m_Depth: -1
   m_CullingMask:
