@@ -45,6 +45,9 @@ public class PlayerController : MonoBehaviour
     [Header("Efeitos")]
     [SerializeField] private GameObject shadowPrefab;
     [SerializeField] private float shadowInterval = 0.05f;
+    [SerializeField] private Color flashColor = Color.red;
+    [SerializeField] private float flashDuration = 0.1f;
+    [SerializeField] private int flashCount = 3;
 
 
 
@@ -285,12 +288,12 @@ public class PlayerController : MonoBehaviour
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         Color originalColor = sr.color;
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < flashCount; i++)
         {
-            sr.color = Color.red;
-            yield return new WaitForSeconds(0.1f);
+            sr.color = flashColor;
+            yield return new WaitForSeconds(flashDuration);
             sr.color = originalColor;
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(flashDuration);
         }
 
         isInvulnerable = false;
@@ -320,7 +323,7 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.Disable();
 
         // Aplica o impulso do dash
-        rb.velocity = Vector2.zero; // Garante que não haja velocidade anterior
+        rb.linearVelocity = Vector2.zero; // Garante que não haja velocidade anterior
         rb.AddForce(direction * dashForce, ForceMode2D.Impulse);
 
         // Opcional: Para impedir que outras forças ajam durante o dash

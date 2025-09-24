@@ -85,10 +85,7 @@ public class CrownController : MonoBehaviour
             Vector2 normal = collision.contacts[0].normal;
             Vector2 newDirection = Vector2.Reflect(incomingDirection, normal);
 
-<<<<<<< Updated upstream
             // Certifique-se de que a velocidade linear é totalmente zerada
-=======
->>>>>>> Stashed changes
             rb.linearVelocity = Vector2.zero;
             rb.AddForce(newDirection * velLaunch, ForceMode2D.Impulse);
 

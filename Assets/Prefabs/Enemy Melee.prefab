@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: -4440151978022281884}
   - component: {fileID: 7946973999830222240}
   m_Layer: 7
-  m_Name: EnemyMelee 1
+  m_Name: Enemy Melee
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -170,6 +170,7 @@ MonoBehaviour:
   formationRadius: 2
   formationSlot: -1
   damageAmount: 1
+  meleeDamage: 10
   retreatSpeed: 2
   retreatDuration: 0.3
   postAttackDelay: 0.5

@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 579059414677622817}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.25122213, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -148,11 +148,11 @@ MonoBehaviour:
   VelLaunch: 15
   VelReturn: 20
   Delay: 0.5
-  dashForce: 100
-  dashDuration: 2
-  dashCooldown: 1
-  shadowPrefab: {fileID: 0}
-  shadowInterval: 0.1
+  dashForce: 25
+  dashDuration: 0.25
+  dashCooldown: 0.25
+  shadowPrefab: {fileID: 1375171563940659917, guid: 1f4f2a285f43d9f48b61884608492610, type: 3}
+  shadowInterval: 0.025
 --- !u!50 &362850839701047152
 Rigidbody2D:
   serializedVersion: 5
