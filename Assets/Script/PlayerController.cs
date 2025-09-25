@@ -107,62 +107,64 @@ public class PlayerController : MonoBehaviour
     }
 
     public void OnThrowCrownPerformed(InputAction.CallbackContext context)
+{
+    if (!context.performed) return;
+
+    // 1. Recálculo da direção da mira na hora do disparo (Gamepad ou Mouse)
+    Vector2 dir = Vector2.right; // Valor padrão
+
+    if (Gamepad.current != null && Gamepad.current.rightStick.IsActuated())
     {
-        if (!context.performed) return;
-
-        Vector2 dir = Vector2.right;
-
-        if (Gamepad.current != null && Gamepad.current.rightStick.IsActuated())
-        {
-            dir = inputActions.Player.Aim.ReadValue<Vector2>();
-            if (dir.sqrMagnitude > 1f) dir.Normalize();
-        }
-        else if (Mouse.current != null)
-        {
-            Vector3 mouseW = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-            dir = ((Vector2)(mouseW - crownLaunchPoint.position)).normalized;
-        }
-
-        if (HasCrown)
-        {
-            LaunchCrown(dir);
-        }
-        else if (crownInstance != null)
-        {
-            Vector3 ricochetPoint = crownInstance.GetLastRicochetPoint();
-
-            // Se a coroa não ricocheteou, o ponto de ricochete é Vector3.zero.
-            // Neste caso, vamos desenhar o rastro em linha reta, do jogador até a coroa.
-            if (ricochetPoint == Vector3.zero)
-            {
-                Vector3 playerPos = transform.position;
-                Vector3 crownPos = crownInstance.transform.position;
-
-                Vector3 direction = crownPos - playerPos;
-                float distance = direction.magnitude;
-                Vector3 midpoint = playerPos + direction / 2f;
-
-                GameObject zonaDeDano = Instantiate(webDamageZonePrefab, midpoint, Quaternion.identity);
-                zonaDeDano.transform.right = direction.normalized;
-                zonaDeDano.transform.localScale = new Vector3(distance, 0.2f, 1f);
-
-                transform.position = crownPos;
-                if (teleportEffect != null)
-                {
-                    Instantiate(teleportEffect, transform.position, Quaternion.identity);
-                }
-            }
-            else // A coroa ricocheteou, desenhamos o rastro em duas partes
-            {
-                TeleportAndDrawWeb(crownInstance.transform.position, ricochetPoint);
-            }
-
-            // Destrói a coroa e libera o lançamento
-            Destroy(crownInstance.gameObject);
-            crownInstance = null;
-            CrownReturned();
-        }
+        dir = inputActions.Player.Aim.ReadValue<Vector2>();
+        if (dir.sqrMagnitude > 1f) dir.Normalize();
     }
+    else if (Mouse.current != null)
+    {
+        Vector3 mouseW = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        dir = ((Vector2)(mouseW - crownLaunchPoint.position)).normalized;
+    }
+
+    if (HasCrown)
+    {
+        // 2. Lançamento da Coroa, passando a direção recalculada
+        LaunchCrown(dir);
+    }
+    else if (crownInstance != null)
+    {
+        // 3. Teletransporte para a Coroa com desenho de teia (reto ou ricochete)
+        Vector3 ricochetPoint = crownInstance.GetLastRicochetPoint();
+
+        if (ricochetPoint == Vector3.zero)
+        {
+            // Lógica de teletransporte em linha reta (detalhada no seu script)
+            Vector3 playerPos = transform.position;
+            Vector3 crownPos = crownInstance.transform.position;
+
+            Vector3 direction = crownPos - playerPos;
+            float distance = direction.magnitude;
+            Vector3 midpoint = playerPos + direction / 2f;
+
+            GameObject zonaDeDano = Instantiate(webDamageZonePrefab, midpoint, Quaternion.identity);
+            zonaDeDano.transform.right = direction.normalized;
+            zonaDeDano.transform.localScale = new Vector3(distance, 0.2f, 1f);
+
+            transform.position = crownPos;
+            if (teleportEffect != null)
+            {
+                Instantiate(teleportEffect, transform.position, Quaternion.identity);
+            }
+        }
+        else // A coroa ricocheteou
+        {
+            TeleportAndDrawWeb(crownInstance.transform.position, ricochetPoint);
+        }
+
+        // 4. Destrói a coroa e libera o lançamento
+        Destroy(crownInstance.gameObject);
+        crownInstance = null;
+        CrownReturned(); // Chama o método para reativar o lançamento
+    }
+}
 
     void Update()
     {
@@ -216,26 +218,27 @@ public class PlayerController : MonoBehaviour
     }
 
     void LaunchCrown(Vector2 launchDirection)
-    {
-        CrownController newCrown = Instantiate(
-            crownPrefab,
-            crownLaunchPoint.position,
-            Quaternion.identity
-        );
+{
+    CrownController newCrown = Instantiate(
+        crownPrefab,
+        crownLaunchPoint.position,
+        Quaternion.identity
+    );
 
-        newCrown.Initialize(
-            this,
-            launchDirection,
-            MaxDistance,
-            VelLaunch,
-            VelReturn,
-            Delay,
-            rastroDeTeiaPrefab
-        );
+    // Passa a direção recalculada E o rastroDeTeiaPrefab
+    newCrown.Initialize(
+        this,
+        launchDirection,
+        MaxDistance,
+        VelLaunch,
+        VelReturn,
+        Delay,
+        rastroDeTeiaPrefab // O 6º parâmetro que estava faltando no seu rascunho
+    );
 
-        crownInstance = newCrown;
-        HasCrown = false;
-    }
+    crownInstance = newCrown;
+    HasCrown = false;
+}
 
     public void CrownReturned()
     {
