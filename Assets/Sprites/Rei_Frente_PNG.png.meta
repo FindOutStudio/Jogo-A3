@@ -1,25 +1,10 @@
 fileFormatVersion: 2
-guid: bf4e4da0b4955b041b5b99eda567e421
+guid: 56654324aa37d944e9c49f82243e2761
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5389797437026522830
-    second: Idle_Rei_Frente-Sheet_0
-  - first:
-      213: 3467298458649481695
-    second: Idle_Rei_Frente-Sheet_1
-  - first:
-      213: 2687942904946089613
-    second: Idle_Rei_Frente-Sheet_2
-  - first:
-      213: 5501817102627717310
-    second: Idle_Rei_Frente-Sheet_3
-  - first:
-      213: -751235464865112082
-    second: Idle_Rei_Frente-Sheet_4
-  - first:
-      213: -4881940488145339733
-    second: Idle_Rei_Frente-Sheet_5
+      213: -973612399548597718
+    second: Rei_Frente_PNG_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -66,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 16
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -87,10 +72,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 128
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -125,7 +110,20 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: iOS
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -141,7 +139,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Idle_Rei_Frente-Sheet_0
+      name: Rei_Frente_PNG_0
       rect:
         serializedVersion: 2
         x: 5
@@ -156,118 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ec6d64d66386cca40800000000000000
-      internalID: 5389797437026522830
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Idle_Rei_Frente-Sheet_1
-      rect:
-        serializedVersion: 2
-        x: 37
-        y: 0
-        width: 22
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fd1df0ed3915e1030800000000000000
-      internalID: 3467298458649481695
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Idle_Rei_Frente-Sheet_2
-      rect:
-        serializedVersion: 2
-        x: 69
-        y: 0
-        width: 22
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d8ed7d9a4dd7d4520800000000000000
-      internalID: 2687942904946089613
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Idle_Rei_Frente-Sheet_3
-      rect:
-        serializedVersion: 2
-        x: 101
-        y: 0
-        width: 22
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: eb04b4541816a5c40800000000000000
-      internalID: 5501817102627717310
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Idle_Rei_Frente-Sheet_4
-      rect:
-        serializedVersion: 2
-        x: 132
-        y: 0
-        width: 24
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: eef1a0e23531395f0800000000000000
-      internalID: -751235464865112082
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Idle_Rei_Frente-Sheet_5
-      rect:
-        serializedVersion: 2
-        x: 164
-        y: 0
-        width: 24
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: baaff7dddfcdf3cb0800000000000000
-      internalID: -4881940488145339733
+      spriteID: a2a7df75ea80d72f0800000000000000
+      internalID: -973612399548597718
       vertices: []
       indices: 
       edges: []
@@ -286,12 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Idle_Rei_Frente-Sheet_0: 5389797437026522830
-      Idle_Rei_Frente-Sheet_1: 3467298458649481695
-      Idle_Rei_Frente-Sheet_2: 2687942904946089613
-      Idle_Rei_Frente-Sheet_3: 5501817102627717310
-      Idle_Rei_Frente-Sheet_4: -751235464865112082
-      Idle_Rei_Frente-Sheet_5: -4881940488145339733
+      Rei_Frente_PNG_0: -973612399548597718
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

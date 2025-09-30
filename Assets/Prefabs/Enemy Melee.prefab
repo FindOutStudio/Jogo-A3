@@ -149,31 +149,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   patrolPoints:
-  - {fileID: 1022291813781295973}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  moveSpeed: 2
-  waitTime: 2
+  - {fileID: 0}
+  moveSpeed: 2.5
+  waitTime: 1
   player: {fileID: 0}
-  viewDistance: 5
-  viewAngle: 90
+  viewDistance: 7
+  viewAngle: 165
   obstacleMask:
     serializedVersion: 2
     m_Bits: 0
   lookAroundAtPoint: 1
-  lookAroundDuration: 2
-  lookAroundSpeed: 60
+  lookAroundDuration: 3
+  lookAroundSpeed: 30
   chaseSpeed: 3.5
   chaseDuration: 5
-  attackCooldown: 1.5
+  attackCooldown: 6
   formationRadius: 2
   formationSlot: -1
   damageAmount: 1
   meleeDamage: 10
   retreatSpeed: 2
-  retreatDuration: 0.3
-  postAttackDelay: 0.5
+  retreatDuration: 1
+  postAttackDelay: 1
   ignoreCollisionTime: 0.4
   playerTransform: {fileID: 0}
   patrolWaitTime: 1
@@ -214,4 +214,4 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 3
+  m_Radius: 0.5

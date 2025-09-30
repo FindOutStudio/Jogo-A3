@@ -109,9 +109,9 @@ MonoBehaviour:
   moveSpeed: 4
   waitTime: 0.5
   player: {fileID: 0}
-  visionRange: 8
-  projectileRange: 5
-  dangerZoneRadius: 3.5
+  visionRange: 7.5
+  projectileRange: 4.7
+  dangerZoneRadius: 2
   chaseSpeed: 5
   retreatSpeed: 5
   attackCooldown: 0.5

@@ -1,25 +1,25 @@
 fileFormatVersion: 2
-guid: 339a3564cc2913946953236a117b7a21
+guid: 2b27356bd305b034eab976daf25d1672
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3787703919129691885
-    second: Idle_Rei_Inferior_Esquerdo-Sheet_0
+      213: 5125418384740480816
+    second: Idle_Rei_Direita-Sheet_0
   - first:
-      213: -2621688009668022624
-    second: Idle_Rei_Inferior_Esquerdo-Sheet_1
+      213: 4368377470528360445
+    second: Idle_Rei_Direita-Sheet_1
   - first:
-      213: -2285602026108990863
-    second: Idle_Rei_Inferior_Esquerdo-Sheet_2
+      213: 1488569641431406700
+    second: Idle_Rei_Direita-Sheet_2
   - first:
-      213: 8292237139400997126
-    second: Idle_Rei_Inferior_Esquerdo-Sheet_3
+      213: 4852875840607644286
+    second: Idle_Rei_Direita-Sheet_3
   - first:
-      213: 8231579996757952998
-    second: Idle_Rei_Inferior_Esquerdo-Sheet_4
+      213: -4836391819219210598
+    second: Idle_Rei_Direita-Sheet_4
   - first:
-      213: 8890497033187312396
-    second: Idle_Rei_Inferior_Esquerdo-Sheet_5
+      213: 9006404073508002952
+    second: Idle_Rei_Direita-Sheet_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -66,7 +66,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 16
+  spritePixelsToUnits: 32
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -90,7 +90,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -137,14 +137,128 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Idle_Rei_Inferior_Esquerdo-Sheet_0
+      name: Idle_Rei_Direita-Sheet_0
       rect:
         serializedVersion: 2
-        x: 8
+        x: 7
+        y: 0
+        width: 17
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03776b38dd4212740800000000000000
+      internalID: 5125418384740480816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Idle_Rei_Direita-Sheet_1
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 0
+        width: 17
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dff89af2a289f9c30800000000000000
+      internalID: 4368377470528360445
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Idle_Rei_Direita-Sheet_2
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 0
+        width: 17
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6813fcb33678a410800000000000000
+      internalID: 1488569641431406700
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Idle_Rei_Direita-Sheet_3
+      rect:
+        serializedVersion: 2
+        x: 103
+        y: 0
+        width: 17
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7a6e7a8dd0e85340800000000000000
+      internalID: 4852875840607644286
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Idle_Rei_Direita-Sheet_4
+      rect:
+        serializedVersion: 2
+        x: 134
         y: 0
         width: 18
         height: 32
@@ -156,17 +270,17 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: de6841675a0a09430800000000000000
-      internalID: 3787703919129691885
+      spriteID: a9e65d4c34fa1ecb0800000000000000
+      internalID: -4836391819219210598
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_Rei_Inferior_Esquerdo-Sheet_1
+      name: Idle_Rei_Direita-Sheet_5
       rect:
         serializedVersion: 2
-        x: 40
+        x: 166
         y: 0
         width: 18
         height: 32
@@ -178,96 +292,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0ae26df35a4ed9bd0800000000000000
-      internalID: -2621688009668022624
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Idle_Rei_Inferior_Esquerdo-Sheet_2
-      rect:
-        serializedVersion: 2
-        x: 72
-        y: 0
-        width: 18
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 17a4cdf1119e740e0800000000000000
-      internalID: -2285602026108990863
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Idle_Rei_Inferior_Esquerdo-Sheet_3
-      rect:
-        serializedVersion: 2
-        x: 104
-        y: 0
-        width: 18
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6093c4f7eb1f31370800000000000000
-      internalID: 8292237139400997126
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Idle_Rei_Inferior_Esquerdo-Sheet_4
-      rect:
-        serializedVersion: 2
-        x: 136
-        y: 0
-        width: 19
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6e908fee4627c3270800000000000000
-      internalID: 8231579996757952998
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Idle_Rei_Inferior_Esquerdo-Sheet_5
-      rect:
-        serializedVersion: 2
-        x: 168
-        y: 0
-        width: 19
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c034bc3a2f3616b70800000000000000
-      internalID: 8890497033187312396
+      spriteID: 88c531179cc2dfc70800000000000000
+      internalID: 9006404073508002952
       vertices: []
       indices: 
       edges: []
@@ -286,12 +312,12 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Idle_Rei_Inferior_Esquerdo-Sheet_0: 3787703919129691885
-      Idle_Rei_Inferior_Esquerdo-Sheet_1: -2621688009668022624
-      Idle_Rei_Inferior_Esquerdo-Sheet_2: -2285602026108990863
-      Idle_Rei_Inferior_Esquerdo-Sheet_3: 8292237139400997126
-      Idle_Rei_Inferior_Esquerdo-Sheet_4: 8231579996757952998
-      Idle_Rei_Inferior_Esquerdo-Sheet_5: 8890497033187312396
+      Idle_Rei_Direita-Sheet_0: 5125418384740480816
+      Idle_Rei_Direita-Sheet_1: 4368377470528360445
+      Idle_Rei_Direita-Sheet_2: 1488569641431406700
+      Idle_Rei_Direita-Sheet_3: 4852875840607644286
+      Idle_Rei_Direita-Sheet_4: -4836391819219210598
+      Idle_Rei_Direita-Sheet_5: 9006404073508002952
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
