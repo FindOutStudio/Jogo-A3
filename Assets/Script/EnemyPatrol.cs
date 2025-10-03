@@ -24,6 +24,8 @@ public class EnemyPatrol : MonoBehaviour
     public float viewDistance = 5f;
     [Range(0, 360)] public float viewAngle = 90f;
     public LayerMask obstacleMask;
+    public float visionRange = 5f; // AGORA PÚBLICA e usada para a distância de visão
+    [Range(0, 360)] public float visionAngle = 60f;
 
     [Header("Rotação de Visão")]
     public bool lookAroundAtPoint = true;
@@ -54,8 +56,6 @@ public class EnemyPatrol : MonoBehaviour
     [SerializeField] private Transform playerTransform;
 
     [SerializeField] private float patrolWaitTime = 1f;
-    [SerializeField] private float visionRange = 5f;
-    [SerializeField] private float visionAngle = 60f;
 
     private int currentPatrolIndex = 0;
     private bool isChasing = false;
@@ -360,23 +360,26 @@ public class EnemyPatrol : MonoBehaviour
         Vector3 origin = transform.position;
         Vector3 forward = transform.right;
 
-        float halfAngle = viewAngle / 2f;
+        // Note: Agora usa visionAngle
+        float halfAngle = visionAngle / 2f;
         Quaternion leftRayRotation = Quaternion.Euler(0, 0, -halfAngle);
         Quaternion rightRayRotation = Quaternion.Euler(0, 0, halfAngle);
 
         Vector3 leftRayDirection = leftRayRotation * forward;
         Vector3 rightRayDirection = rightRayRotation * forward;
 
-        Gizmos.DrawLine(origin, origin + leftRayDirection * viewDistance);
-        Gizmos.DrawLine(origin, origin + rightRayDirection * viewDistance);
+        // Note: Agora usa visionRange
+        Gizmos.DrawLine(origin, origin + leftRayDirection * visionRange);
+        Gizmos.DrawLine(origin, origin + rightRayDirection * visionRange);
 
         int segments = 20;
         for (int i = 0; i <= segments; i++)
         {
-            float angle = -halfAngle + (viewAngle * i / segments);
+            float angle = -halfAngle + (visionAngle * i / segments);
             Quaternion segmentRotation = Quaternion.Euler(0, 0, angle);
             Vector3 segmentDirection = segmentRotation * forward;
-            Gizmos.DrawLine(origin, origin + segmentDirection * viewDistance);
+            // Note: Agora usa visionRange
+            Gizmos.DrawLine(origin, origin + segmentDirection * visionRange);
         }
 
         Gizmos.color = Color.yellow;
@@ -388,4 +391,5 @@ public class EnemyPatrol : MonoBehaviour
             }
         }
     }
+
 }
