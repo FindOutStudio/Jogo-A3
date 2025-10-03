@@ -7,10 +7,13 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 moveDir;
     private Vector2 aimDir;
+    private Animator anim;
     private PlayerInputActions inputActions;
     private CrownController crownInstance;
     [SerializeField] private GameObject webDamageZonePrefab;
     [SerializeField] private GameObject teleportEffect;
+    private float lastMoveX = 0f;
+    private float lastMoveY = 0f;
 
 
     // --- Variáveis de Movimentação ---
@@ -54,6 +57,7 @@ public class PlayerController : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
         inputActions = new PlayerInputActions();
     }
 
@@ -107,64 +111,64 @@ public class PlayerController : MonoBehaviour
     }
 
     public void OnThrowCrownPerformed(InputAction.CallbackContext context)
-{
-    if (!context.performed) return;
-
-    // 1. Recálculo da direção da mira na hora do disparo (Gamepad ou Mouse)
-    Vector2 dir = Vector2.right; // Valor padrão
-
-    if (Gamepad.current != null && Gamepad.current.rightStick.IsActuated())
     {
-        dir = inputActions.Player.Aim.ReadValue<Vector2>();
-        if (dir.sqrMagnitude > 1f) dir.Normalize();
-    }
-    else if (Mouse.current != null)
-    {
-        Vector3 mouseW = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        dir = ((Vector2)(mouseW - crownLaunchPoint.position)).normalized;
-    }
+        if (!context.performed) return;
 
-    if (HasCrown)
-    {
-        // 2. Lançamento da Coroa, passando a direção recalculada
-        LaunchCrown(dir);
-    }
-    else if (crownInstance != null)
-    {
-        // 3. Teletransporte para a Coroa com desenho de teia (reto ou ricochete)
-        Vector3 ricochetPoint = crownInstance.GetLastRicochetPoint();
+        // 1. Recálculo da direção da mira na hora do disparo (Gamepad ou Mouse)
+        Vector2 dir = Vector2.right; // Valor padrão
 
-        if (ricochetPoint == Vector3.zero)
+        if (Gamepad.current != null && Gamepad.current.rightStick.IsActuated())
         {
-            // Lógica de teletransporte em linha reta (detalhada no seu script)
-            Vector3 playerPos = transform.position;
-            Vector3 crownPos = crownInstance.transform.position;
+            dir = inputActions.Player.Aim.ReadValue<Vector2>();
+            if (dir.sqrMagnitude > 1f) dir.Normalize();
+        }
+        else if (Mouse.current != null)
+        {
+            Vector3 mouseW = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+            dir = ((Vector2)(mouseW - crownLaunchPoint.position)).normalized;
+        }
 
-            Vector3 direction = crownPos - playerPos;
-            float distance = direction.magnitude;
-            Vector3 midpoint = playerPos + direction / 2f;
+        if (HasCrown)
+        {
+            // 2. Lançamento da Coroa, passando a direção recalculada
+            LaunchCrown(dir);
+        }
+        else if (crownInstance != null)
+        {
+            // 3. Teletransporte para a Coroa com desenho de teia (reto ou ricochete)
+            Vector3 ricochetPoint = crownInstance.GetLastRicochetPoint();
 
-            GameObject zonaDeDano = Instantiate(webDamageZonePrefab, midpoint, Quaternion.identity);
-            zonaDeDano.transform.right = direction.normalized;
-            zonaDeDano.transform.localScale = new Vector3(distance, 0.2f, 1f);
-
-            transform.position = crownPos;
-            if (teleportEffect != null)
+            if (ricochetPoint == Vector3.zero)
             {
-                Instantiate(teleportEffect, transform.position, Quaternion.identity);
-            }
-        }
-        else // A coroa ricocheteou
-        {
-            TeleportAndDrawWeb(crownInstance.transform.position, ricochetPoint);
-        }
+                // Lógica de teletransporte em linha reta (detalhada no seu script)
+                Vector3 playerPos = transform.position;
+                Vector3 crownPos = crownInstance.transform.position;
 
-        // 4. Destrói a coroa e libera o lançamento
-        Destroy(crownInstance.gameObject);
-        crownInstance = null;
-        CrownReturned(); // Chama o método para reativar o lançamento
+                Vector3 direction = crownPos - playerPos;
+                float distance = direction.magnitude;
+                Vector3 midpoint = playerPos + direction / 2f;
+
+                GameObject zonaDeDano = Instantiate(webDamageZonePrefab, midpoint, Quaternion.identity);
+                zonaDeDano.transform.right = direction.normalized;
+                zonaDeDano.transform.localScale = new Vector3(distance, 0.2f, 1f);
+
+                transform.position = crownPos;
+                if (teleportEffect != null)
+                {
+                    Instantiate(teleportEffect, transform.position, Quaternion.identity);
+                }
+            }
+            else // A coroa ricocheteou
+            {
+                TeleportAndDrawWeb(crownInstance.transform.position, ricochetPoint);
+            }
+
+            // 4. Destrói a coroa e libera o lançamento
+            Destroy(crownInstance.gameObject);
+            crownInstance = null;
+            CrownReturned(); // Chama o método para reativar o lançamento
+        }
     }
-}
 
     void Update()
     {
@@ -196,6 +200,7 @@ public class PlayerController : MonoBehaviour
         if (!isDashing) // NOVA CONDIÇÃO
         {
             HandleMovement();
+            UpdateAnimator();
         }
     }
 
@@ -218,27 +223,27 @@ public class PlayerController : MonoBehaviour
     }
 
     void LaunchCrown(Vector2 launchDirection)
-{
-    CrownController newCrown = Instantiate(
-        crownPrefab,
-        crownLaunchPoint.position,
-        Quaternion.identity
-    );
+    {
+        CrownController newCrown = Instantiate(
+            crownPrefab,
+            crownLaunchPoint.position,
+            Quaternion.identity
+        );
 
-    // Passa a direção recalculada E o rastroDeTeiaPrefab
-    newCrown.Initialize(
-        this,
-        launchDirection,
-        MaxDistance,
-        VelLaunch,
-        VelReturn,
-        Delay,
-        rastroDeTeiaPrefab // O 6º parâmetro que estava faltando no seu rascunho
-    );
+        // Passa a direção recalculada E o rastroDeTeiaPrefab
+        newCrown.Initialize(
+            this,
+            launchDirection,
+            MaxDistance,
+            VelLaunch,
+            VelReturn,
+            Delay,
+            rastroDeTeiaPrefab // O 6º parâmetro que estava faltando no seu rascunho
+        );
 
-    crownInstance = newCrown;
-    HasCrown = false;
-}
+        crownInstance = newCrown;
+        HasCrown = false;
+    }
 
     public void CrownReturned()
     {
@@ -363,6 +368,32 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
+    void UpdateAnimator()
+{
+    if (anim == null) return;
+
+    // 1. Calcula a velocidade para o parâmetro 'Speed'
+    // A magnitude (módulo) da velocidade linear é um bom indicador de quão rápido o player está se movendo.
+    float currentSpeed = rb.linearVelocity.magnitude;
+    anim.SetFloat("Speed", currentSpeed);
+
+    // 2. Atualiza a direção APENAS se o player estiver se movendo
+    // Usamos um valor pequeno (ex: 0.1f) para evitar que a animação mude quando houver um pequeno jitter de velocidade.
+    if (currentSpeed > 0.1f)
+    {
+        // Obtém a direção da velocidade atual (mais preciso do que moveDir, pois considera o Rigidbody)
+        Vector2 currentDir = rb.linearVelocity.normalized;
+
+        // Arredonda para o ponto mais próximo (-1, 0 ou 1) para encaixar na Blend Tree 2D
+        lastMoveX = Mathf.Round(currentDir.x); 
+        lastMoveY = Mathf.Round(currentDir.y);
+    }
+    
+    // 3. Define os parâmetros de direção usando SEMPRE a última direção válida
+    // Isso garante que, mesmo parado (Speed = 0), o Blend Tree fique posicionado na última direção (o Idle direcional).
+    anim.SetFloat("MoveX", lastMoveX);
+    anim.SetFloat("MoveY", lastMoveY);
+}
 
 
 }

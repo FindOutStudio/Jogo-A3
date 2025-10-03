@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6903736971759105995}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Crown Launching Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,7 +45,8 @@ GameObject:
   - component: {fileID: 362850839701047152}
   - component: {fileID: 4178776875588460465}
   - component: {fileID: 7782958148662901508}
-  m_Layer: 0
+  - component: {fileID: 6201623726595535298}
+  m_Layer: 6
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -62,7 +63,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -11.385845, y: -5.148778, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6903736971759105995}
@@ -112,12 +113,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: f063fa933ed651d47b2cae924b5cfc2f, type: 3}
+  m_Sprite: {fileID: -973612399548597718, guid: 56654324aa37d944e9c49f82243e2761, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 12.5, y: 12.5}
+  m_Size: {x: 50, y: 50}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -136,23 +137,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   webDamageZonePrefab: {fileID: 2540552615738515958, guid: 5de9f779335f5cd4ca08a8989a166838, type: 3}
-  teleportEffect: {fileID: 0}
-  moveSpd: 7
-  maxSpd: 10
-  accel: 16
+  teleportEffect: {fileID: 2614509707347182237, guid: 9f8df620150e316448d18c185fdd686d, type: 3}
+  moveSpd: 4
+  maxSpd: 7
+  accel: 14
   deccel: 11
   crownPrefab: {fileID: 2531474156665532719, guid: 0d87a50486d9f1a43b3c847221efc097, type: 3}
   crownLaunchPoint: {fileID: 6903736971759105995}
   rastroDeTeiaPrefab: {fileID: 2614509707347182237, guid: 9f8df620150e316448d18c185fdd686d, type: 3}
-  MaxDistance: 5
-  VelLaunch: 15
-  VelReturn: 20
+  MaxDistance: 2.5
+  VelLaunch: 10
+  VelReturn: 14
   Delay: 0.5
-  dashForce: 25
-  dashDuration: 0.25
-  dashCooldown: 0.25
+  dashForce: 13
+  dashDuration: 0.17
+  dashCooldown: 0.65
   shadowPrefab: {fileID: 1375171563940659917, guid: 1f4f2a285f43d9f48b61884608492610, type: 3}
-  shadowInterval: 0.025
+  shadowInterval: 0.015
+  flashColor: {r: 1, g: 0.4669811, b: 0.4669811, a: 1}
+  flashDuration: 0.1
+  flashCount: 2
 --- !u!50 &362850839701047152
 Rigidbody2D:
   serializedVersion: 5
@@ -178,7 +182,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!70 &4178776875588460465
 CapsuleCollider2D:
@@ -214,8 +218,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: -0.21}
-  m_Size: {x: 0.93, y: 1.91}
+  m_Offset: {x: 0, y: -0.05}
+  m_Size: {x: 0.38, y: 0.795}
   m_Direction: 0
 --- !u!114 &7782958148662901508
 MonoBehaviour:
@@ -263,3 +267,25 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!95 &6201623726595535298
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4028713626492036423}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 4b966776d39e3db42a5bfc60342fa5cd, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
