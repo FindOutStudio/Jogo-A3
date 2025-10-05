@@ -26,7 +26,8 @@ public class RangedEnemyController : MonoBehaviour
     [SerializeField] private float projectileRange = 7f; // Área Verde: Ataque de Projétil
     [SerializeField] private float dangerZoneRadius = 3f; // Área Vermelha: Perigo/Recuo
     [SerializeField] private float memoryRange = 15f; // Área Roxa: Memória de Perseguição
-    [SerializeField] private LayerMask obstacleMask; // NOVO: Para detectar paredes/obstáculos
+    [SerializeField] private LayerMask obstacleMask; // Para detectar paredes/obstáculos
+    [SerializeField] private float obstacleCheckDistance = 0.3f; // Distância de Raycast para parede (NOVO CAMPO)
 
     [Header("Atrasos e Ajustes")]
     [Tooltip("Tempo que o inimigo espera antes de iniciar a primeira perseguição.")]
@@ -65,10 +66,12 @@ public class RangedEnemyController : MonoBehaviour
         Vector2 directionToPlayer = (player.position - transform.position).normalized;
 
         // --- ATUALIZAÇÃO DO FLAG DE MEMÓRIA ---
+        // Player entra na visão (10f) -> isPlayerInMemory = true
         if (distanceToPlayer <= visionRange)
         {
             isPlayerInMemory = true;
         }
+        // Player sai da área de memória (15f) -> isPlayerInMemory = false
         else if (distanceToPlayer > memoryRange)
         {
             isPlayerInMemory = false;
@@ -128,7 +131,7 @@ public class RangedEnemyController : MonoBehaviour
                 }
             }
         }
-        // PRIORIDADE 3: Volta à Patrulha
+        // PRIORIDADE 3: Volta à Patrulha (Player fora da Visão E fora da Memória)
         else
         {
             nextState = EnemyState.Patrolling;
@@ -231,14 +234,11 @@ public class RangedEnemyController : MonoBehaviour
         }
     }
 
-    // Comportamento de Recuo (CORRIGIDO com Raycast para evitar paredes)
+    // Comportamento de Recuo (CORRIGIDO com Raycast para evitar paredes e bug de memória)
     private IEnumerator RetreatRoutine()
     {
-        // Define o limite de recuo para a metade da Vision Range
-        float retreatLimitDistance = visionRange / 2f;
-
-        // Distância de verificação de obstáculo na frente (ajuste este valor se necessário)
-        float obstacleCheckDistance = 0.3f;
+        // Define o limite de recuo para a metade da Vision Range (e.g., 10f / 2 = 5f)
+        float retreatLimitDistance = visionRange;
 
         // Recua enquanto a distância for MENOR que o limite desejado
         while (Vector2.Distance(transform.position, player.position) < retreatLimitDistance)
@@ -246,7 +246,7 @@ public class RangedEnemyController : MonoBehaviour
             if (player == null) yield break;
             Vector2 retreatDir = (transform.position - player.position).normalized;
 
-            // --- VERIFICAÇÃO DE OBSTÁCULO (NOVO) ---
+            // --- VERIFICAÇÃO DE OBSTÁCULO ---
             RaycastHit2D hit = Physics2D.Raycast(transform.position, retreatDir, obstacleCheckDistance, obstacleMask);
 
             if (hit.collider != null)
@@ -262,13 +262,20 @@ public class RangedEnemyController : MonoBehaviour
             yield return null;
         }
 
-        // Não faz ajuste forçado, pois o inimigo parou no limite de distância OU devido à parede.
-
         // --- DELAY APÓS O RECUO ---
         yield return new WaitForSeconds(postRetreatDelay);
 
-        // Retoma a perseguição/ataque
-        SetState(EnemyState.ChasingWithMemory);
+        // CORREÇÃO: Verifica a memória/visão antes de retomar a perseguição
+        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+        if (distanceToPlayer <= visionRange || isPlayerInMemory)
+        {
+            SetState(EnemyState.ChasingWithMemory);
+        }
+        else
+        {
+            // Player saiu da área de memória (e visão) enquanto o inimigo recuava/esperava
+            SetState(EnemyState.Patrolling);
+        }
     }
 
     // Comportamento de Perseguição
@@ -324,6 +331,16 @@ public class RangedEnemyController : MonoBehaviour
         // Área Vermelha (Perigo/Fuga)
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, dangerZoneRadius);
+
+        // Raycast de Obstáculo (NOVO GIZMO)
+        Vector2 tempDir = Vector2.right;
+        if (player != null)
+        {
+            // Desenha o Raycast na direção de recuo (oposta ao player)
+            tempDir = (transform.position - player.position).normalized;
+        }
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawRay(transform.position, tempDir * obstacleCheckDistance);
 
         Gizmos.color = Color.yellow;
         if (patrolPoints != null)
