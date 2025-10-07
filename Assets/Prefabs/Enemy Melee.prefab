@@ -30,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.5, y: -3.58, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -161,6 +161,8 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 0
+  visionRange: 5
+  visionAngle: 360
   lookAroundAtPoint: 1
   lookAroundDuration: 3
   lookAroundSpeed: 30
@@ -177,8 +179,6 @@ MonoBehaviour:
   ignoreCollisionTime: 0.4
   playerTransform: {fileID: 0}
   patrolWaitTime: 1
-  visionRange: 8
-  visionAngle: 360
 --- !u!58 &7946973999830222240
 CircleCollider2D:
   m_ObjectHideFlags: 0

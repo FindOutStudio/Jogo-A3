@@ -1,31 +1,31 @@
 fileFormatVersion: 2
-guid: 919c8810160a13a488a9c27059924eb9
+guid: f05f4e01a5d97784dadbc92a1b710fe0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3775367045022744024
-    second: Walk_Rei_Costas-Sheet_0
+      213: 7443873248619052282
+    second: Walk_Rei_Frente-Sheet_0
   - first:
-      213: 6392654870377973970
-    second: Walk_Rei_Costas-Sheet_1
+      213: 1677457048783814413
+    second: Walk_Rei_Frente-Sheet_1
   - first:
-      213: 340870256821505813
-    second: Walk_Rei_Costas-Sheet_2
+      213: 1254294914549699179
+    second: Walk_Rei_Frente-Sheet_2
   - first:
-      213: 2302639455114660695
-    second: Walk_Rei_Costas-Sheet_3
+      213: -3102490954172860376
+    second: Walk_Rei_Frente-Sheet_3
   - first:
-      213: 7757554496609799299
-    second: Walk_Rei_Costas-Sheet_4
+      213: -8591653986366968267
+    second: Walk_Rei_Frente-Sheet_4
   - first:
-      213: -3228723376100994977
-    second: Walk_Rei_Costas-Sheet_5
+      213: 8154883596645333595
+    second: Walk_Rei_Frente-Sheet_5
   - first:
-      213: 5936057884344988000
-    second: Walk_Rei_Costas-Sheet_6
+      213: 7889968743088628218
+    second: Walk_Rei_Frente-Sheet_6
   - first:
-      213: -5490267958532964929
-    second: Walk_Rei_Costas-Sheet_7
+      213: 6980833402464840159
+    second: Walk_Rei_Frente-Sheet_7
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -117,11 +117,50 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Walk_Rei_Costas-Sheet_0
+      name: Walk_Rei_Frente-Sheet_0
       rect:
         serializedVersion: 2
         x: 5
@@ -136,14 +175,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 82204b0eca33b9bc0800000000000000
-      internalID: -3775367045022744024
+      spriteID: afcb8f0c743fd4760800000000000000
+      internalID: 7443873248619052282
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Walk_Rei_Costas-Sheet_1
+      name: Walk_Rei_Frente-Sheet_1
       rect:
         serializedVersion: 2
         x: 37
@@ -158,17 +197,17 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2d8cc802cb547b850800000000000000
-      internalID: 6392654870377973970
+      spriteID: d0ffbbe5c46874710800000000000000
+      internalID: 1677457048783814413
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Walk_Rei_Costas-Sheet_2
+      name: Walk_Rei_Frente-Sheet_2
       rect:
         serializedVersion: 2
-        x: 69
+        x: 70
         y: 0
         width: 21
         height: 31
@@ -180,17 +219,17 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 51f875c41b30bb400800000000000000
-      internalID: 340870256821505813
+      spriteID: b6250594496286110800000000000000
+      internalID: 1254294914549699179
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Walk_Rei_Costas-Sheet_3
+      name: Walk_Rei_Frente-Sheet_3
       rect:
         serializedVersion: 2
-        x: 101
+        x: 102
         y: 0
         width: 21
         height: 31
@@ -202,14 +241,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 75b88ef626e94ff10800000000000000
-      internalID: 2302639455114660695
+      spriteID: 828f9a53aecb1f4d0800000000000000
+      internalID: -3102490954172860376
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Walk_Rei_Costas-Sheet_4
+      name: Walk_Rei_Frente-Sheet_4
       rect:
         serializedVersion: 2
         x: 133
@@ -224,14 +263,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 38c4920a6be58ab60800000000000000
-      internalID: 7757554496609799299
+      spriteID: 53e278d483054c880800000000000000
+      internalID: -8591653986366968267
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Walk_Rei_Costas-Sheet_5
+      name: Walk_Rei_Frente-Sheet_5
       rect:
         serializedVersion: 2
         x: 165
@@ -246,17 +285,17 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f50108922354133d0800000000000000
-      internalID: -3228723376100994977
+      spriteID: b5a74babc67fb2170800000000000000
+      internalID: 8154883596645333595
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Walk_Rei_Costas-Sheet_6
+      name: Walk_Rei_Frente-Sheet_6
       rect:
         serializedVersion: 2
-        x: 198
+        x: 197
         y: 0
         width: 21
         height: 31
@@ -268,17 +307,17 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0613a8af13d116250800000000000000
-      internalID: 5936057884344988000
+      spriteID: af1abbcd4ccce7d60800000000000000
+      internalID: 7889968743088628218
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Walk_Rei_Costas-Sheet_7
+      name: Walk_Rei_Frente-Sheet_7
       rect:
         serializedVersion: 2
-        x: 230
+        x: 229
         y: 0
         width: 21
         height: 31
@@ -290,8 +329,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: fbdfee16166aec3b0800000000000000
-      internalID: -5490267958532964929
+      spriteID: fd929165ef6e0e060800000000000000
+      internalID: 6980833402464840159
       vertices: []
       indices: 
       edges: []
@@ -310,14 +349,14 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Walk_Rei_Costas-Sheet_0: -3775367045022744024
-      Walk_Rei_Costas-Sheet_1: 6392654870377973970
-      Walk_Rei_Costas-Sheet_2: 340870256821505813
-      Walk_Rei_Costas-Sheet_3: 2302639455114660695
-      Walk_Rei_Costas-Sheet_4: 7757554496609799299
-      Walk_Rei_Costas-Sheet_5: -3228723376100994977
-      Walk_Rei_Costas-Sheet_6: 5936057884344988000
-      Walk_Rei_Costas-Sheet_7: -5490267958532964929
+      Walk_Rei_Frente-Sheet_0: 7443873248619052282
+      Walk_Rei_Frente-Sheet_1: 1677457048783814413
+      Walk_Rei_Frente-Sheet_2: 1254294914549699179
+      Walk_Rei_Frente-Sheet_3: -3102490954172860376
+      Walk_Rei_Frente-Sheet_4: -8591653986366968267
+      Walk_Rei_Frente-Sheet_5: 8154883596645333595
+      Walk_Rei_Frente-Sheet_6: 7889968743088628218
+      Walk_Rei_Frente-Sheet_7: 6980833402464840159
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

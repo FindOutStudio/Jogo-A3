@@ -1,25 +1,25 @@
 fileFormatVersion: 2
-guid: 20b4f494ae0a1e24b99d32fced0afb78
+guid: ec6d73fffba8201488fb50aba92ad827
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1923576698616281264
-    second: Idle_Rei_INF_Esquerdo-Sheet_0
+      213: 5389797437026522830
+    second: Idle_Rei_Frente-Sheet_0
   - first:
-      213: -8498879159733572226
-    second: Idle_Rei_INF_Esquerdo-Sheet_1
+      213: 3467298458649481695
+    second: Idle_Rei_Frente-Sheet_1
   - first:
-      213: -1869582987893475262
-    second: Idle_Rei_INF_Esquerdo-Sheet_2
+      213: 2687942904946089613
+    second: Idle_Rei_Frente-Sheet_2
   - first:
-      213: -3925747657146541397
-    second: Idle_Rei_INF_Esquerdo-Sheet_3
+      213: 5501817102627717310
+    second: Idle_Rei_Frente-Sheet_3
   - first:
-      213: -1323745484783169118
-    second: Idle_Rei_INF_Esquerdo-Sheet_4
+      213: -751235464865112082
+    second: Idle_Rei_Frente-Sheet_4
   - first:
-      213: -5382162211069919098
-    second: Idle_Rei_INF_Esquerdo-Sheet_5
+      213: -4881940488145339733
+    second: Idle_Rei_Frente-Sheet_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -111,16 +111,55 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Idle_Rei_INF_Esquerdo-Sheet_0
+      name: Idle_Rei_Frente-Sheet_0
       rect:
         serializedVersion: 2
-        x: 8
+        x: 5
         y: 0
-        width: 18
+        width: 22
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -130,19 +169,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 05702c42f251e45e0800000000000000
-      internalID: -1923576698616281264
+      spriteID: ec6d64d66386cca40800000000000000
+      internalID: 5389797437026522830
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_Rei_INF_Esquerdo-Sheet_1
+      name: Idle_Rei_Frente-Sheet_1
       rect:
         serializedVersion: 2
-        x: 40
+        x: 37
         y: 0
-        width: 18
+        width: 22
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -152,19 +191,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e7d2c17ee6aed0a80800000000000000
-      internalID: -8498879159733572226
+      spriteID: fd1df0ed3915e1030800000000000000
+      internalID: 3467298458649481695
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_Rei_INF_Esquerdo-Sheet_2
+      name: Idle_Rei_Frente-Sheet_2
       rect:
         serializedVersion: 2
-        x: 72
+        x: 69
         y: 0
-        width: 18
+        width: 22
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -174,19 +213,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 248fe709d28ed06e0800000000000000
-      internalID: -1869582987893475262
+      spriteID: d8ed7d9a4dd7d4520800000000000000
+      internalID: 2687942904946089613
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_Rei_INF_Esquerdo-Sheet_3
+      name: Idle_Rei_Frente-Sheet_3
       rect:
         serializedVersion: 2
-        x: 104
+        x: 101
         y: 0
-        width: 18
+        width: 22
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -196,19 +235,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: baa55f92e41f489c0800000000000000
-      internalID: -3925747657146541397
+      spriteID: eb04b4541816a5c40800000000000000
+      internalID: 5501817102627717310
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_Rei_INF_Esquerdo-Sheet_4
+      name: Idle_Rei_Frente-Sheet_4
       rect:
         serializedVersion: 2
-        x: 136
+        x: 132
         y: 0
-        width: 19
+        width: 24
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -218,19 +257,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2a1d87ebe7c11ade0800000000000000
-      internalID: -1323745484783169118
+      spriteID: eef1a0e23531395f0800000000000000
+      internalID: -751235464865112082
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_Rei_INF_Esquerdo-Sheet_5
+      name: Idle_Rei_Frente-Sheet_5
       rect:
         serializedVersion: 2
-        x: 168
+        x: 164
         y: 0
-        width: 19
+        width: 24
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -240,8 +279,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 68085a52cf7be45b0800000000000000
-      internalID: -5382162211069919098
+      spriteID: baaff7dddfcdf3cb0800000000000000
+      internalID: -4881940488145339733
       vertices: []
       indices: 
       edges: []
@@ -260,12 +299,12 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Idle_Rei_INF_Esquerdo-Sheet_0: -1923576698616281264
-      Idle_Rei_INF_Esquerdo-Sheet_1: -8498879159733572226
-      Idle_Rei_INF_Esquerdo-Sheet_2: -1869582987893475262
-      Idle_Rei_INF_Esquerdo-Sheet_3: -3925747657146541397
-      Idle_Rei_INF_Esquerdo-Sheet_4: -1323745484783169118
-      Idle_Rei_INF_Esquerdo-Sheet_5: -5382162211069919098
+      Idle_Rei_Frente-Sheet_0: 5389797437026522830
+      Idle_Rei_Frente-Sheet_1: 3467298458649481695
+      Idle_Rei_Frente-Sheet_2: 2687942904946089613
+      Idle_Rei_Frente-Sheet_3: 5501817102627717310
+      Idle_Rei_Frente-Sheet_4: -751235464865112082
+      Idle_Rei_Frente-Sheet_5: -4881940488145339733
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

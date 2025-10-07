@@ -1,25 +1,31 @@
 fileFormatVersion: 2
-guid: 81855174cc6a89346bf40057f7c4edf3
+guid: ca81948548a030244a836a08da3d5a13
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 331480903200051337
-    second: Idle_Rei_SUP_Esquerda-Sheet_0
+      213: -5788594712083015171
+    second: Walk_Rei_Esquerda-Sheet_0
   - first:
-      213: 7611681672208619916
-    second: Idle_Rei_SUP_Esquerda-Sheet_1
+      213: 6923998420206905858
+    second: Walk_Rei_Esquerda-Sheet_1
   - first:
-      213: 400846470176353762
-    second: Idle_Rei_SUP_Esquerda-Sheet_2
+      213: 6862457734522065825
+    second: Walk_Rei_Esquerda-Sheet_2
   - first:
-      213: -3540729767568525984
-    second: Idle_Rei_SUP_Esquerda-Sheet_3
+      213: -1477849883510470123
+    second: Walk_Rei_Esquerda-Sheet_3
   - first:
-      213: 3090450715761387993
-    second: Idle_Rei_SUP_Esquerda-Sheet_4
+      213: 6434741790012764880
+    second: Walk_Rei_Esquerda-Sheet_4
   - first:
-      213: 4793416956511149192
-    second: Idle_Rei_SUP_Esquerda-Sheet_5
+      213: 2471624939843238288
+    second: Walk_Rei_Esquerda-Sheet_5
+  - first:
+      213: -5467057037101838195
+    second: Walk_Rei_Esquerda-Sheet_6
+  - first:
+      213: -6356003477133756769
+    second: Walk_Rei_Esquerda-Sheet_7
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -111,16 +117,55 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Idle_Rei_SUP_Esquerda-Sheet_0
+      name: Walk_Rei_Esquerda-Sheet_0
       rect:
         serializedVersion: 2
         x: 7
         y: 0
-        width: 18
+        width: 22
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -130,19 +175,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 980901d0028a99400800000000000000
-      internalID: 331480903200051337
+      spriteID: df9569557c7caafa0800000000000000
+      internalID: -5788594712083015171
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_Rei_SUP_Esquerda-Sheet_1
+      name: Walk_Rei_Esquerda-Sheet_1
       rect:
         serializedVersion: 2
         x: 39
         y: 0
-        width: 18
+        width: 22
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -152,19 +197,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c899857072022a960800000000000000
-      internalID: 7611681672208619916
+      spriteID: 20a6cc5d0ebf61060800000000000000
+      internalID: 6923998420206905858
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_Rei_SUP_Esquerda-Sheet_2
+      name: Walk_Rei_Esquerda-Sheet_2
       rect:
         serializedVersion: 2
         x: 71
         y: 0
-        width: 18
+        width: 21
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -174,19 +219,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2eda458adb7109500800000000000000
-      internalID: 400846470176353762
+      spriteID: 1a3d15063f85c3f50800000000000000
+      internalID: 6862457734522065825
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_Rei_SUP_Esquerda-Sheet_3
+      name: Walk_Rei_Esquerda-Sheet_3
       rect:
         serializedVersion: 2
         x: 103
         y: 0
-        width: 18
+        width: 21
         height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -196,17 +241,39 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0653d66390dccdec0800000000000000
-      internalID: -3540729767568525984
+      spriteID: 51a81066c5f9d7be0800000000000000
+      internalID: -1477849883510470123
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_Rei_SUP_Esquerda-Sheet_4
+      name: Walk_Rei_Esquerda-Sheet_4
       rect:
         serializedVersion: 2
-        x: 134
+        x: 135
+        y: 0
+        width: 21
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d27217b09bcc4950800000000000000
+      internalID: 6434741790012764880
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Walk_Rei_Esquerda-Sheet_5
+      rect:
+        serializedVersion: 2
+        x: 167
         y: 0
         width: 20
         height: 32
@@ -218,17 +285,17 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9d92fc45d8c73ea20800000000000000
-      internalID: 3090450715761387993
+      spriteID: 0993a5d99c9fc4220800000000000000
+      internalID: 2471624939843238288
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_Rei_SUP_Esquerda-Sheet_5
+      name: Walk_Rei_Esquerda-Sheet_6
       rect:
         serializedVersion: 2
-        x: 166
+        x: 199
         y: 0
         width: 20
         height: 32
@@ -240,8 +307,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 88c5e294353a58240800000000000000
-      internalID: 4793416956511149192
+      spriteID: d80deb8279c1124b0800000000000000
+      internalID: -5467057037101838195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Walk_Rei_Esquerda-Sheet_7
+      rect:
+        serializedVersion: 2
+        x: 231
+        y: 0
+        width: 21
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f967b4a5380fac7a0800000000000000
+      internalID: -6356003477133756769
       vertices: []
       indices: 
       edges: []
@@ -260,12 +349,14 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Idle_Rei_SUP_Esquerda-Sheet_0: 331480903200051337
-      Idle_Rei_SUP_Esquerda-Sheet_1: 7611681672208619916
-      Idle_Rei_SUP_Esquerda-Sheet_2: 400846470176353762
-      Idle_Rei_SUP_Esquerda-Sheet_3: -3540729767568525984
-      Idle_Rei_SUP_Esquerda-Sheet_4: 3090450715761387993
-      Idle_Rei_SUP_Esquerda-Sheet_5: 4793416956511149192
+      Walk_Rei_Esquerda-Sheet_0: -5788594712083015171
+      Walk_Rei_Esquerda-Sheet_1: 6923998420206905858
+      Walk_Rei_Esquerda-Sheet_2: 6862457734522065825
+      Walk_Rei_Esquerda-Sheet_3: -1477849883510470123
+      Walk_Rei_Esquerda-Sheet_4: 6434741790012764880
+      Walk_Rei_Esquerda-Sheet_5: 2471624939843238288
+      Walk_Rei_Esquerda-Sheet_6: -5467057037101838195
+      Walk_Rei_Esquerda-Sheet_7: -6356003477133756769
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
