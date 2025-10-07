@@ -11,7 +11,7 @@ public class MenuManager : MonoBehaviour
     // Esta função será chamada pelo botão para trocar a cena.
     public void CarregarJogo()
     {
-        SceneManager.LoadScene("Teste");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
     // NOVA FUNÇÃO: Para mostrar o painel de Opções e ocultar o Menu
@@ -46,7 +46,11 @@ public class MenuManager : MonoBehaviour
 
     public void SairDoJogo()
     {
-        Application.Quit();
-        Debug.Log("Saindo do Jogo...");
+        Application.Quit(); // Fecha o Jogo
+        Debug.Log("Saindo do Jogo...");  // Mostra a msg no console 
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false; // Para o jogo no editor
+#endif
     }
 }

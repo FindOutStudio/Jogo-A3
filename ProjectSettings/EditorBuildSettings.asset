@@ -9,9 +9,12 @@ EditorBuildSettings:
     path: Assets/Scenes/menu inicial.unity
     guid: d23ee4a3784778143a9e12c0092b7fa2
   - enabled: 1
+    path: Assets/Scenes/Playtest Mecanica.unity
+    guid: b9826552b7f544d418fd936bf3f5885e
+  - enabled: 0
     path: Assets/Scenes/Teste.unity
     guid: 1cde1710825c19e4980869d594bfc49e
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   m_configObjects:
