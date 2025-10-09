@@ -6,10 +6,10 @@ public class EnemyPatrol : MonoBehaviour
     public enum EnemyState
     {
         Patrolling,
-        Waiting,
+        Alert, // Usado como Ponto de Parada / Espera pelo Cooldown (AGORA LOOP ATIVO)
         Chasing,
-        Searching,
-        Attacking
+        Attacking,
+        Retreating
     }
 
     private EnemyState currentState = EnemyState.Patrolling;
@@ -17,145 +17,259 @@ public class EnemyPatrol : MonoBehaviour
     [Header("Patrulha")]
     public Transform[] patrolPoints;
     public float moveSpeed = 2f;
-    public float waitTime = 1f;
+    [SerializeField] private float patrolWaitTime = 1f;
 
-    [Header("Detecção")]
+    [Header("ZONAS DE COMPORTAMENTO")]
+    [Tooltip("Área Azul: Distância máxima para iniciar a perseguição e manter a 'Memória'.")]
+    [SerializeField] private float memoryRange = 15f;
+    [Tooltip("Área Azul Claro: Distância máxima para detectar o player (Visão).")]
+    [SerializeField] private float visionRange = 10f;
+    [Tooltip("Área Verde: Distância ideal para estar ANTES de dar o Dash de Ataque.")]
+    [SerializeField] private float combatRange = 5f;
+    [Tooltip("Área Vermelha: Distância de Perigo. Acionará o Dash de Recuo.")]
+    [SerializeField] private float dangerZoneRadius = 2f;
+    [SerializeField] private LayerMask obstacleMask;
+
+    [Header("Detecção e Delays")]
     public Transform player;
-    public float viewDistance = 5f;
     [Range(0, 360)] public float viewAngle = 90f;
-    public LayerMask obstacleMask;
-    public float visionRange = 5f; // AGORA PÚBLICA e usada para a distância de visão
-    [Range(0, 360)] public float visionAngle = 60f;
+    public LayerMask obstacleMaskPlayer;
+    public float initialChaseDelay = 1.0f;
+    public float initialAttackDelay = 0.5f;
 
-    [Header("Rotação de Visão")]
-    public bool lookAroundAtPoint = true;
+    [Header("Ajustes de Patrulha")]
     public float lookAroundDuration = 2f;
     public float lookAroundSpeed = 60f;
 
     [Header("Perseguição")]
     public float chaseSpeed = 3.5f;
-    public float chaseDuration = 5f;
 
-    [Header("Ataque")]
-    public float attackCooldown = 3f;
-    private float lastAttackTime = -Mathf.Infinity;
-    public float formationRadius = 2f;
-    public int formationSlot = -1;
-    private bool isAttacking = false;
+    [Header("ATAQUE (Dash para frente)")]
+    public float attackDashSpeed = 8f;
+    public float attackDashDuration = 0.3f;
+    public float postAttackDelay = 0.5f;
     [SerializeField] private int damageAmount = 1;
+    [SerializeField] private float attackCooldown = 2f;
+    private float lastAttackTime = -Mathf.Infinity;
 
-    [Header("Dano")]
-    public int meleeDamage = 10;
+    [Header("RECUO (Dash para trás)")]
+    public float retreatDashSpeed = 6f;
+    public float retreatDashDuration = 0.3f;
+    public float retreatRotationSpeed = 720f;
+    public float postRetreatDelay = 0.5f;
+    [SerializeField] private int retreatDamageAmount = 5;
 
-    // NOVAS VARIÁVEIS para o recuo
-    [SerializeField] private float retreatSpeed = 6f;
-    [SerializeField] private float retreatDuration = 0.3f;
+    [Header("Visual de Ataque/Recuo")]
+    private SpriteRenderer spriteRenderer;
+    private Color originalColor;
 
-    [SerializeField] private float postAttackDelay = 0.5f;
-    [SerializeField] private float ignoreCollisionTime = 0.4f;
-    [SerializeField] private Transform playerTransform;
-
-    [SerializeField] private float patrolWaitTime = 1f;
 
     private int currentPatrolIndex = 0;
-    private bool isChasing = false;
-    private bool isWaiting = false;
-    private int currentPointIndex = 0;
-
     private Coroutine currentBehavior;
+    private bool isDashActive = false;
+    private Rigidbody2D rb;
+
+    // CONTROLE DE MEMÓRIA: Flag para rastrear se o player foi visto recentemente
+    private bool hasPlayerBeenSeen = false;
+
+    // Margem para estabilizar a entrada no Recuo
+    private const float MIN_DISTANCE_TO_DANGER = 0.05f;
 
     void Start()
     {
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+                player = playerObj.transform;
+        }
+
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+            originalColor = spriteRenderer.color;
+
+        rb = GetComponent<Rigidbody2D>();
+
         currentBehavior = StartCoroutine(PatrolRoutine());
     }
 
     private void Update()
     {
-        if (isAttacking) return;
+        if (player == null || isDashActive) return;
 
-        if (CanSeePlayer(false))
+        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+        EnemyState nextState = currentState;
+
+        // ROTAÇÃO PARA O PLAYER
+        if (currentState != EnemyState.Patrolling && currentState != EnemyState.Alert)
         {
-            if (!isChasing)
+            RotateTowards((player.position - transform.position).normalized);
+        }
+
+        // Se estiver em um estado de "pausa" ou "ação" (Attack ou Retreat), a Coroutine controla a transição
+        if (currentState == EnemyState.Attacking || currentState == EnemyState.Retreating) return;
+
+
+        // --- PRIORIDADE 1: Recuo Imediato (Danger Zone) ---
+        if (distanceToPlayer <= dangerZoneRadius + MIN_DISTANCE_TO_DANGER)
+        {
+            nextState = EnemyState.Retreating;
+        }
+        // --- PRIORIDADE 2: Ataque Imediato (Combat Range) ---
+        else if (distanceToPlayer <= combatRange && Time.time >= lastAttackTime + attackCooldown)
+        {
+            nextState = EnemyState.Attacking;
+        }
+        // --- PRIORIDADE 3: Manter Perseguição / Espera de Cooldown (Lógica de Memória) ---
+        else if (IsPlayerInMemory() || CanSeePlayer())
+        {
+            // Se estava Patrulhando, vai para o estado de Alerta (rápido)
+            if (currentState == EnemyState.Patrolling)
             {
-                isChasing = true;
-
-                if (currentBehavior != null)
-                    StopCoroutine(currentBehavior);
-
-                currentBehavior = StartCoroutine(ChasePlayerRoutine());
+                nextState = EnemyState.Alert;
+            }
+            else
+            {
+                // Se estiver na faixa de combate E o cooldown estiver ATIVO, ele PÁRA/ESPERA (Alert)
+                if (distanceToPlayer <= combatRange + MIN_DISTANCE_TO_DANGER && Time.time < lastAttackTime + attackCooldown)
+                {
+                    nextState = EnemyState.Alert; // Usa Alert como "Stop/Wait for Cooldown"
+                }
+                else
+                {
+                    nextState = EnemyState.Chasing; // Continua perseguindo
+                }
             }
         }
+        // --- PRIORIDADE 4: Volta à Patrulha ---
         else
         {
-            if (isChasing)
-            {
-                isChasing = false;
-
-                if (currentBehavior != null)
-                    StopCoroutine(currentBehavior);
-
-                currentBehavior = StartCoroutine(SearchForPlayerRoutine());
-            }
+            nextState = EnemyState.Patrolling;
         }
+
+        SetState(nextState);
     }
 
-
-    private void StartChase()
+    private bool IsPlayerInMemory()
     {
-        if (currentState == EnemyState.Chasing) return;
+        // A memória funciona se o player já foi visto E está dentro do Memory Range.
+        return hasPlayerBeenSeen && Vector2.Distance(transform.position, player.position) <= memoryRange;
+    }
 
-        Debug.Log($"{name} iniciou perseguição!");
-        currentState = EnemyState.Chasing;
-        isWaiting = false;
-        isChasing = true;
+    private bool CanSeePlayer()
+    {
+        if (player == null) return false;
+
+        Vector2 dirToPlayer = (player.position - transform.position);
+        float distance = dirToPlayer.magnitude;
+
+        if (distance > visionRange) return false;
+
+        float angle = Vector2.Angle(transform.right, dirToPlayer.normalized);
+        if (angle < viewAngle / 2f)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToPlayer.normalized, distance, obstacleMaskPlayer);
+            return hit.collider == null || hit.collider.transform == player;
+        }
+        return false;
+    }
+
+    private void SetState(EnemyState newState)
+    {
+        if (currentState == newState) return;
 
         if (currentBehavior != null)
+        {
             StopCoroutine(currentBehavior);
+        }
 
-        currentBehavior = StartCoroutine(ChasePlayerRoutine());
+        currentState = newState;
+
+        // NOVO: A memória é perdida apenas ao entrar em Patrolling.
+        hasPlayerBeenSeen = (newState != EnemyState.Patrolling);
+
+        switch (currentState)
+        {
+            case EnemyState.Patrolling:
+                currentBehavior = StartCoroutine(PatrolRoutine());
+                break;
+            case EnemyState.Alert:
+                // ATUALIZADO: Chama a rotina de loop de espera
+                currentBehavior = StartCoroutine(WaitForCooldownRoutine());
+                break;
+            case EnemyState.Chasing:
+                currentBehavior = StartCoroutine(ChasePlayerRoutine());
+                break;
+            case EnemyState.Attacking:
+                currentBehavior = StartCoroutine(AttackDashRoutine());
+                break;
+            case EnemyState.Retreating:
+                currentBehavior = StartCoroutine(RetreatDashRoutine());
+                break;
+        }
     }
 
-    private IEnumerator ChasePlayerRoutine()
+
+    // --- ROTINAS DE COMPORTAMENTO ---
+
+    // NOVO: Rotina que fica em loop enquanto espera o Update() decidir a próxima ação.
+    private IEnumerator WaitForCooldownRoutine()
     {
-        while (true)
+        currentState = EnemyState.Alert;
+        if (spriteRenderer != null) spriteRenderer.color = Color.gray;
+
+        // O loop garante que o Update() é checado a cada frame.
+        while (currentState == EnemyState.Alert)
         {
-            if (player == null)
-                yield break;
+            // Garante que o inimigo está virado para o player enquanto espera.
+            if (player != null)
+            {
+                RotateTowards((player.position - transform.position).normalized);
+            }
 
-            Vector2 direction = (player.position - transform.position).normalized;
-            transform.position += (Vector3)(direction * chaseSpeed * Time.deltaTime);
-
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0, 0, angle);
-
+            // O 'yield return null' é crucial para que o loop não trave o jogo
+            // e permita que a função Update() seja chamada no próximo frame.
             yield return null;
         }
+
+        // Quando o loop for interrompido por um SetState() no Update(), a cor é resetada.
+        if (spriteRenderer != null) spriteRenderer.color = originalColor;
     }
 
     private IEnumerator PatrolRoutine()
     {
         currentState = EnemyState.Patrolling;
-
         while (true)
         {
+            if (CanSeePlayer())
+            {
+                SetState(EnemyState.Alert);
+                yield break;
+            }
+
             Transform targetPoint = patrolPoints[currentPatrolIndex];
             Vector2 direction = (targetPoint.position - transform.position).normalized;
 
-            // Movimento até o ponto
             while (Vector2.Distance(transform.position, targetPoint.position) > 0.1f)
             {
+                if (CanSeePlayer())
+                {
+                    SetState(EnemyState.Alert);
+                    yield break;
+                }
                 transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
-
-                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                transform.rotation = Quaternion.Euler(0, 0, angle);
-
+                RotateTowards(direction);
                 yield return null;
             }
 
-            // Espera e rotação de vigilância
             float timer = 0f;
             while (timer < lookAroundDuration)
             {
+                if (CanSeePlayer())
+                {
+                    SetState(EnemyState.Alert);
+                    yield break;
+                }
                 transform.Rotate(Vector3.forward * lookAroundSpeed * Time.deltaTime);
                 timer += Time.deltaTime;
                 yield return null;
@@ -166,230 +280,202 @@ public class EnemyPatrol : MonoBehaviour
         }
     }
 
-
-    private IEnumerator LookAroundRoutine()
+    private IEnumerator ChasePlayerRoutine()
     {
-        float timer = 0f;
-        float maxAngle = 30f;
-        float currentAngle = 0f;
-        float direction = 1f;
+        currentState = EnemyState.Chasing;
 
-        while (timer < lookAroundDuration)
+        while (true)
         {
-            float deltaAngle = lookAroundSpeed * Time.deltaTime * direction;
-            transform.Rotate(Vector3.forward * deltaAngle);
-            currentAngle += deltaAngle;
-            timer += Time.deltaTime;
+            if (player == null) yield break;
 
-            if (Mathf.Abs(currentAngle) >= maxAngle)
-            {
-                direction *= -1f;
-                currentAngle = Mathf.Clamp(currentAngle, -maxAngle, maxAngle);
-            }
+            Vector2 direction = (player.position - transform.position).normalized;
+            transform.position += (Vector3)(direction * chaseSpeed * Time.deltaTime);
+            RotateTowards(direction);
 
             yield return null;
         }
     }
 
-    private IEnumerator SearchForPlayerRoutine()
+
+    // --- ROTINA DE ATAQUE (Dash para frente) ---
+    private IEnumerator AttackDashRoutine()
     {
-        currentState = EnemyState.Searching;
-        float searchTime = 3f;
-        float timer = 0f;
+        if (player == null) { SetState(EnemyState.Alert); yield break; }
 
-        while (timer < searchTime)
-        {
-            transform.Rotate(Vector3.forward * lookAroundSpeed * Time.deltaTime);
-            timer += Time.deltaTime;
-
-            bool canSee = CanSeePlayer(false);
-            if (canSee)
-            {
-                Debug.Log($"{name} reencontrou o jogador!");
-                StartChase();
-                yield break;
-            }
-
-            yield return null;
-        }
-
-        Debug.Log($"{name} desistiu de procurar.");
-        isChasing = false;
-
-        if (currentBehavior != null)
-            StopCoroutine(currentBehavior);
-
-        currentBehavior = StartCoroutine(PatrolRoutine());
-    }
-    private IEnumerator AttackRoutine()
-    {
-        Debug.Log($"{name} entrou na AttackRoutine");
-        currentState = EnemyState.Attacking;
-        isAttacking = true;
-
-        if (Time.time < lastAttackTime + attackCooldown)
-        {
-            Debug.Log($"{name} está em cooldown de ataque.");
-            isAttacking = false;
-            yield break;
-        }
-
-        while (!AttackQueueManager.Instance.RequestAttackSlot(this))
-        {
-            Debug.Log($"{name} esperando vaga na fila...");
-            yield return new WaitForSeconds(0.5f);
-        }
-
-        formationSlot = AttackQueueManager.Instance.GetQueueIndex(this);
-        Vector3 targetPos = GetFormationPosition();
-
-        while (Vector2.Distance(transform.position, targetPos) > 0.5f)
-        {
-            Vector2 dir = (targetPos - transform.position).normalized;
-            float distance = Vector2.Distance(transform.position, targetPos);
-            float speedFactor = Mathf.Clamp01(distance / formationRadius);
-
-            float angleToTarget = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0, 0, angleToTarget);
-
-            yield return null;
-        }
-
-        Debug.Log($"{name} atacou o jogador!");
+        isDashActive = true;
         lastAttackTime = Time.time;
 
-        yield return new WaitForSeconds(2f);
+        if (spriteRenderer != null) spriteRenderer.color = Color.yellow;
 
-        AttackQueueManager.Instance.ReleaseSlot(this);
-        isAttacking = false;
-        currentState = EnemyState.Chasing;
-        currentBehavior = StartCoroutine(ChasePlayerRoutine());
-    }
+        yield return new WaitForSeconds(initialAttackDelay);
 
-    private Vector3 GetFormationPosition()
-    {
-        if (player == null || formationSlot < 0) return transform.position;
-
-        float angleStep = 360f / AttackQueueManager.Instance.maxAttackers;
-        float angle = formationSlot * angleStep;
-
-        float spacing = formationRadius + 1f + 0.5f * formationSlot;
-
-        Vector3 offset = new Vector3(
-            Mathf.Cos(angle * Mathf.Deg2Rad),
-            Mathf.Sin(angle * Mathf.Deg2Rad),
-            0
-        ) * spacing;
-
-        return player.position + offset;
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Player") && !isAttacking)
+        if (rb != null)
         {
-            PlayerController playerController = other.GetComponent<PlayerController>();
-            if (playerController != null)
-            {
-                if (currentBehavior != null)
-                    StopCoroutine(currentBehavior);
-
-                currentBehavior = StartCoroutine(AttackAndRetreat(playerController));
-            }
+            rb.isKinematic = true;
+            rb.velocity = Vector2.zero;
         }
-    }
 
-
-    private IEnumerator AttackAndRetreat(PlayerController playerController)
-    {
-        isAttacking = true;
-
-        // Aplica dano imediato
-        //playerController.TakeDamage(1); // ou use damageAmount se tiver
-
-        // Recuo visual (agora usa as novas variáveis)
-        Vector2 retreatDir = (transform.position - playerController.transform.position).normalized;
+        Vector2 dashDirection = (player.position - transform.position).normalized;
         float timer = 0f;
 
-        while (timer < retreatDuration)
+        while (timer < attackDashDuration)
         {
-            transform.position += (Vector3)(retreatDir * retreatSpeed * Time.deltaTime);
+            transform.position += (Vector3)(dashDirection * attackDashSpeed * Time.deltaTime);
             timer += Time.deltaTime;
+
+            if (Vector2.Distance(transform.position, player.position) < dangerZoneRadius)
+            {
+                break;
+            }
+
             yield return null;
         }
+
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.velocity = Vector2.zero;
+        }
+
+        if (spriteRenderer != null) spriteRenderer.color = originalColor;
 
         yield return new WaitForSeconds(postAttackDelay);
 
-        isAttacking = false;
-        currentBehavior = StartCoroutine(ChasePlayerRoutine());
+        isDashActive = false;
+
+        // Volta para o estado de espera para checagem do cooldown
+        SetState(EnemyState.Alert);
     }
 
-    private bool CanSeePlayer(bool rotateTowardPlayer)
+
+    // --- ROTINA DE RECUO (Dash para trás) ---
+    private IEnumerator RetreatDashRoutine()
     {
-        if (player == null)
-            return false;
+        if (player == null) { SetState(EnemyState.Alert); yield break; }
 
-        Vector2 dirToPlayer = (player.position - transform.position);
-        float distance = dirToPlayer.magnitude;
+        isDashActive = true;
+        lastAttackTime = Time.time;
 
-        if (distance > visionRange)
-            return false;
+        if (spriteRenderer != null) spriteRenderer.color = Color.magenta;
 
-        float angle = Vector2.Angle(transform.right, dirToPlayer.normalized);
-        return angle < visionAngle / 2f;
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.velocity = Vector2.zero;
+        }
+
+        Vector2 retreatDir = (transform.position - player.position).normalized;
+
+        Quaternion startRotation = transform.rotation;
+        Quaternion targetRotation = startRotation * Quaternion.Euler(0, 0, 360f);
+        float timer = 0f;
+
+        // Recua até sair da DangerZone OU atingir o CombatRange
+        while (Vector2.Distance(transform.position, player.position) < combatRange)
+        {
+            transform.position += (Vector3)(retreatDir * retreatDashSpeed * Time.deltaTime);
+
+            float rotationProgress = timer / retreatDashDuration;
+            transform.rotation = Quaternion.Slerp(startRotation, targetRotation, rotationProgress);
+
+            timer += Time.deltaTime;
+
+            if (timer > retreatDashDuration)
+            {
+                targetRotation = transform.rotation * Quaternion.Euler(0, 0, 360f);
+                startRotation = transform.rotation;
+                timer = 0f;
+            }
+            yield return null;
+        }
+
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.velocity = Vector2.zero;
+        }
+
+        RotateTowards((player.position - transform.position).normalized);
+
+        if (spriteRenderer != null) spriteRenderer.color = originalColor;
+
+        yield return new WaitForSeconds(postRetreatDelay);
+
+        isDashActive = false;
+
+        // Volta para o estado de espera para checagem do cooldown
+        SetState(EnemyState.Alert);
+    }
+
+
+    // --- FUNÇÕES DE UTILIDADE ---
+
+    private void RotateTowards(Vector2 direction)
+    {
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            PlayerController playerController = collision.gameObject.GetComponent<PlayerController>();
-            if (playerController != null)
-            {
-                playerController.TakeDamage(meleeDamage); // CHAMA TAKE DAMAGE AQUI!
-            }
+            // Note: Você precisará de um componente PlayerController no player para isso funcionar
+            // PlayerController playerController = collision.gameObject.GetComponent<PlayerController>();
+            // if (playerController != null)
+            // {
+            //     if (currentState == EnemyState.Attacking)
+            //     {
+            //         playerController.TakeDamage(damageAmount);
+            //     }
+            //     else if (currentState == EnemyState.Retreating)
+            //     {
+            //         playerController.TakeDamage(retreatDamageAmount);
+            //     }
+            // }
         }
     }
+
+
+    // --- VISUALIZAÇÃO DAS ÁREAS (Gizmos) ---
 
     void OnDrawGizmosSelected()
     {
-        if (player == null) return;
+        Vector3 center = transform.position;
 
-        Gizmos.color = CanSeePlayer(false) ? Color.red : Color.cyan;
+        // Área Azul Claro (Visão)
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(center, visionRange);
 
-        Vector3 origin = transform.position;
-        Vector3 forward = transform.right;
+        // Área Azul (Memória)
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(center, memoryRange);
 
-        // Note: Agora usa visionAngle
-        float halfAngle = visionAngle / 2f;
-        Quaternion leftRayRotation = Quaternion.Euler(0, 0, -halfAngle);
-        Quaternion rightRayRotation = Quaternion.Euler(0, 0, halfAngle);
+        // Área Verde (Combate/Ataque - Ponto de Parada)
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(center, combatRange);
 
-        Vector3 leftRayDirection = leftRayRotation * forward;
-        Vector3 rightRayDirection = rightRayRotation * forward;
+        // Área Vermelha (Perigo/Fuga)
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(center, dangerZoneRadius);
 
-        // Note: Agora usa visionRange
-        Gizmos.DrawLine(origin, origin + leftRayDirection * visionRange);
-        Gizmos.DrawLine(origin, origin + rightRayDirection * visionRange);
-
-        int segments = 20;
-        for (int i = 0; i <= segments; i++)
-        {
-            float angle = -halfAngle + (visionAngle * i / segments);
-            Quaternion segmentRotation = Quaternion.Euler(0, 0, angle);
-            Vector3 segmentDirection = segmentRotation * forward;
-            // Note: Agora usa visionRange
-            Gizmos.DrawLine(origin, origin + segmentDirection * visionRange);
-        }
-
+        // Gizmo de Patrulha
         Gizmos.color = Color.yellow;
         if (patrolPoints != null)
         {
-            foreach (Transform point in patrolPoints)
+            for (int i = 0; i < patrolPoints.Length; i++)
             {
+                Transform point = patrolPoints[i];
                 Gizmos.DrawSphere(point.position, 0.2f);
+                if (i > 0)
+                {
+                    Gizmos.DrawLine(patrolPoints[i - 1].position, point.position);
+                }
+            }
+            if (patrolPoints.Length > 1)
+            {
+                Gizmos.DrawLine(patrolPoints[patrolPoints.Length - 1].position, patrolPoints[0].position);
             }
         }
     }
-
 }
