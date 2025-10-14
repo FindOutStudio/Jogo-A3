@@ -8,39 +8,51 @@ public class EnemyProjectile : MonoBehaviour
 
     void Start()
     {
-        // Certifica que o projÈtil se destrÛi apÛs um tempo
+        // Certifica que o proj√©til se destr√≥i ap√≥s um tempo
         Destroy(gameObject, lifetime);
     }
 
     void FixedUpdate()
     {
-        // Movimento do projÈtil
+        // Movimento do proj√©til
         transform.Translate(Vector2.right * speed * Time.fixedDeltaTime);
     }
 
-    void OnTriggerEnter2D(Collider2D other) // Use OnTriggerEnter2D se o Collider do projÈtil for um Trigger
+    void OnTriggerEnter2D(Collider2D other) // Use OnTriggerEnter2D se o Collider do proj√©til for um Trigger
     {
-        if (other.CompareTag("Player"))
+        string tag = other.tag;
+
+        if (tag.CompareTo("Player") == 0)
         {
-            // Tenta obter o PlayerController para aplicar dano e o flash
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)
             {
-                player.TakeDamage(damage); // Assume que TakeDamage j· existe e lida com invulnerabilidade e flash
+                player.TakeDamage(damage); 
             }
-            Destroy(gameObject); // ProjÈtil some ao colidir com o Player
+            Destroy(gameObject); 
         }
-        else if (other.CompareTag("Obstacle") || other.CompareTag("PlayerCollision")) // Colidir com paredes/obst·culos
+        // NOVO: Adicionando verifica√ß√£o para objetos de teia
+        // Se suas teias (WebTrail, WebDamageZone) t√™m a tag "Web", use isso.
+        else if (tag.CompareTo("Web") == 0 || tag.CompareTo("WebTrail") == 0 || tag.CompareTo("WebDamageZone") == 0)
         {
-            Destroy(gameObject); // ProjÈtil some ao colidir com obst·culos
+            // O proj√©til colidiu com a teia e deve ser destru√≠do.
+            // A teia √© destru√≠da pelo proj√©til, o proj√©til √© destru√≠do pela teia.
+            // Aqui, o proj√©til destr√≥i a si mesmo e a teia.
+            Destroy(other.gameObject); 
+            Destroy(gameObject);
         }
-        // N√O faÁa nada se colidir com inimigos, pois j· configuramos as camadas de fÌsica para ignorar.
+        else if (tag.CompareTo("Obstacle") == 0 || tag.CompareTo("PlayerCollision") == 0) // Colidir com paredes/obst√°culos
+        {
+            Destroy(gameObject); // Proj√©til some ao colidir com obst√°culos
+        }
     }
 
-    // Se o Collider do projÈtil N√O for um Trigger, use OnCollisionEnter2D
+    // Se o Collider do proj√©til N√ÉO for um Trigger, use OnCollisionEnter2D
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        string tag = collision.gameObject.tag;
+
+        if (tag.CompareTo("Player") == 0)
         {
             PlayerController player = collision.gameObject.GetComponent<PlayerController>();
             if (player != null)
@@ -49,7 +61,13 @@ public class EnemyProjectile : MonoBehaviour
             }
             Destroy(gameObject);
         }
-        else if (collision.gameObject.CompareTag("Obstacle") || collision.gameObject.CompareTag("PlayerCollision"))
+        // NOVO: Adicionando verifica√ß√£o para objetos de teia (Se n√£o for Trigger)
+        else if (tag.CompareTo("Web") == 0 || tag.CompareTo("WebTrail") == 0 || tag.CompareTo("WebDamageZone") == 0)
+        {
+            Destroy(collision.gameObject);
+            Destroy(gameObject);
+        }
+        else if (tag.CompareTo("Obstacle") == 0 || tag.CompareTo("PlayerCollision") == 0)
         {
             Destroy(gameObject);
         }

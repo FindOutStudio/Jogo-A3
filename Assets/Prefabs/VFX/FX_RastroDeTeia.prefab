@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 6745089468840825216}
   m_Layer: 9
   m_Name: FX_RastroDeTeia
-  m_TagString: Untagged
+  m_TagString: Web
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4960,3 +4960,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1dbfb0bf12bb8644c969ca6262e4bed3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  duration: 1.5
+  damageAmount: 1

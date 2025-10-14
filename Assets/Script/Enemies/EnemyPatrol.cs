@@ -6,13 +6,23 @@ public class EnemyPatrol : MonoBehaviour
     public enum EnemyState
     {
         Patrolling,
-        Alert, // Usado como Ponto de Parada / Espera pelo Cooldown (AGORA LOOP ATIVO)
+        Alert,
         Chasing,
         Attacking,
         Retreating
     }
 
     private EnemyState currentState = EnemyState.Patrolling;
+
+    [Header("Health")]
+    [SerializeField] private int maxHealth = 3; 
+    private int currentHealth;
+
+    // --- NOVO: COOLDOWN DE DANO DE TEIA ---
+    [Header("Web Damage Cooldown")]
+    // Ajuste este valor no Inspector (e.g., 0.2f a 0.5f)
+    [SerializeField] private float webDamageCooldown = 0.3f; 
+    private bool isInvulnerableFromWeb = false;
 
     [Header("Patrulha")]
     public Transform[] patrolPoints;
@@ -48,6 +58,8 @@ public class EnemyPatrol : MonoBehaviour
     public float attackDashSpeed = 8f;
     public float attackDashDuration = 0.3f;
     public float postAttackDelay = 0.5f;
+    [Tooltip("Tempo extra para garantir a colisão após o Dash parar.")]
+    public float postAttackCollisionTime = 0.05f; 
     [SerializeField] private int damageAmount = 1;
     [SerializeField] private float attackCooldown = 2f;
     private float lastAttackTime = -Mathf.Infinity;
@@ -68,11 +80,10 @@ public class EnemyPatrol : MonoBehaviour
     private Coroutine currentBehavior;
     private bool isDashActive = false;
     private Rigidbody2D rb;
+    private bool hitPlayerThisDash = false;
 
-    // CONTROLE DE MEMÓRIA: Flag para rastrear se o player foi visto recentemente
     private bool hasPlayerBeenSeen = false;
 
-    // Margem para estabilizar a entrada no Recuo
     private const float MIN_DISTANCE_TO_DANGER = 0.05f;
 
     void Start()
@@ -90,6 +101,7 @@ public class EnemyPatrol : MonoBehaviour
 
         rb = GetComponent<Rigidbody2D>();
 
+        currentHealth = maxHealth;
         currentBehavior = StartCoroutine(PatrolRoutine());
     }
 
@@ -100,48 +112,40 @@ public class EnemyPatrol : MonoBehaviour
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         EnemyState nextState = currentState;
 
-        // ROTAÇÃO PARA O PLAYER
         if (currentState != EnemyState.Patrolling && currentState != EnemyState.Alert)
         {
             RotateTowards((player.position - transform.position).normalized);
         }
 
-        // Se estiver em um estado de "pausa" ou "ação" (Attack ou Retreat), a Coroutine controla a transição
         if (currentState == EnemyState.Attacking || currentState == EnemyState.Retreating) return;
 
 
-        // --- PRIORIDADE 1: Recuo Imediato (Danger Zone) ---
         if (distanceToPlayer <= dangerZoneRadius + MIN_DISTANCE_TO_DANGER)
         {
             nextState = EnemyState.Retreating;
         }
-        // --- PRIORIDADE 2: Ataque Imediato (Combat Range) ---
         else if (distanceToPlayer <= combatRange && Time.time >= lastAttackTime + attackCooldown)
         {
             nextState = EnemyState.Attacking;
         }
-        // --- PRIORIDADE 3: Manter Perseguição / Espera de Cooldown (Lógica de Memória) ---
         else if (IsPlayerInMemory() || CanSeePlayer())
         {
-            // Se estava Patrulhando, vai para o estado de Alerta (rápido)
             if (currentState == EnemyState.Patrolling)
             {
                 nextState = EnemyState.Alert;
             }
             else
             {
-                // Se estiver na faixa de combate E o cooldown estiver ATIVO, ele PÁRA/ESPERA (Alert)
                 if (distanceToPlayer <= combatRange + MIN_DISTANCE_TO_DANGER && Time.time < lastAttackTime + attackCooldown)
                 {
-                    nextState = EnemyState.Alert; // Usa Alert como "Stop/Wait for Cooldown"
+                    nextState = EnemyState.Alert;
                 }
                 else
                 {
-                    nextState = EnemyState.Chasing; // Continua perseguindo
+                    nextState = EnemyState.Chasing;
                 }
             }
         }
-        // --- PRIORIDADE 4: Volta à Patrulha ---
         else
         {
             nextState = EnemyState.Patrolling;
@@ -152,7 +156,6 @@ public class EnemyPatrol : MonoBehaviour
 
     private bool IsPlayerInMemory()
     {
-        // A memória funciona se o player já foi visto E está dentro do Memory Range.
         return hasPlayerBeenSeen && Vector2.Distance(transform.position, player.position) <= memoryRange;
     }
 
@@ -185,7 +188,6 @@ public class EnemyPatrol : MonoBehaviour
 
         currentState = newState;
 
-        // NOVO: A memória é perdida apenas ao entrar em Patrolling.
         hasPlayerBeenSeen = (newState != EnemyState.Patrolling);
 
         switch (currentState)
@@ -194,7 +196,6 @@ public class EnemyPatrol : MonoBehaviour
                 currentBehavior = StartCoroutine(PatrolRoutine());
                 break;
             case EnemyState.Alert:
-                // ATUALIZADO: Chama a rotina de loop de espera
                 currentBehavior = StartCoroutine(WaitForCooldownRoutine());
                 break;
             case EnemyState.Chasing:
@@ -210,29 +211,21 @@ public class EnemyPatrol : MonoBehaviour
     }
 
 
-    // --- ROTINAS DE COMPORTAMENTO ---
-
-    // NOVO: Rotina que fica em loop enquanto espera o Update() decidir a próxima ação.
     private IEnumerator WaitForCooldownRoutine()
     {
         currentState = EnemyState.Alert;
         if (spriteRenderer != null) spriteRenderer.color = Color.gray;
 
-        // O loop garante que o Update() é checado a cada frame.
         while (currentState == EnemyState.Alert)
         {
-            // Garante que o inimigo está virado para o player enquanto espera.
             if (player != null)
             {
                 RotateTowards((player.position - transform.position).normalized);
             }
 
-            // O 'yield return null' é crucial para que o loop não trave o jogo
-            // e permita que a função Update() seja chamada no próximo frame.
             yield return null;
         }
 
-        // Quando o loop for interrompido por um SetState() no Update(), a cor é resetada.
         if (spriteRenderer != null) spriteRenderer.color = originalColor;
     }
 
@@ -297,12 +290,12 @@ public class EnemyPatrol : MonoBehaviour
     }
 
 
-    // --- ROTINA DE ATAQUE (Dash para frente) ---
     private IEnumerator AttackDashRoutine()
     {
         if (player == null) { SetState(EnemyState.Alert); yield break; }
 
         isDashActive = true;
+        hitPlayerThisDash = false;
         lastAttackTime = Time.time;
 
         if (spriteRenderer != null) spriteRenderer.color = Color.yellow;
@@ -312,21 +305,16 @@ public class EnemyPatrol : MonoBehaviour
         if (rb != null)
         {
             rb.isKinematic = true;
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
         }
 
         Vector2 dashDirection = (player.position - transform.position).normalized;
         float timer = 0f;
 
-        while (timer < attackDashDuration)
+        while (timer < attackDashDuration && !hitPlayerThisDash)
         {
             transform.position += (Vector3)(dashDirection * attackDashSpeed * Time.deltaTime);
             timer += Time.deltaTime;
-
-            if (Vector2.Distance(transform.position, player.position) < dangerZoneRadius)
-            {
-                break;
-            }
 
             yield return null;
         }
@@ -334,8 +322,10 @@ public class EnemyPatrol : MonoBehaviour
         if (rb != null)
         {
             rb.isKinematic = false;
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
         }
+
+        yield return new WaitForSeconds(postAttackCollisionTime); 
 
         if (spriteRenderer != null) spriteRenderer.color = originalColor;
 
@@ -343,25 +333,22 @@ public class EnemyPatrol : MonoBehaviour
 
         isDashActive = false;
 
-        // Volta para o estado de espera para checagem do cooldown
         SetState(EnemyState.Alert);
     }
 
 
-    // --- ROTINA DE RECUO (Dash para trás) ---
     private IEnumerator RetreatDashRoutine()
     {
         if (player == null) { SetState(EnemyState.Alert); yield break; }
 
         isDashActive = true;
-        lastAttackTime = Time.time;
 
         if (spriteRenderer != null) spriteRenderer.color = Color.magenta;
 
         if (rb != null)
         {
             rb.isKinematic = true;
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
         }
 
         Vector2 retreatDir = (transform.position - player.position).normalized;
@@ -370,7 +357,6 @@ public class EnemyPatrol : MonoBehaviour
         Quaternion targetRotation = startRotation * Quaternion.Euler(0, 0, 360f);
         float timer = 0f;
 
-        // Recua até sair da DangerZone OU atingir o CombatRange
         while (Vector2.Distance(transform.position, player.position) < combatRange)
         {
             transform.position += (Vector3)(retreatDir * retreatDashSpeed * Time.deltaTime);
@@ -392,7 +378,7 @@ public class EnemyPatrol : MonoBehaviour
         if (rb != null)
         {
             rb.isKinematic = false;
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
         }
 
         RotateTowards((player.position - transform.position).normalized);
@@ -403,12 +389,9 @@ public class EnemyPatrol : MonoBehaviour
 
         isDashActive = false;
 
-        // Volta para o estado de espera para checagem do cooldown
         SetState(EnemyState.Alert);
     }
 
-
-    // --- FUNÇÕES DE UTILIDADE ---
 
     private void RotateTowards(Vector2 direction)
     {
@@ -420,46 +403,86 @@ public class EnemyPatrol : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            // Note: Você precisará de um componente PlayerController no player para isso funcionar
-            // PlayerController playerController = collision.gameObject.GetComponent<PlayerController>();
-            // if (playerController != null)
-            // {
-            //     if (currentState == EnemyState.Attacking)
-            //     {
-            //         playerController.TakeDamage(damageAmount);
-            //     }
-            //     else if (currentState == EnemyState.Retreating)
-            //     {
-            //         playerController.TakeDamage(retreatDamageAmount);
-            //     }
-            // }
+            PlayerController playerController = collision.gameObject.GetComponent<PlayerController>();
+
+            if (playerController != null)
+            {
+                if (currentState == EnemyState.Attacking)
+                {
+                    hitPlayerThisDash = true;
+                    
+                    playerController.TakeDamage(damageAmount);
+                }
+                else if (currentState == EnemyState.Retreating)
+                {
+                    playerController.TakeDamage(retreatDamageAmount);
+                }
+            }
         }
     }
 
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
 
-    // --- VISUALIZAÇÃO DAS ÁREAS (Gizmos) ---
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    public void TakeWebDamage(int damage)
+    {
+        if (isInvulnerableFromWeb)
+        {
+            return;
+        }
+
+        // Aplica o dano
+        currentHealth -= damage;
+        
+        // Inicia o Cooldown
+        StartCoroutine(WebDamageCooldownRoutine());
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private IEnumerator WebDamageCooldownRoutine()
+    {
+        isInvulnerableFromWeb = true;
+        // Opcional: Adicione um efeito de piscar ou mudança de cor aqui
+        
+        yield return new WaitForSeconds(webDamageCooldown);
+        
+        // Opcional: Volte o efeito visual ao normal
+        isInvulnerableFromWeb = false;
+    }
+
+    private void Die()
+    {
+        Destroy(gameObject);
+    }
+
 
     void OnDrawGizmosSelected()
     {
         Vector3 center = transform.position;
 
-        // Área Azul Claro (Visão)
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(center, visionRange);
 
-        // Área Azul (Memória)
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(center, memoryRange);
 
-        // Área Verde (Combate/Ataque - Ponto de Parada)
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(center, combatRange);
 
-        // Área Vermelha (Perigo/Fuga)
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(center, dangerZoneRadius);
 
-        // Gizmo de Patrulha
         Gizmos.color = Color.yellow;
         if (patrolPoints != null)
         {

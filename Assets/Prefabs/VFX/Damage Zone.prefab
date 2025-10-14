@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: -7392314127571596909}
   - component: {fileID: -4277614640325792953}
   - component: {fileID: -8556839063848844267}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Damage Zone
-  m_TagString: Untagged
+  m_TagString: Web
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -149,6 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   duration: 0.1
+  damageAmount: 1
 --- !u!50 &-8556839063848844267
 Rigidbody2D:
   serializedVersion: 5

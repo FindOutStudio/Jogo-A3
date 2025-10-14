@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 moveDir;
     private Vector2 aimDir;
     private Animator anim;
+    private SpriteRenderer spriteRenderer;
     private PlayerInputActions inputActions;
     private CrownController crownInstance;
     [SerializeField] private GameObject webDamageZonePrefab;
@@ -15,6 +16,14 @@ public class PlayerController : MonoBehaviour
     private float lastMoveX = 0f;
     private float lastMoveY = 0f;
 
+
+    // --- Variáveis de Vida e Dano ---
+    [Header("Vida e Dano")]
+    [SerializeField] private int maxHealth = 5; // Vida máxima do jogador
+    private int currentHealth;
+    [SerializeField] private float invulnerabilityDuration = 0.5f; // Duração do estado de invulnerabilidade
+    [SerializeField] private float flashInterval = 0.1f; // Frequência do pisca-pisca
+    private bool isInvulnerable = false;
 
     // --- Variáveis de Movimentação ---
     [Header("Movimentação")]
@@ -37,7 +46,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float VelLaunch = 10f;
     [SerializeField] private float VelReturn = 10f;
     [SerializeField] private float Delay = 0.5f;
-    private bool isInvulnerable = false;
 
     [Header("Dash")]
     [SerializeField] private float dashForce = 15f;
@@ -59,6 +67,8 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         inputActions = new PlayerInputActions();
+        spriteRenderer = GetComponent<SpriteRenderer>(); // Inicializa o SpriteRenderer
+        currentHealth = maxHealth;
     }
 
     private void OnEnable()
@@ -282,29 +292,58 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    public void TakeDamage(int amount)
+    public void TakeDamage(int damageAmount)
     {
         if (isInvulnerable) return;
 
-        StartCoroutine(DamageFlash());
-    }
-
-    private IEnumerator DamageFlash()
-    {
         isInvulnerable = true;
+        currentHealth -= damageAmount;
+        Debug.Log($"Player recebeu {damageAmount} de dano. Vida atual: {currentHealth}");
 
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        Color originalColor = sr.color;
-
-        for (int i = 0; i < flashCount; i++)
+        if (currentHealth <= 0)
         {
-            sr.color = flashColor;
-            yield return new WaitForSeconds(flashDuration);
-            sr.color = originalColor;
-            yield return new WaitForSeconds(flashDuration);
+            Die();
         }
 
+        // Se tiver um SpriteRenderer, inicia a rotina de flash
+        if (spriteRenderer != null)
+        {
+            StartCoroutine(InvulnerabilityFlashRoutine());
+        } else {
+             // Se não tiver, ainda precisamos esperar o tempo de invulnerabilidade
+            StartCoroutine(InvulnerabilityDurationRoutine());
+        }
+    }
+
+    private IEnumerator InvulnerabilityDurationRoutine()
+    {
+        // Usado como fallback se não houver SpriteRenderer
+        yield return new WaitForSeconds(invulnerabilityDuration);
         isInvulnerable = false;
+    }
+
+    private IEnumerator InvulnerabilityFlashRoutine()
+    {
+        float flashTime = 0f;
+
+        // Pisca o player durante a duração da invulnerabilidade
+        while (flashTime < invulnerabilityDuration)
+        {
+            spriteRenderer.enabled = !spriteRenderer.enabled; // Alterna a visibilidade
+            yield return new WaitForSeconds(flashInterval);
+            flashTime += flashInterval;
+        }
+
+        // Garante que o sprite esteja visível após o término
+        spriteRenderer.enabled = true;
+        isInvulnerable = false;
+    }
+
+    void Die()
+    {
+        Debug.Log("Player Morreu!");
+        // Implementar lógica de tela de Game Over aqui.
+        Destroy(gameObject);
     }
 
     public void OnDashPerformed(InputAction.CallbackContext context)
