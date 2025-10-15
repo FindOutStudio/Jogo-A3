@@ -89,6 +89,11 @@ public class CrownController : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
             rb.AddForce(newDirection * velLaunch, ForceMode2D.Impulse);
 
+            // ***************************************************************
+            // NOVO: Resetar o ponto de origem para iniciar a contagem de distância novamente
+            initialPosition = transform.position; 
+            // ***************************************************************
+
             if (rastroPrefab != null)
             {
                 GameObject newRastro = Instantiate(rastroPrefab, collision.contacts[0].point, Quaternion.identity);

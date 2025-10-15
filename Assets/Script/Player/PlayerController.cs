@@ -354,7 +354,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // A direção do dash será a direção exata do movimento
+        // A direção do dash será a direção exata do moviment
         Vector2 dashDirection = moveDir.normalized;
 
         StartCoroutine(DashRoutine(dashDirection));

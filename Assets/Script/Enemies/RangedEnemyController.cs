@@ -51,7 +51,20 @@ public class RangedEnemyController : MonoBehaviour
     public GameObject projectilePrefab;
     public Transform firePoint;
     public float projectileSpeed = 8f;
+    // --- NOVOS CAMPOS PARA CUSPIR PROJÉTIL (ATAQUE 1) ---
+    [Tooltip("Ângulo total do cone de ataque de projéteis.")]
+    public float coneAngle = 60f;
+    // ---------------------------------------------------
 
+    [Header("Dash Bomba (Ataque 2)")]
+    // --- NOVOS CAMPOS PARA DASH BOMBA (ATAQUE 2) ---
+    public GameObject bombPrefab; // **Você precisará de um prefab de bomba!**
+    [Tooltip("Distância do dash para trás.")]
+    public float dashDistance = 3f;
+    [Tooltip("Duração do dash (para cálculo de velocidade).")]
+    public float dashDuration = 0.2f;
+    // ---------------------------------------------------
+    
     private int currentPatrolIndex = 0;
     private Coroutine currentBehavior;
     private Rigidbody2D rb;
@@ -82,14 +95,17 @@ public class RangedEnemyController : MonoBehaviour
             RotateTowards((player.position - transform.position).normalized);
         }
 
+        // Se estiver executando um Dash/Recuo, não mude o estado no Update
         if (currentState == EnemyState.Retreating || currentState == EnemyState.WaitingToChase) return;
 
         if (distanceToPlayer <= dangerZoneRadius)
         {
+            // O estado de 'Retreating' (Recuo) agora executa o Dash Bomba
             nextState = EnemyState.Retreating;
         }
         else if (distanceToPlayer <= projectileRange)
         {
+            // O TryAttack() agora executa o Cuspir Projétil
             TryAttack();
             if (currentState != EnemyState.Chasing)
             {
@@ -141,13 +157,16 @@ public class RangedEnemyController : MonoBehaviour
                 currentBehavior = StartCoroutine(ChaseRoutine());
                 break;
             case EnemyState.Retreating:
-                currentBehavior = StartCoroutine(RetreatRoutine());
+                // NOVO: Chama o Dash Bomba em vez de apenas Recuar
+                currentBehavior = StartCoroutine(DashBombRoutine());
                 break;
             case EnemyState.WaitingToChase:
                 currentBehavior = StartCoroutine(WaitForChaseRoutine());
                 break;
         }
     }
+    
+    // ... (Métodos IsPlayerInMemory, CanSeePlayer, PatrolRoutine, SearchingRoutine, WaitForChaseRoutine, ChaseRoutine não alterados, mas inclusos para contexto) ...
 
     private bool IsPlayerInMemory()
     {
@@ -228,28 +247,44 @@ public class RangedEnemyController : MonoBehaviour
             yield return null;
         }
     }
-
-    private IEnumerator RetreatRoutine()
+    
+    // ----------------------------------------------------------------------
+    // NOVO: DASH BOMBA (Substitui o RetreatRoutine antigo)
+    // ----------------------------------------------------------------------
+    private IEnumerator DashBombRoutine()
     {
-        while (Vector2.Distance(transform.position, player.position) < projectileRange)
+        if (bombPrefab == null)
         {
-            Vector2 dirToPlayer = (player.position - transform.position);
-            Vector2 direction = -dirToPlayer.normalized;
-
-            if (CanMoveInDirection(direction))
-            {
-                transform.position += (Vector3)(direction * retreatSpeed * Time.deltaTime);
-                RotateTowards(dirToPlayer.normalized);
-            }
-            else
-            {
-                break;
-            }
-            yield return null;
+            Debug.LogError("Dash Bomba requer que o 'bombPrefab' esteja configurado!");
+            SetState(EnemyState.ChasingWithMemory); // Fallback
+            yield break;
         }
 
+        Vector3 initialDashPos = transform.position;
+        Vector2 dirToPlayer = (player.position - transform.position).normalized;
+        Vector2 dashDirection = -dirToPlayer; // Dash para trás (away from player)
+        
+        // 1. Solta a bomba na posição atual (onde o inimigo estava)
+        Instantiate(bombPrefab, transform.position, Quaternion.identity);
+
+        // 2. Dash para trás
+        float dashSpeedCalculated = dashDistance / dashDuration;
+        float startTime = Time.time;
+
+        while (Time.time < startTime + dashDuration)
+        {
+            // Move o inimigo
+            rb.MovePosition(rb.position + dashDirection * dashSpeedCalculated * Time.fixedDeltaTime);
+            yield return new WaitForFixedUpdate(); // Usa FixedUpdate para movimento do Rigidbody
+        }
+
+        // 3. Garante que ele parou e está no novo local (opcionalmente)
+        transform.position = initialDashPos + (Vector3)(dashDirection * dashDistance);
+
+        // 4. Volta para o estado de perseguição/procura
         SetState(EnemyState.ChasingWithMemory);
     }
+    // ----------------------------------------------------------------------
 
     private bool CanMoveInDirection(Vector2 direction)
     {
@@ -266,28 +301,52 @@ public class RangedEnemyController : MonoBehaviour
             
             if (hit.collider == null || hit.collider.transform == player)
             {
-                FireProjectile(dirToPlayer.normalized);
+                // NOVO: Chama o ataque Cuspir Projétil
+                SpitProjectiles(dirToPlayer.normalized);
                 lastAttackTime = Time.time;
             }
         }
     }
 
-    private void FireProjectile(Vector2 direction)
+    // ----------------------------------------------------------------------
+    // NOVO: CUSPINDO PROJÉTEIS (Substitui o FireProjectile)
+    // ----------------------------------------------------------------------
+    private void SpitProjectiles(Vector2 direction)
     {
-        if (projectilePrefab != null && firePoint != null)
-        {
-            GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
-            Rigidbody2D projRb = projectile.GetComponent<Rigidbody2D>();
-            
-            if (projRb != null)
-            {
-                projRb.velocity = direction * projectileSpeed;
-            }
-            
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            projectile.transform.rotation = Quaternion.Euler(0, 0, angle);
-        }
+        if (projectilePrefab == null || firePoint == null) return;
+        
+        // Direção central
+        float baseAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        
+        // Ângulos dos 3 projéteis
+        float angle1 = baseAngle - coneAngle / 2f;
+        float angle2 = baseAngle; // Centro
+        float angle3 = baseAngle + coneAngle / 2f;
+        
+        // Dispara os projéteis
+        FireSingleProjectile(angle1);
+        FireSingleProjectile(angle2);
+        FireSingleProjectile(angle3);
     }
+
+    private void FireSingleProjectile(float angle)
+    {
+        Vector2 dir = Quaternion.Euler(0, 0, angle) * Vector2.right;
+
+        GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+        Rigidbody2D projRb = projectile.GetComponent<Rigidbody2D>();
+        
+        if (projRb != null)
+        {
+            projRb.velocity = dir * projectileSpeed;
+        }
+        
+        // Rotação visual
+        projectile.transform.rotation = Quaternion.Euler(0, 0, angle);
+
+        // NOTA: É necessário que o script do projétil saiba que ele deve causar 1 de dano no Player.
+    }
+    // ----------------------------------------------------------------------
 
 
     private void RotateTowards(Vector2 direction)

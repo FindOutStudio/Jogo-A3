@@ -3,7 +3,7 @@ using UnityEngine;
 public class EnemyProjectile : MonoBehaviour
 {
     public float speed = 5f;
-    public int damage = 10;
+    public int damage = 1;
     public float lifetime = 3f;
 
     void Start()
