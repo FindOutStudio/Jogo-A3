@@ -338,7 +338,7 @@ public class RangedEnemyController : MonoBehaviour
         
         if (projRb != null)
         {
-            projRb.velocity = dir * projectileSpeed;
+            projRb.linearVelocity = dir * projectileSpeed;
         }
         
         // Rotação visual
