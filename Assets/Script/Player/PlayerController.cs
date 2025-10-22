@@ -31,7 +31,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxSpd = 10f;
     [SerializeField] private float accel = 2f;
     [SerializeField] private float deccel = 2f;
-    private bool isDashing = false; // NOVA VARIÁVEL
+    private bool isDashing = false;
+    private bool isDead = false; // << NOVO: Controla o estado de Morte
 
     // --- Variáveis da Coroa e Teletransporte ---
     [Header("Coroa e Lançamento")]
@@ -61,13 +62,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int flashCount = 3;
 
 
-
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         inputActions = new PlayerInputActions();
-        spriteRenderer = GetComponent<SpriteRenderer>(); // Inicializa o SpriteRenderer
+        spriteRenderer = GetComponent<SpriteRenderer>();
         currentHealth = maxHealth;
     }
 
@@ -122,7 +122,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnThrowCrownPerformed(InputAction.CallbackContext context)
     {
-        if (!context.performed) return;
+        if (!context.performed || isDead) return; // << NOVO: Bloqueia a ação se estiver morto
 
         // 1. Recálculo da direção da mira na hora do disparo (Gamepad ou Mouse)
         Vector2 dir = Vector2.right; // Valor padrão
@@ -150,7 +150,7 @@ public class PlayerController : MonoBehaviour
 
             if (ricochetPoint == Vector3.zero)
             {
-                // Lógica de teletransporte em linha reta (detalhada no seu script)
+                // Lógica de teletransporte em linha reta
                 Vector3 playerPos = transform.position;
                 Vector3 crownPos = crownInstance.transform.position;
 
@@ -182,6 +182,8 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (isDead) return; // << NOVO: Não processa input/mira se estiver morto
+
         if (moveDir.sqrMagnitude > 1f)
         {
             moveDir.Normalize();
@@ -207,7 +209,9 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!isDashing) // NOVA CONDIÇÃO
+        if (isDead) return; // << NOVO: Não processa física se estiver morto
+
+        if (!isDashing)
         {
             HandleMovement();
             UpdateAnimator();
@@ -248,7 +252,7 @@ public class PlayerController : MonoBehaviour
             VelLaunch,
             VelReturn,
             Delay,
-            rastroDeTeiaPrefab // O 6º parâmetro que estava faltando no seu rascunho
+            rastroDeTeiaPrefab
         );
 
         crownInstance = newCrown;
@@ -294,7 +298,7 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(int damageAmount)
     {
-        if (isInvulnerable) return;
+        if (isInvulnerable || isDead) return; // << NOVO: Impede dano se estiver morto
 
         isInvulnerable = true;
         currentHealth -= damageAmount;
@@ -303,14 +307,17 @@ public class PlayerController : MonoBehaviour
         if (currentHealth <= 0)
         {
             Die();
+            return; // Garante que o restante do código não seja executado após a morte
         }
 
         // Se tiver um SpriteRenderer, inicia a rotina de flash
         if (spriteRenderer != null)
         {
             StartCoroutine(InvulnerabilityFlashRoutine());
-        } else {
-             // Se não tiver, ainda precisamos esperar o tempo de invulnerabilidade
+        }
+        else
+        {
+            // Se não tiver, ainda precisamos esperar o tempo de invulnerabilidade
             StartCoroutine(InvulnerabilityDurationRoutine());
         }
     }
@@ -339,15 +346,58 @@ public class PlayerController : MonoBehaviour
         isInvulnerable = false;
     }
 
+    // ======================================================================
+    // >> LÓGICA DE MORTE E ANIMAÇÃO
+    // ======================================================================
     void Die()
     {
-        Debug.Log("Player Morreu!");
-        // Implementar lógica de tela de Game Over aqui.
-        Destroy(gameObject);
+        if (isDead) return; // Evita ser chamado múltiplas vezes
+
+        isDead = true;
+        Debug.Log("Player Morreu! Iniciando animação de morte...");
+
+        // 1. Dispara o Trigger 'Die' no Animator
+        if (anim != null)
+        {
+            anim.SetTrigger("Die");
+        }
+
+        // 2. Desativa o input do jogador imediatamente
+        if (inputActions != null)
+        {
+            inputActions.Player.Disable();
+        }
+
+        // 3. Trava a física e o movimento para o jogador não deslizar
+        rb.velocity = Vector2.zero;
+        rb.isKinematic = true; // Impede que o Rigidbody seja movido por forças externas
+
+        // 4. Inicia a Coroutine para esperar a animação antes de destruir o objeto
+        StartCoroutine(HandleDeathRoutine());
+
+        // NOTA: A lógica de Game Over/Reiniciar deve ser chamada aqui ou após a coroutine.
     }
+
+    private IEnumerator HandleDeathRoutine()
+    {
+        // ATENÇÃO: Ajuste este valor (em segundos) para a duração EXATA
+        // da sua animação de morte no Unity Animator!
+        float deathAnimationDuration = 1.5f;
+
+        yield return new WaitForSeconds(deathAnimationDuration);
+
+        // Exemplo: Destrói o GameObject do Player após a animação
+        Destroy(gameObject);
+
+        // Aqui você pode chamar o Game Over da sua GameManager (se existir)
+        // Ex: GameManager.Instance.GameOver(); 
+    }
+    // ======================================================================
 
     public void OnDashPerformed(InputAction.CallbackContext context)
     {
+        if (isDead) return; // << NOVO: Impede Dash se estiver morto
+
         // Apenas realiza o dash se o botão foi pressionado E o jogador está se movendo
         if (!context.performed || !canDash || moveDir == Vector2.zero)
         {
@@ -364,7 +414,9 @@ public class PlayerController : MonoBehaviour
     {
         canDash = false;
         isInvulnerable = true;
-        isDashing = true; // DEFINE COMO TRUE
+        isDashing = true;
+
+        anim.SetBool("IsDashing", true);
 
         // Desabilita todas as ações do jogador para que nenhum input funcione
         inputActions.Player.Disable();
@@ -398,41 +450,40 @@ public class PlayerController : MonoBehaviour
 
         rb.gravityScale = originalGravity;
         isInvulnerable = false;
-        isDashing = false; // DEFINE COMO FALSE
+        isDashing = false;
+        anim.SetBool("IsDashing", false);
 
-        // Reabilita as ações do jogador
-        inputActions.Player.Enable();
+        // Reabilita as ações do jogador (só se não estiver morto)
+        if (!isDead) // << NOVO: Só reabilita se o player não morreu durante o Dash
+        {
+            inputActions.Player.Enable();
+        }
 
         // Cooldown do dash
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
+
     void UpdateAnimator()
-{
-    if (anim == null) return;
-
-    // 1. Calcula a velocidade para o parâmetro 'Speed'
-    // A magnitude (módulo) da velocidade linear é um bom indicador de quão rápido o player está se movendo.
-    float currentSpeed = rb.linearVelocity.magnitude;
-    anim.SetFloat("Speed", currentSpeed);
-
-    // 2. Atualiza a direção APENAS se o player estiver se movendo
-    // Usamos um valor pequeno (ex: 0.1f) para evitar que a animação mude quando houver um pequeno jitter de velocidade.
-    if (currentSpeed > 0.1f)
     {
-        // Obtém a direção da velocidade atual (mais preciso do que moveDir, pois considera o Rigidbody)
-        Vector2 currentDir = rb.linearVelocity.normalized;
+        if (anim == null) return;
 
-        // Arredonda para o ponto mais próximo (-1, 0 ou 1) para encaixar na Blend Tree 2D
-        lastMoveX = Mathf.Round(currentDir.x); 
-        lastMoveY = Mathf.Round(currentDir.y);
+        // 1. Calcula a velocidade para o parâmetro 'Speed'
+        float currentSpeed = rb.linearVelocity.magnitude;
+        anim.SetFloat("Speed", currentSpeed);
+
+        // 2. Atualiza a direção APENAS se o player estiver se movendo
+        if (currentSpeed > 0.1f)
+        {
+            Vector2 currentDir = rb.linearVelocity.normalized;
+
+            // Arredonda para o ponto mais próximo (-1, 0 ou 1) para encaixar na Blend Tree 2D
+            lastMoveX = Mathf.Round(currentDir.x);
+            lastMoveY = Mathf.Round(currentDir.y);
+        }
+
+        // 3. Define os parâmetros de direção usando SEMPRE a última direção válida
+        anim.SetFloat("MoveX", lastMoveX);
+        anim.SetFloat("MoveY", lastMoveY);
     }
-    
-    // 3. Define os parâmetros de direção usando SEMPRE a última direção válida
-    // Isso garante que, mesmo parado (Speed = 0), o Blend Tree fique posicionado na última direção (o Idle direcional).
-    anim.SetFloat("MoveX", lastMoveX);
-    anim.SetFloat("MoveY", lastMoveY);
-}
-
-
 }
