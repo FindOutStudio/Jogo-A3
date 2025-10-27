@@ -171,6 +171,10 @@ PrefabInstance:
       propertyPath: dashDuration
       value: 0.17
       objectReference: {fileID: 0}
+    - target: {fileID: 6698104549976229296, guid: 595038b53ba4a9c4db6bb86a3bb66b63, type: 3}
+      propertyPath: pullDuration
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6903736971759105995, guid: 595038b53ba4a9c4db6bb86a3bb66b63, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0
@@ -230,6 +234,102 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8044775217846974058, guid: 595038b53ba4a9c4db6bb86a3bb66b63, type: 3}
   m_PrefabInstance: {fileID: 202383987}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1103543478 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8225134695109542720, guid: cf08eea4d80987b45b6a2db87d129fd4, type: 3}
+  m_PrefabInstance: {fileID: 2000768907}
+  m_PrefabAsset: {fileID: 0}
+--- !u!19719996 &1103543484 stripped
+TilemapCollider2D:
+  m_CorrespondingSourceObject: {fileID: 478783711108514216, guid: cf08eea4d80987b45b6a2db87d129fd4, type: 3}
+  m_PrefabInstance: {fileID: 2000768907}
+  m_PrefabAsset: {fileID: 0}
+--- !u!66 &1103543486
+CompositeCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1103543478}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_GeometryType: 0
+  m_GenerationType: 0
+  m_EdgeRadius: 0
+  m_ColliderPaths:
+  - m_Collider: {fileID: 1103543484}
+    m_ColliderPaths:
+    - - X: -5000000
+        Y: 40000000
+      - X: -15000000
+        Y: 40000000
+      - X: -15000000
+        Y: 30000000
+      - X: -5000000
+        Y: 30000000
+  m_CompositePaths:
+    m_Paths:
+    - - {x: -0.5000293, y: 3}
+      - {x: -0.5000293, y: 4}
+      - {x: -1.5, y: 3.999971}
+      - {x: -1.4999707, y: 3}
+  m_VertexDistance: 0.0005
+  m_OffsetDistance: 0.00005
+  m_UseDelaunayMesh: 0
+  m_CompositeGameObject: {fileID: 1103543478}
+--- !u!50 &1103543487
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1103543478}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1001 &1319132163
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7000,6 +7100,10 @@ PrefabInstance:
       propertyPath: m_Tiles.Array.data[370].second.m_TileObjectToInstantiateIndex
       value: 65535
       objectReference: {fileID: 0}
+    - target: {fileID: 478783711108514216, guid: cf08eea4d80987b45b6a2db87d129fd4, type: 3}
+      propertyPath: m_CompositeOperation
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1553706233510556203, guid: cf08eea4d80987b45b6a2db87d129fd4, type: 3}
       propertyPath: m_IsTrigger
       value: 1
@@ -9599,7 +9703,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8225134695109542720, guid: cf08eea4d80987b45b6a2db87d129fd4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1103543487}
+    - targetCorrespondingSourceObject: {fileID: 8225134695109542720, guid: cf08eea4d80987b45b6a2db87d129fd4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1103543486}
   m_SourcePrefab: {fileID: 100100000, guid: cf08eea4d80987b45b6a2db87d129fd4, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

@@ -369,7 +369,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // 3. Trava a física e o movimento para o jogador não deslizar
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
         rb.isKinematic = true; // Impede que o Rigidbody seja movido por forças externas
 
         // 4. Inicia a Coroutine para esperar a animação antes de destruir o objeto
