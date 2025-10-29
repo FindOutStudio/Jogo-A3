@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -32,7 +33,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float accel = 2f;
     [SerializeField] private float deccel = 2f;
     private bool isDashing = false;
-    private bool isDead = false; // << NOVO: Controla o estado de Morte
+    private bool isDead = false; // Controla o estado de Morte
 
     // --- Variáveis da Coroa e Teletransporte ---
     [Header("Coroa e Lançamento")]
@@ -60,6 +61,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Color flashColor = Color.red;
     [SerializeField] private float flashDuration = 0.1f;
     [SerializeField] private int flashCount = 3;
+
+    // << LÓGICA DO BURACO COMPLETA >>
+    [Header("Queda no Buraco")]
+    [SerializeField] private float shrinkRate = 3f;    // Velocidade que a sprite encolhe
+    [SerializeField] private float fallDuration = 1.0f;  // Duração total da queda antes de morrer
+    [SerializeField] private float fallDelay = 0.1f;    // Delay antes de iniciar a queda
+    private Vector3 targetScale = new Vector3(0.01f, 0.01f, 1f); // Escala final (quase zero)
+    private bool isFalling = false; // Controla o estado de queda
+    private Vector3 holeCenterPosition; // Armazena o centro do buraco
 
 
     void Awake()
@@ -122,7 +132,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnThrowCrownPerformed(InputAction.CallbackContext context)
     {
-        if (!context.performed || isDead) return; // << NOVO: Bloqueia a ação se estiver morto
+        if (!context.performed || isDead || isFalling) return; // Bloqueia a ação se estiver morto ou caindo
 
         // 1. Recálculo da direção da mira na hora do disparo (Gamepad ou Mouse)
         Vector2 dir = Vector2.right; // Valor padrão
@@ -182,7 +192,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (isDead) return; // << NOVO: Não processa input/mira se estiver morto
+        if (isDead || isFalling) return; // Não processa input/mira se estiver morto ou caindo
 
         if (moveDir.sqrMagnitude > 1f)
         {
@@ -209,7 +219,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isDead) return; // << NOVO: Não processa física se estiver morto
+        if (isDead || isFalling) return; // Bloqueia física se estiver morto ou caindo
 
         if (!isDashing)
         {
@@ -298,7 +308,7 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(int damageAmount)
     {
-        if (isInvulnerable || isDead) return; // << NOVO: Impede dano se estiver morto
+        if (isInvulnerable || isDead || isFalling) return; // Impede dano se estiver morto ou caindo
 
         isInvulnerable = true;
         currentHealth -= damageAmount;
@@ -347,14 +357,14 @@ public class PlayerController : MonoBehaviour
     }
 
     // ======================================================================
-    // >> LÓGICA DE MORTE E ANIMAÇÃO
+    // >> LÓGICA DE MORTE
     // ======================================================================
     void Die()
     {
-        if (isDead) return; // Evita ser chamado múltiplas vezes
+        if (isDead) return;
 
         isDead = true;
-        Debug.Log("Player Morreu! Iniciando animação de morte...");
+        Debug.Log("Player Morreu! Iniciando rotina de Game Over...");
 
         // 1. Dispara o Trigger 'Die' no Animator
         if (anim != null)
@@ -368,14 +378,16 @@ public class PlayerController : MonoBehaviour
             inputActions.Player.Disable();
         }
 
-        // 3. Trava a física e o movimento para o jogador não deslizar
+        // 3. Trava a física e o movimento
         rb.linearVelocity = Vector2.zero;
-        rb.isKinematic = true; // Impede que o Rigidbody seja movido por forças externas
+        rb.isKinematic = true;
 
-        // 4. Inicia a Coroutine para esperar a animação antes de destruir o objeto
-        StartCoroutine(HandleDeathRoutine());
-
-        // NOTA: A lógica de Game Over/Reiniciar deve ser chamada aqui ou após a coroutine.
+        // Se estiver caindo, a coroutine de queda vai chamar o reinício.
+        // Se a morte for por dano, chamamos a rotina normal de animação.
+        if (!isFalling) 
+        {
+            StartCoroutine(HandleDeathRoutine());
+        }
     }
 
     private IEnumerator HandleDeathRoutine()
@@ -386,17 +398,22 @@ public class PlayerController : MonoBehaviour
 
         yield return new WaitForSeconds(deathAnimationDuration);
 
-        // Exemplo: Destrói o GameObject do Player após a animação
-        Destroy(gameObject);
-
-        // Aqui você pode chamar o Game Over da sua GameManager (se existir)
-        // Ex: GameManager.Instance.GameOver(); 
+        // Reinicia a cena
+        RestartScene();
     }
-    // ======================================================================
+    
+    // Método para reiniciar a cena
+    private void RestartScene()
+    {
+        // Pega o índice da cena atual
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        // Carrega a cena novamente
+        SceneManager.LoadScene(currentSceneIndex);
+    }
 
     public void OnDashPerformed(InputAction.CallbackContext context)
     {
-        if (isDead) return; // << NOVO: Impede Dash se estiver morto
+        if (isDead || isFalling) return; // Impede Dash se estiver morto ou caindo
 
         // Apenas realiza o dash se o botão foi pressionado E o jogador está se movendo
         if (!context.performed || !canDash || moveDir == Vector2.zero)
@@ -404,7 +421,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // A direção do dash será a direção exata do moviment
+        // A direção do dash será a direção exata do movimento
         Vector2 dashDirection = moveDir.normalized;
 
         StartCoroutine(DashRoutine(dashDirection));
@@ -453,8 +470,8 @@ public class PlayerController : MonoBehaviour
         isDashing = false;
         anim.SetBool("IsDashing", false);
 
-        // Reabilita as ações do jogador (só se não estiver morto)
-        if (!isDead) // << NOVO: Só reabilita se o player não morreu durante o Dash
+        // Reabilita as ações do jogador (só se não estiver morto ou caindo)
+        if (!isDead && !isFalling) 
         {
             inputActions.Player.Enable();
         }
@@ -463,6 +480,73 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
+
+    // ======================================================================
+    // >> LÓGICA DO BURACO (TRIGGER, DELAY e QUEDA)
+    // ======================================================================
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        // Verifica se o player já está morto ou caindo, ou se a colisão não é com o buraco
+        if (isDead || isFalling || !other.CompareTag("Hole")) return;
+        
+        if (other.CompareTag("Hole"))
+        {
+            // Pega a posição central do buraco
+            holeCenterPosition = other.transform.position;
+            
+            // Inicia o delay antes da queda (nova coroutine)
+            StartCoroutine(FallDelayRoutine());
+        }
+    }
+
+    // Rotina para gerenciar o pequeno atraso antes da queda
+    private IEnumerator FallDelayRoutine()
+    {
+        // Desativa o input imediatamente
+        if (inputActions != null)
+        {
+            inputActions.Player.Disable();
+        }
+        
+        // Aguarda o delay
+        yield return new WaitForSeconds(fallDelay);
+
+        // Inicia a queda (o jogador já está no trigger)
+        StartCoroutine(FallIntoHoleRoutine());
+    }
+
+    private IEnumerator FallIntoHoleRoutine()
+    {
+        isFalling = true;
+
+        // 1. Desativa a lógica de movimento, input e física
+        Die(); 
+        isDead = false; // Permite que a animação/queda ocorra
+        
+        rb.isKinematic = true;
+
+        // 2. Teletransporte INSTANTÂNEO para o centro do buraco
+        transform.position = holeCenterPosition;
+        
+        float timer = 0f;
+
+        // 3. Animação de Encolhimento (Queda)
+        while (timer < fallDuration)
+        {
+            // Diminui a escala (efeito de cair)
+            transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * shrinkRate);
+            
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        // 4. Morte final e Reinício
+        isDead = true; 
+
+        // Reinicia a cena após o efeito visual de queda
+        RestartScene();
+    }
+    // ======================================================================
 
     void UpdateAnimator()
     {
