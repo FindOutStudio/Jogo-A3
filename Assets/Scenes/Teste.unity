@@ -3438,10 +3438,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 6263449837906887648, guid: 595038b53ba4a9c4db6bb86a3bb66b63, type: 3}
-      propertyPath: MaxDistance
-      value: 3.5
-      objectReference: {fileID: 0}
     - target: {fileID: 8044775217846974058, guid: 595038b53ba4a9c4db6bb86a3bb66b63, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.5600004
@@ -15757,7 +15753,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 321843342359447998, guid: ce1e714cd3484fa48b5792a277bc805b, type: 3}
       propertyPath: orthographic size
-      value: 5.359375
+      value: 4.984375
       objectReference: {fileID: 0}
     - target: {fileID: 503590158007092758, guid: ce1e714cd3484fa48b5792a277bc805b, type: 3}
       propertyPath: m_Name

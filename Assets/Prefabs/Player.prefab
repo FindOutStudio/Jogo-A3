@@ -42,7 +42,6 @@ GameObject:
   - component: {fileID: 8044775217846974058}
   - component: {fileID: 8418984865395020449}
   - component: {fileID: 6263449837906887648}
-  - component: {fileID: 6698104549976229296}
   - component: {fileID: 362850839701047152}
   - component: {fileID: 4178776875588460465}
   - component: {fileID: 7782958148662901508}
@@ -149,7 +148,7 @@ MonoBehaviour:
   crownPrefab: {fileID: 2531474156665532719, guid: 0d87a50486d9f1a43b3c847221efc097, type: 3}
   crownLaunchPoint: {fileID: 6903736971759105995}
   rastroDeTeiaPrefab: {fileID: 2614509707347182237, guid: 9f8df620150e316448d18c185fdd686d, type: 3}
-  MaxDistance: 2.5
+  MaxDistance: 3.5
   VelLaunch: 10
   VelReturn: 14
   Delay: 0.5
@@ -161,22 +160,9 @@ MonoBehaviour:
   flashColor: {r: 1, g: 0.4669811, b: 0.4669811, a: 1}
   flashDuration: 0.1
   flashCount: 2
+  shrinkRate: 3
   fallDuration: 1
-  respawnPosition: {x: 0, y: 0, z: 0}
---- !u!114 &6698104549976229296
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4028713626492036423}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05dcb5ff21d3a624bba0ad087cf8b030, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fallDuration: 1
-  respawnPosition: {x: 0, y: 0, z: 0}
+  fallDelay: 0.1
 --- !u!50 &362850839701047152
 Rigidbody2D:
   serializedVersion: 5
