@@ -1,0 +1,793 @@
+fileFormatVersion: 2
+guid: 8e6727abeac455c4bb2a53ee37adfaf8
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 5074617996341329358
+    second: ATK (full) Lobsta-Sheet_0
+  - first:
+      213: 4532058394208549375
+    second: ATK (full) Lobsta-Sheet_1
+  - first:
+      213: -8267390900117291411
+    second: ATK (full) Lobsta-Sheet_2
+  - first:
+      213: -3473010303769621475
+    second: ATK (full) Lobsta-Sheet_3
+  - first:
+      213: 5378354909189591754
+    second: ATK (full) Lobsta-Sheet_4
+  - first:
+      213: 1799760375919721022
+    second: ATK (full) Lobsta-Sheet_5
+  - first:
+      213: 5412540689393478100
+    second: ATK (full) Lobsta-Sheet_6
+  - first:
+      213: -2133114734420390619
+    second: ATK (full) Lobsta-Sheet_7
+  - first:
+      213: 2307328095610672395
+    second: ATK (full) Lobsta-Sheet_8
+  - first:
+      213: -5973932663202461157
+    second: ATK (full) Lobsta-Sheet_9
+  - first:
+      213: 1986056594302352103
+    second: ATK (full) Lobsta-Sheet_10
+  - first:
+      213: -34325036814854589
+    second: ATK (full) Lobsta-Sheet_11
+  - first:
+      213: -4921775173707311812
+    second: ATK (full) Lobsta-Sheet_12
+  - first:
+      213: -1740087315078771747
+    second: ATK (full) Lobsta-Sheet_13
+  - first:
+      213: -4158071933837047523
+    second: ATK (full) Lobsta-Sheet_14
+  - first:
+      213: -6608855719495249924
+    second: ATK (full) Lobsta-Sheet_15
+  - first:
+      213: -5293570444162100026
+    second: ATK (full) Lobsta-Sheet_16
+  - first:
+      213: 8286860501455533417
+    second: ATK (full) Lobsta-Sheet_17
+  - first:
+      213: 6192670968382830495
+    second: ATK (full) Lobsta-Sheet_18
+  - first:
+      213: 7947353373421772480
+    second: ATK (full) Lobsta-Sheet_19
+  - first:
+      213: 6544836657482663125
+    second: ATK (full) Lobsta-Sheet_20
+  - first:
+      213: 7573329199571902623
+    second: ATK (full) Lobsta-Sheet_21
+  - first:
+      213: -8366109348236912113
+    second: ATK (full) Lobsta-Sheet_22
+  - first:
+      213: 5121031912622566077
+    second: ATK (full) Lobsta-Sheet_23
+  - first:
+      213: 3774009919308293021
+    second: ATK (full) Lobsta-Sheet_24
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 129
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ecdbab26e2aac6640800000000000000
+      internalID: 5074617996341329358
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_1
+      rect:
+        serializedVersion: 2
+        x: 127
+        y: 0
+        width: 34
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff9b020091b15ee30800000000000000
+      internalID: 4532058394208549375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_2
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 0
+        width: 34
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d6e363367c3544d80800000000000000
+      internalID: -8267390900117291411
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_3
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 32
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d1c4a8e87836dcfc0800000000000000
+      internalID: -3473010303769621475
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_4
+      rect:
+        serializedVersion: 2
+        x: 228
+        y: 0
+        width: 26
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac2593e4b41c3aa40800000000000000
+      internalID: 5378354909189591754
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_5
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 0
+        width: 33
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3ab48fb6880af810800000000000000
+      internalID: 1799760375919721022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_6
+      rect:
+        serializedVersion: 2
+        x: 287
+        y: 0
+        width: 30
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d965a384153d1b40800000000000000
+      internalID: 5412540689393478100
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_7
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 0
+        width: 28
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52d88b56377a562e0800000000000000
+      internalID: -2133114734420390619
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_8
+      rect:
+        serializedVersion: 2
+        x: 352
+        y: 0
+        width: 32
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b05172f9da6450020800000000000000
+      internalID: 2307328095610672395
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_9
+      rect:
+        serializedVersion: 2
+        x: 385
+        y: 0
+        width: 31
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1ac6b1e4e3581da0800000000000000
+      internalID: -5973932663202461157
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_10
+      rect:
+        serializedVersion: 2
+        x: 416
+        y: 0
+        width: 32
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7eab63f23f3ef8b10800000000000000
+      internalID: 1986056594302352103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_11
+      rect:
+        serializedVersion: 2
+        x: 448
+        y: 0
+        width: 32
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3469fb59f8d068ff0800000000000000
+      internalID: -34325036814854589
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_12
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 0
+        width: 32
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c35d6d26e8752bbb0800000000000000
+      internalID: -4921775173707311812
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_13
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 0
+        width: 32
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ddb019a6ec7f9d7e0800000000000000
+      internalID: -1740087315078771747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_14
+      rect:
+        serializedVersion: 2
+        x: 545
+        y: 0
+        width: 31
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d190f194b9f8b46c0800000000000000
+      internalID: -4158071933837047523
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_15
+      rect:
+        serializedVersion: 2
+        x: 576
+        y: 0
+        width: 32
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cff4da30db0a844a0800000000000000
+      internalID: -6608855719495249924
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_16
+      rect:
+        serializedVersion: 2
+        x: 608
+        y: 0
+        width: 32
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c416324ab57986b0800000000000000
+      internalID: -5293570444162100026
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_17
+      rect:
+        serializedVersion: 2
+        x: 640
+        y: 0
+        width: 32
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 965f87c68b7d00370800000000000000
+      internalID: 8286860501455533417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_18
+      rect:
+        serializedVersion: 2
+        x: 672
+        y: 0
+        width: 32
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9735518f69c0f550800000000000000
+      internalID: 6192670968382830495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_19
+      rect:
+        serializedVersion: 2
+        x: 704
+        y: 0
+        width: 32
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ce9e4749cbaa4e60800000000000000
+      internalID: 7947353373421772480
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_20
+      rect:
+        serializedVersion: 2
+        x: 738
+        y: 0
+        width: 28
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d48532934ee3da50800000000000000
+      internalID: 6544836657482663125
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_21
+      rect:
+        serializedVersion: 2
+        x: 767
+        y: 0
+        width: 33
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f90a39328ced91960800000000000000
+      internalID: 7573329199571902623
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_22
+      rect:
+        serializedVersion: 2
+        x: 804
+        y: 0
+        width: 26
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f0a93429fdb95eb80800000000000000
+      internalID: -8366109348236912113
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_23
+      rect:
+        serializedVersion: 2
+        x: 831
+        y: 0
+        width: 34
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dbaae43646f811740800000000000000
+      internalID: 5121031912622566077
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ATK (full) Lobsta-Sheet_24
+      rect:
+        serializedVersion: 2
+        x: 863
+        y: 0
+        width: 33
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d93eb2ba60aff5430800000000000000
+      internalID: 3774009919308293021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      ATK (full) Lobsta-Sheet_0: 5074617996341329358
+      ATK (full) Lobsta-Sheet_1: 4532058394208549375
+      ATK (full) Lobsta-Sheet_10: 1986056594302352103
+      ATK (full) Lobsta-Sheet_11: -34325036814854589
+      ATK (full) Lobsta-Sheet_12: -4921775173707311812
+      ATK (full) Lobsta-Sheet_13: -1740087315078771747
+      ATK (full) Lobsta-Sheet_14: -4158071933837047523
+      ATK (full) Lobsta-Sheet_15: -6608855719495249924
+      ATK (full) Lobsta-Sheet_16: -5293570444162100026
+      ATK (full) Lobsta-Sheet_17: 8286860501455533417
+      ATK (full) Lobsta-Sheet_18: 6192670968382830495
+      ATK (full) Lobsta-Sheet_19: 7947353373421772480
+      ATK (full) Lobsta-Sheet_2: -8267390900117291411
+      ATK (full) Lobsta-Sheet_20: 6544836657482663125
+      ATK (full) Lobsta-Sheet_21: 7573329199571902623
+      ATK (full) Lobsta-Sheet_22: -8366109348236912113
+      ATK (full) Lobsta-Sheet_23: 5121031912622566077
+      ATK (full) Lobsta-Sheet_24: 3774009919308293021
+      ATK (full) Lobsta-Sheet_3: -3473010303769621475
+      ATK (full) Lobsta-Sheet_4: 5378354909189591754
+      ATK (full) Lobsta-Sheet_5: 1799760375919721022
+      ATK (full) Lobsta-Sheet_6: 5412540689393478100
+      ATK (full) Lobsta-Sheet_7: -2133114734420390619
+      ATK (full) Lobsta-Sheet_8: 2307328095610672395
+      ATK (full) Lobsta-Sheet_9: -5973932663202461157
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

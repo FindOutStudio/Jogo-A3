@@ -27,7 +27,7 @@ public class EnemyPatrol : MonoBehaviour
     [Header("Patrulha")]
     public Transform[] patrolPoints;
     public float moveSpeed = 2f;
-    [SerializeField] private float patrolWaitTime = 1f;
+    [SerializeField] private float patrolWaitTime = 1f; // Mantido, mas não usado na PatrolRoutine
 
     [Header("ZONAS DE COMPORTAMENTO")]
     [Tooltip("Área Azul: Distância máxima para iniciar a perseguição e manter a 'Memória'.")]
@@ -49,7 +49,7 @@ public class EnemyPatrol : MonoBehaviour
 
     [Header("Ajustes de Patrulha")]
     public float lookAroundDuration = 2f;
-    public float lookAroundSpeed = 60f;
+    public float lookAroundSpeed = 60f; 
 
     [Header("Perseguição")]
     public float chaseSpeed = 3.5f;
@@ -67,14 +67,15 @@ public class EnemyPatrol : MonoBehaviour
     [Header("RECUO (Dash para trás)")]
     public float retreatDashSpeed = 6f;
     public float retreatDashDuration = 0.3f;
-    public float retreatRotationSpeed = 720f;
+    public float retreatRotationSpeed = 720f; 
     public float postRetreatDelay = 0.5f;
     [SerializeField] private int retreatDamageAmount = 5;
 
     [Header("Visual de Ataque/Recuo")]
-    private SpriteRenderer spriteRenderer;
-    private Color originalColor;
-
+    private SpriteRenderer spriteRenderer; 
+    
+    // --- NOVO: ANIMATION ---
+    private Animator anim;
 
     private int currentPatrolIndex = 0;
     private Coroutine currentBehavior;
@@ -96,10 +97,11 @@ public class EnemyPatrol : MonoBehaviour
         }
 
         spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer != null)
-            originalColor = spriteRenderer.color;
 
         rb = GetComponent<Rigidbody2D>();
+        
+        // --- NOVO: PEGAR ANIMATOR ---
+        anim = GetComponent<Animator>();
 
         currentHealth = maxHealth;
         currentBehavior = StartCoroutine(PatrolRoutine());
@@ -107,27 +109,22 @@ public class EnemyPatrol : MonoBehaviour
 
     private void Update()
     {
-        if (player == null || isDashActive) return;
+        if (player == null || isDashActive || currentState == EnemyState.Attacking || currentState == EnemyState.Retreating) return;
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         EnemyState nextState = currentState;
 
-        if (currentState != EnemyState.Patrolling && currentState != EnemyState.Alert)
-        {
-            RotateTowards((player.position - transform.position).normalized);
-        }
-
-        if (currentState == EnemyState.Attacking || currentState == EnemyState.Retreating) return;
-
-
+        // PRIORIDADE 1: RECUO (Zona de Perigo)
         if (distanceToPlayer <= dangerZoneRadius + MIN_DISTANCE_TO_DANGER)
         {
             nextState = EnemyState.Retreating;
         }
+        // PRIORIDADE 2: ATAQUE (Zona de Combate + Cooldown Pronto)
         else if (distanceToPlayer <= combatRange && Time.time >= lastAttackTime + attackCooldown)
         {
             nextState = EnemyState.Attacking;
         }
+        // PRIORIDADE 3: DETECÇÃO/CHASE/ALERTA
         else if (IsPlayerInMemory() || CanSeePlayer())
         {
             if (currentState == EnemyState.Patrolling)
@@ -138,20 +135,40 @@ public class EnemyPatrol : MonoBehaviour
             {
                 if (distanceToPlayer <= combatRange + MIN_DISTANCE_TO_DANGER && Time.time < lastAttackTime + attackCooldown)
                 {
-                    nextState = EnemyState.Alert;
+                    nextState = EnemyState.Alert; // Espera o Cooldown de Ataque ou o player sair da zona de Danger/Combat
                 }
                 else
                 {
-                    nextState = EnemyState.Chasing;
+                    nextState = EnemyState.Chasing; // Persegue
                 }
             }
         }
+        // PRIORIDADE 4: PATRULHA
         else
         {
             nextState = EnemyState.Patrolling;
         }
 
         SetState(nextState);
+    }
+    
+    // --- FUNÇÃO PARA CONTROLAR ANIMATOR ---
+    private void UpdateAnimation(Vector2 direction, float speed, bool isPatrolling)
+    {
+        if (anim == null) return;
+
+        // 1. Define se a animação de patrulha especial está ativa
+        anim.SetBool("Patrol", isPatrolling);
+
+        // 2. A velocidade é usada pelo blend tree para ir de Walk(>0)
+        anim.SetFloat("Speed", speed); 
+
+        // 3. Atualiza as direções X e Y para que a pose Idle/Walk na Blend Tree aponte certo.
+        if (speed > 0.01f || direction != Vector2.zero) 
+        {
+            anim.SetFloat("MoveX", direction.x);
+            anim.SetFloat("MoveY", direction.y);
+        }
     }
 
     private bool IsPlayerInMemory()
@@ -168,7 +185,7 @@ public class EnemyPatrol : MonoBehaviour
 
         if (distance > visionRange) return false;
 
-        float angle = Vector2.Angle(transform.right, dirToPlayer.normalized);
+        float angle = Vector2.Angle(transform.right, dirToPlayer.normalized); 
         if (angle < viewAngle / 2f)
         {
             RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToPlayer.normalized, distance, obstacleMaskPlayer);
@@ -189,6 +206,12 @@ public class EnemyPatrol : MonoBehaviour
         currentState = newState;
 
         hasPlayerBeenSeen = (newState != EnemyState.Patrolling);
+        
+        // Garante que as animações de dash/patrulha especial sejam resetadas ao mudar de estado
+        if (newState != EnemyState.Retreating && newState != EnemyState.Attacking)
+        {
+            UpdateAnimation(Vector2.zero, 0f, false);
+        }
 
         switch (currentState)
         {
@@ -214,22 +237,23 @@ public class EnemyPatrol : MonoBehaviour
     private IEnumerator WaitForCooldownRoutine()
     {
         currentState = EnemyState.Alert;
-        if (spriteRenderer != null) spriteRenderer.color = Color.gray;
+        
+        UpdateAnimation(Vector2.zero, 0f, false); // Idle/Parado (Speed=0)
 
         while (currentState == EnemyState.Alert)
         {
             if (player != null)
             {
-                RotateTowards((player.position - transform.position).normalized);
+                Vector2 dirToPlayer = (player.position - transform.position).normalized;
+                // Atualiza MoveX/MoveY para encarar o player (Speed=0.01f apenas para pegar a direção)
+                UpdateAnimation(dirToPlayer, 0.01f, false); 
             }
 
             yield return null;
         }
-
-        if (spriteRenderer != null) spriteRenderer.color = originalColor;
     }
 
-    private IEnumerator PatrolRoutine()
+   private IEnumerator PatrolRoutine()
     {
         currentState = EnemyState.Patrolling;
         while (true)
@@ -243,6 +267,7 @@ public class EnemyPatrol : MonoBehaviour
             Transform targetPoint = patrolPoints[currentPatrolIndex];
             Vector2 direction = (targetPoint.position - transform.position).normalized;
 
+            // --- FASE 1: MOVIMENTO (WALK) ---
             while (Vector2.Distance(transform.position, targetPoint.position) > 0.1f)
             {
                 if (CanSeePlayer())
@@ -251,10 +276,21 @@ public class EnemyPatrol : MonoBehaviour
                     yield break;
                 }
                 transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
-                RotateTowards(direction);
+                
+                // Atualiza animação de movimento
+                UpdateAnimation(direction, moveSpeed, false); 
+                
                 yield return null;
             }
 
+            // Garante que a posição final é o ponto, e o movimento para
+            transform.position = targetPoint.position;
+
+            // --- FASE 2: PATRULHA (LOOK AROUND/ESPECIAL) ---
+            // 1. Ativa a animação de Patrulha
+            UpdateAnimation(Vector2.zero, 0f, true);
+            
+            // 2. Espera pelo tempo de Patrulha
             float timer = 0f;
             while (timer < lookAroundDuration)
             {
@@ -263,13 +299,21 @@ public class EnemyPatrol : MonoBehaviour
                     SetState(EnemyState.Alert);
                     yield break;
                 }
-                transform.Rotate(Vector3.forward * lookAroundSpeed * Time.deltaTime);
                 timer += Time.deltaTime;
-                yield return null;
+                yield return null; 
             }
-
+            
+            // 3. Desativa a animação de Patrulha especial
+            UpdateAnimation(Vector2.zero, 0f, false); 
+            
+            // Pausa (1 frame) para garantir que a animação 'Patrol' foi desativada no Animator
+            yield return null;
+            
+            // --- FASE 3: MUDANÇA DE PONTO E RETORNO AO INÍCIO ---
+            // Calcula o próximo ponto
             currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
-            yield return new WaitForSeconds(patrolWaitTime);
+            
+            // O loop 'while(true)' irá recomeçar a Fase 1 (Movimento)
         }
     }
 
@@ -283,7 +327,9 @@ public class EnemyPatrol : MonoBehaviour
 
             Vector2 direction = (player.position - transform.position).normalized;
             transform.position += (Vector3)(direction * chaseSpeed * Time.deltaTime);
-            RotateTowards(direction);
+            
+            // Atualiza animação
+            UpdateAnimation(direction, chaseSpeed, false);
 
             yield return null;
         }
@@ -298,9 +344,16 @@ public class EnemyPatrol : MonoBehaviour
         hitPlayerThisDash = false;
         lastAttackTime = Time.time;
 
-        if (spriteRenderer != null) spriteRenderer.color = Color.yellow;
+        UpdateAnimation(Vector2.zero, 0f, false); // Para o movimento antes do dash (Speed=0)
 
         yield return new WaitForSeconds(initialAttackDelay);
+        
+        Vector2 dashDirection = (player.position - transform.position).normalized;
+        // Garante que o sprite encare a direção do dash
+        UpdateAnimation(dashDirection, 0.01f, false); 
+        
+        // --- NOVO: Dispara a animação de Ataque ---
+        if (anim != null) anim.SetTrigger("Attack");
 
         if (rb != null)
         {
@@ -308,7 +361,6 @@ public class EnemyPatrol : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
         }
 
-        Vector2 dashDirection = (player.position - transform.position).normalized;
         float timer = 0f;
 
         while (timer < attackDashDuration && !hitPlayerThisDash)
@@ -327,8 +379,6 @@ public class EnemyPatrol : MonoBehaviour
 
         yield return new WaitForSeconds(postAttackCollisionTime); 
 
-        if (spriteRenderer != null) spriteRenderer.color = originalColor;
-
         yield return new WaitForSeconds(postAttackDelay);
 
         isDashActive = false;
@@ -342,8 +392,8 @@ public class EnemyPatrol : MonoBehaviour
         if (player == null) { SetState(EnemyState.Alert); yield break; }
 
         isDashActive = true;
-
-        if (spriteRenderer != null) spriteRenderer.color = Color.magenta;
+        
+        UpdateAnimation(Vector2.zero, 0f, false); // Para o movimento antes do recuo (Speed=0)
 
         if (rb != null)
         {
@@ -352,26 +402,18 @@ public class EnemyPatrol : MonoBehaviour
         }
 
         Vector2 retreatDir = (transform.position - player.position).normalized;
+        // Garante que o sprite encare a direção oposta ao player (direção do recuo)
+        UpdateAnimation(retreatDir, 0.01f, false); 
+        
+        // --- NOVO: Dispara a animação de Recuo (agora iniciando o Spin) ---
+        if (anim != null) anim.SetTrigger("Retreat");
 
-        Quaternion startRotation = transform.rotation;
-        Quaternion targetRotation = startRotation * Quaternion.Euler(0, 0, 360f);
         float timer = 0f;
 
         while (Vector2.Distance(transform.position, player.position) < combatRange)
         {
             transform.position += (Vector3)(retreatDir * retreatDashSpeed * Time.deltaTime);
-
-            float rotationProgress = timer / retreatDashDuration;
-            transform.rotation = Quaternion.Slerp(startRotation, targetRotation, rotationProgress);
-
             timer += Time.deltaTime;
-
-            if (timer > retreatDashDuration)
-            {
-                targetRotation = transform.rotation * Quaternion.Euler(0, 0, 360f);
-                startRotation = transform.rotation;
-                timer = 0f;
-            }
             yield return null;
         }
 
@@ -380,23 +422,12 @@ public class EnemyPatrol : MonoBehaviour
             rb.isKinematic = false;
             rb.linearVelocity = Vector2.zero;
         }
-
-        RotateTowards((player.position - transform.position).normalized);
-
-        if (spriteRenderer != null) spriteRenderer.color = originalColor;
-
+        
         yield return new WaitForSeconds(postRetreatDelay);
 
         isDashActive = false;
 
         SetState(EnemyState.Alert);
-    }
-
-
-    private void RotateTowards(Vector2 direction)
-    {
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -411,10 +442,12 @@ public class EnemyPatrol : MonoBehaviour
                 {
                     hitPlayerThisDash = true;
                     
+                    // Assumindo que PlayerController tem TakeDamage
                     playerController.TakeDamage(damageAmount);
                 }
                 else if (currentState == EnemyState.Retreating)
                 {
+                    // Assumindo que PlayerController tem TakeDamage
                     playerController.TakeDamage(retreatDamageAmount);
                 }
             }
@@ -438,10 +471,8 @@ public class EnemyPatrol : MonoBehaviour
             return;
         }
 
-        // Aplica o dano
         currentHealth -= damage;
         
-        // Inicia o Cooldown
         StartCoroutine(WebDamageCooldownRoutine());
 
         if (currentHealth <= 0)
@@ -453,7 +484,7 @@ public class EnemyPatrol : MonoBehaviour
     private IEnumerator WebDamageCooldownRoutine()
     {
         isInvulnerableFromWeb = true;
-        // Opcional: Adicione um efeito de piscar ou mudança de cor aqui
+        // Opcional: Adicione um efeito visual aqui (piscar, etc.)
         
         yield return new WaitForSeconds(webDamageCooldown);
         
@@ -461,9 +492,32 @@ public class EnemyPatrol : MonoBehaviour
         isInvulnerableFromWeb = false;
     }
 
+    private IEnumerator DieRoutine()
+    {
+        // 1. Desliga o Rigidbody e o Collider
+        if (rb != null) rb.isKinematic = true;
+        Collider2D collider = GetComponent<Collider2D>();
+        if (collider != null) collider.enabled = false; 
+
+        // 2. Dispara a animação de Morte
+        if (anim != null)
+        {
+            anim.SetTrigger("Die");
+            // ***AJUSTE ESTE TEMPO***: Defina a duração da sua animação 'Detah'
+            yield return new WaitForSeconds(1.5f); // 1.5s é um valor de exemplo
+        }
+        
+        // 3. Destrói o objeto APÓS a animação
+        Destroy(gameObject);
+    }
+
     private void Die()
     {
-        Destroy(gameObject);
+        if (currentBehavior != null)
+        {
+            StopCoroutine(currentBehavior);
+        }
+        StartCoroutine(DieRoutine());
     }
 
 

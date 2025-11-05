@@ -1,0 +1,663 @@
+fileFormatVersion: 2
+guid: 0e74b928bb6761142bd15c526317a198
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -8032491072056888689
+    second: Death_Lobsta-Sheet_0
+  - first:
+      213: 2709558198733072303
+    second: Death_Lobsta-Sheet_1
+  - first:
+      213: -6017060585149763000
+    second: Death_Lobsta-Sheet_2
+  - first:
+      213: -2779541637859810933
+    second: Death_Lobsta-Sheet_3
+  - first:
+      213: 7737908260187607218
+    second: Death_Lobsta-Sheet_4
+  - first:
+      213: 7216605006022088349
+    second: Death_Lobsta-Sheet_5
+  - first:
+      213: -3113086448798626341
+    second: Death_Lobsta-Sheet_6
+  - first:
+      213: 6311803494359264063
+    second: Death_Lobsta-Sheet_7
+  - first:
+      213: 5699655622554772840
+    second: Death_Lobsta-Sheet_8
+  - first:
+      213: 3484392771359208286
+    second: Death_Lobsta-Sheet_9
+  - first:
+      213: 6125158436798401161
+    second: Death_Lobsta-Sheet_10
+  - first:
+      213: 300012300888785066
+    second: Death_Lobsta-Sheet_11
+  - first:
+      213: -1361420546372377175
+    second: Death_Lobsta-Sheet_12
+  - first:
+      213: 9110234819405969433
+    second: Death_Lobsta-Sheet_13
+  - first:
+      213: -934181354829937829
+    second: Death_Lobsta-Sheet_14
+  - first:
+      213: -3616877049507842903
+    second: Death_Lobsta-Sheet_15
+  - first:
+      213: -6665684146146508597
+    second: Death_Lobsta-Sheet_16
+  - first:
+      213: -3205938595890096983
+    second: Death_Lobsta-Sheet_17
+  - first:
+      213: -4019883579956497323
+    second: Death_Lobsta-Sheet_18
+  - first:
+      213: -6212394246606664636
+    second: Death_Lobsta-Sheet_19
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 193
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f827d8c8debd68090800000000000000
+      internalID: -8032491072056888689
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_1
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 33
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa76bbd63d84a9520800000000000000
+      internalID: 2709558198733072303
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_2
+      rect:
+        serializedVersion: 2
+        x: 224
+        y: 2
+        width: 10
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 842f42e074b1f7ca0800000000000000
+      internalID: -6017060585149763000
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_3
+      rect:
+        serializedVersion: 2
+        x: 227
+        y: 0
+        width: 30
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8165f46b951d69d0800000000000000
+      internalID: -2779541637859810933
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_4
+      rect:
+        serializedVersion: 2
+        x: 257
+        y: 0
+        width: 32
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b01b01c092926b60800000000000000
+      internalID: 7737908260187607218
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_5
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 0
+        width: 32
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d96904c8408862460800000000000000
+      internalID: 7216605006022088349
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_6
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 0
+        width: 30
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bdd86406e581cc4d0800000000000000
+      internalID: -3113086448798626341
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_7
+      rect:
+        serializedVersion: 2
+        x: 352
+        y: 0
+        width: 29
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f3b6a5536d7089750800000000000000
+      internalID: 6311803494359264063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_8
+      rect:
+        serializedVersion: 2
+        x: 383
+        y: 0
+        width: 31
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8656f64379e391f40800000000000000
+      internalID: 5699655622554772840
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_9
+      rect:
+        serializedVersion: 2
+        x: 415
+        y: 0
+        width: 32
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e53fdc2b3cc0b5030800000000000000
+      internalID: 3484392771359208286
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_10
+      rect:
+        serializedVersion: 2
+        x: 447
+        y: 0
+        width: 32
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98a0b52552fe00550800000000000000
+      internalID: 6125158436798401161
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_11
+      rect:
+        serializedVersion: 2
+        x: 479
+        y: 0
+        width: 32
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa049be199bd92400800000000000000
+      internalID: 300012300888785066
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_12
+      rect:
+        serializedVersion: 2
+        x: 511
+        y: 0
+        width: 32
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a56e87e9334b1de0800000000000000
+      internalID: -1361420546372377175
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_13
+      rect:
+        serializedVersion: 2
+        x: 543
+        y: 0
+        width: 32
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9187617dc4e0e6e70800000000000000
+      internalID: 9110234819405969433
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_14
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 0
+        width: 32
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b53819dd10f1903f0800000000000000
+      internalID: -934181354829937829
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_15
+      rect:
+        serializedVersion: 2
+        x: 607
+        y: 0
+        width: 32
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a472db8c754ecdc0800000000000000
+      internalID: -3616877049507842903
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_16
+      rect:
+        serializedVersion: 2
+        x: 639
+        y: 0
+        width: 32
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc00cfbd59bbe73a0800000000000000
+      internalID: -6665684146146508597
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_17
+      rect:
+        serializedVersion: 2
+        x: 671
+        y: 0
+        width: 32
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a4914435d73283d0800000000000000
+      internalID: -3205938595890096983
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_18
+      rect:
+        serializedVersion: 2
+        x: 703
+        y: 0
+        width: 32
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 554744aae218638c0800000000000000
+      internalID: -4019883579956497323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Death_Lobsta-Sheet_19
+      rect:
+        serializedVersion: 2
+        x: 735
+        y: 0
+        width: 32
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44c445ee85429c9a0800000000000000
+      internalID: -6212394246606664636
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Death_Lobsta-Sheet_0: -8032491072056888689
+      Death_Lobsta-Sheet_1: 2709558198733072303
+      Death_Lobsta-Sheet_10: 6125158436798401161
+      Death_Lobsta-Sheet_11: 300012300888785066
+      Death_Lobsta-Sheet_12: -1361420546372377175
+      Death_Lobsta-Sheet_13: 9110234819405969433
+      Death_Lobsta-Sheet_14: -934181354829937829
+      Death_Lobsta-Sheet_15: -3616877049507842903
+      Death_Lobsta-Sheet_16: -6665684146146508597
+      Death_Lobsta-Sheet_17: -3205938595890096983
+      Death_Lobsta-Sheet_18: -4019883579956497323
+      Death_Lobsta-Sheet_19: -6212394246606664636
+      Death_Lobsta-Sheet_2: -6017060585149763000
+      Death_Lobsta-Sheet_3: -2779541637859810933
+      Death_Lobsta-Sheet_4: 7737908260187607218
+      Death_Lobsta-Sheet_5: 7216605006022088349
+      Death_Lobsta-Sheet_6: -3113086448798626341
+      Death_Lobsta-Sheet_7: 6311803494359264063
+      Death_Lobsta-Sheet_8: 5699655622554772840
+      Death_Lobsta-Sheet_9: 3484392771359208286
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
