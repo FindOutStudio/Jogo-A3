@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/menu inicial.unity
     guid: d23ee4a3784778143a9e12c0092b7fa2
   - enabled: 1
+    path: Assets/Scenes/Level/Lvl 3.unity
+    guid: 9bb871f9a6f6530479516c5a60e28834
+  - enabled: 0
     path: Assets/Scenes/Playtest Mecanica.unity
     guid: b9826552b7f544d418fd936bf3f5885e
   - enabled: 0
