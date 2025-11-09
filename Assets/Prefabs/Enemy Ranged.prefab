@@ -111,8 +111,8 @@ MonoBehaviour:
   moveSpeed: 3
   waitTime: 1
   player: {fileID: 0}
-  visionRange: 4.4
-  projectileRange: 3.2
+  visionRange: 4.6
+  projectileRange: 4
   dangerZoneRadius: 1.3
   memoryRange: 8
   obstacleMask:
