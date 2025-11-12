@@ -140,4 +140,8 @@ public class PauseManager : MonoBehaviour
 #endif
 
     }
+    public void ProximaFase()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+    }
 }
