@@ -1,35 +1,34 @@
-using System;
 using UnityEngine;
+using System; // Necessário para o throw new NotImplementedException()
 
-public class BossSegment : MonoBehaviour
+public class CrownControllerBoss : MonoBehaviour
 {
     private Transform targetToFollow;
     private float spacingDistance;
     private float moveSpeed; 
     
-    // NOVO: Referência para a Cabeça para delegar o Dano
+    // Referência para a Cabeça para delegar o Dano ou acessar informações
     private BossHeadController headController; 
 
-    [SerializeField] private float segmentRotationSpeed = 540f; 
+    [SerializeField] private float crownRotationSpeed = 720f; // Pode rotacionar um pouco mais rápido
 
-
-    // Opcional: Propriedade pública para o CrownController acessar
+    // Propriedade para acesso externo (opcional)
     public BossHeadController HeadController => headController;
-
     
+    // Método de Setup - Essencialmente o mesmo que o BossSegment
     public void SetupFollow(Transform target, float spacing, float headMoveSpeed, BossHeadController head)
     {
         this.targetToFollow = target;
         this.spacingDistance = spacing;
         this.headController = head;
         
-        
-        this.moveSpeed = headMoveSpeed * 2.0f; 
+        // A Coroa pode se mover um pouco mais rápido que o corpo
+        this.moveSpeed = headMoveSpeed * 2.5f; 
     }
 
     void Update()
     {
-        // CORREÇÃO: Garante que o alvo não é nulo antes de tentar acessar sua posição.
+        // Garante que o alvo não é nulo.
         if (targetToFollow == null) return; 
 
         // 1. CÁLCULO DA POSIÇÃO (Seguimento)
@@ -55,31 +54,10 @@ public class BossSegment : MonoBehaviour
             transform.rotation = Quaternion.RotateTowards(
                 transform.rotation, 
                 targetRotation, 
-                segmentRotationSpeed * Time.deltaTime
+                crownRotationSpeed * Time.deltaTime
             );
         }
     }
 
-    internal void SetupFollow(Transform lastSegmentTransform, float segmentSpacing, float moveSpeed)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void TakeDamage()
-    {
-        Debug.Log($"BossSegment ({gameObject.name}) atingido! Delegando dano para a cabeça.");
-        // Garante que a cabeça existe antes de tentar aplicar o dano
-        if (headController != null)
-        {
-            // Delega o processamento do dano para a cabeça
-            headController.TakeDamageFromSegment(this);
-        }
-        else
-        {
-            Debug.LogError("Segmento de corpo tentando aplicar dano sem referência ao BossHeadController.");
-            Destroy(gameObject);
-        }
-        
-        // O segmento será destruído pela HeadController depois do processamento.
-    }
+    // LÓGICA DE DANO/INTERAÇÃO VIRÁ AQUI DEPOIS, mas por enquanto segue o movimento
 }

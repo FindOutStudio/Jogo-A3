@@ -12,22 +12,40 @@ public class BossHeadController : MonoBehaviour
         Alert, // Breve pausa antes de perseguir/atacar
         Chasing, // Perseguição antes de entrar no range de ataque
         Attacking, // Dash Contínuo
-        Dead 
+        SpawningEnemies,
+        Dead
     }
 
     private BossState currentState = BossState.Patrolling;
 
     [Header("Health")]
-    [SerializeField] private int maxHealth = 10; 
+    [SerializeField] private int maxHealth = 10;
     private int currentHealth;
+    
+    [Header("Dano & Cooldown")]
+    [SerializeField] private float damageCooldown = 0.5f; 
+    private bool canTakeDamage = true;
 
     [Header("Segmentos da Serpente")]
     [Tooltip("Prefab do segmento de corpo a ser instanciado.")]
     public GameObject segmentPrefab;
+    [Tooltip("Prefab da Coroa a ser instanciada no final.")]
+    public GameObject crownPrefab;
     [Tooltip("Distância que cada segmento deve manter do anterior.")]
     [SerializeField] private float segmentSpacing = 0.5f;
     [Tooltip("Velocidade com que a cabeça rotaciona para a direção do movimento.")]
     [SerializeField] private float rotationSpeed = 360f;
+
+    [Header("Spawn de Inimigos")] // NOVO CABEÇALHO
+    [Tooltip("Prefab do inimigo voador a ser instanciado.")]
+    public GameObject flyingEnemyPrefab;
+    [Tooltip("Raio da área onde os inimigos voadores podem ser criados (centrado no Boss).")]
+    public float spawnRadius = 8f;
+    [Tooltip("Número de inimigos a serem criados em cada fase.")]
+    public int numberOfEnemiesPerSpawn = 3;
+    
+    private readonly List<int> spawnHealthThresholds = new List<int> { 7, 4, 1 };
+    private List<int> activeSpawnThresholds;
     
     // Lista para gerenciar os segmentos do corpo
     private List<BossSegment> bodySegments = new List<BossSegment>(); 
@@ -70,6 +88,11 @@ public class BossHeadController : MonoBehaviour
     [SerializeField] private float playerHitCooldown = 0.5f; // Cooldown para múltiplos hits no Dash
 
 
+
+    void Awake()
+    {
+        activeSpawnThresholds = new List<int>(spawnHealthThresholds);
+    }
     void Start()
     {
         if (player == null)
@@ -108,7 +131,7 @@ public class BossHeadController : MonoBehaviour
         RotateTowardsDirection(currentMoveDirection);
         
         // Lógica de Transição de Estados
-        if (isDashActive || player == null || currentState == BossState.Dead) return; 
+        if (isDashActive || player == null || currentState == BossState.Dead || currentState == BossState.SpawningEnemies) return; 
 
         BossState nextState = currentState;
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
@@ -160,9 +183,11 @@ public class BossHeadController : MonoBehaviour
 
     private void InitializeBody(int numberOfSegments)
 {
-    Transform lastSegmentTransform = this.transform;
+    Transform lastSegmentTransform = this.transform; // Começa na cabeça
 
-    for (int i = 0; i < numberOfSegments; i++)
+    // --- 1. INSTANCIAÇÃO DOS SEGMENTOS DO CORPO (9) ---
+    // numberOfSegments deve ser 9 (maxHealth 10 -> maxHealth - 1)
+    for (int i = 0; i < numberOfSegments; i++) 
     {
         Vector3 spawnPos = transform.position - (Vector3)(transform.right * segmentSpacing * (i + 1));
         
@@ -171,11 +196,11 @@ public class BossHeadController : MonoBehaviour
         
         if (follower != null)
         {
-            // CORREÇÃO APLICADA: O quarto argumento 'this' (a referência ao BossHeadController) foi adicionado.
-            follower.SetupFollow(lastSegmentTransform, segmentSpacing, moveSpeed, this); // <-- Corrigido!
+            // O CORPO se configura
+            follower.SetupFollow(lastSegmentTransform, segmentSpacing, moveSpeed, this); 
             
             bodySegments.Add(follower);
-            lastSegmentTransform = segmentObj.transform;
+            lastSegmentTransform = segmentObj.transform; // Atualiza o alvo para o próximo
         }
         else
         {
@@ -183,6 +208,32 @@ public class BossHeadController : MonoBehaviour
             Destroy(segmentObj);
             break;
         }
+    }
+    
+    // --- 2. INSTANCIAÇÃO DA COROA (1) ---
+    if (crownPrefab != null)
+    {
+        // O último segmento do corpo é o alvo da coroa
+        Vector3 spawnPos = lastSegmentTransform.position - (Vector3)(transform.right * segmentSpacing);
+        
+        GameObject CrownBoss = Instantiate(crownPrefab, spawnPos, Quaternion.identity, transform.parent);
+        CrownControllerBoss crown = CrownBoss.GetComponent<CrownControllerBoss>();
+
+        if (crown != null)
+        {
+            // A COROA se configura para seguir o último segmento (lastSegmentTransform)
+            crown.SetupFollow(lastSegmentTransform, segmentSpacing, moveSpeed, this);
+            // NÃO adicionamos a coroa à lista bodySegments, pois ela é um tipo diferente.
+        }
+        else
+        {
+            Debug.LogError("O Prefab da coroa não tem o script CrownController.");
+            Destroy(CrownBoss);
+        }
+    }
+    else
+    {
+        Debug.LogWarning("O crownPrefab não foi definido no Inspector. A Coroa não será instanciada.");
     }
 }
     
@@ -367,16 +418,16 @@ public class BossHeadController : MonoBehaviour
 
         Collider2D headCollider = GetComponent<Collider2D>();
         if (headCollider == null) return false;
-        
+
         float distanceToCast = dashSpeed * Time.deltaTime + 0.05f;
 
         RaycastHit2D hit = Physics2D.BoxCast(
-            headCollider.bounds.center, 
-            headCollider.bounds.size * 0.9f, 
-            transform.eulerAngles.z, 
-            direction, 
-            distanceToCast, 
-            collisionMask 
+            headCollider.bounds.center,
+            headCollider.bounds.size * 0.9f,
+            transform.eulerAngles.z,
+            direction,
+            distanceToCast,
+            collisionMask
         );
 
         if (hit.collider != null)
@@ -390,20 +441,20 @@ public class BossHeadController : MonoBehaviour
                     if (playerController != null)
                     {
                         playerController.TakeDamage(1); // Aplica 1 de dano
-                        
+
                         // NOVO: Desativa o Dash e inicia o Cooldown
                         canDashAttack = false;
                         lastDashTime = Time.time;
-                        
+
                         Debug.Log("Boss acertou o Player com Dash! Dash desativado por Cooldown, Dash CONTINUA o movimento.");
                     }
                     lastPlayerHitTime = Time.time;
                 }
-                
+
                 // Retorna false para indicar que a colisão com o Player NÃO deve parar o Dash.
                 return false;
             }
-            
+
             // 2. CHECA COLISÃO COM PAREDE/OBSTÁCULO (DASH PÁRA)
             bool isObstacle = hit.collider.CompareTag("Obstacle");
             bool isWall = ((1 << hit.collider.gameObject.layer) & wallMask.value) != 0;
@@ -415,11 +466,226 @@ public class BossHeadController : MonoBehaviour
                 // Retorna true para interromper o loop AttackDashRoutine
                 return true;
             }
-            
+
             return false;
         }
         return false;
     }
+
+    public void TakeDamageFromSegment(BossSegment hitSegment)
+    {
+        // 1. CHECAGEM DE COOLDOWN: Só permite dano se o cooldown tiver acabado
+        if (!canTakeDamage)
+        {
+            // Debug.Log("Dano ignorado devido ao cooldown.");
+            return;
+        }
+
+        // 2. INICIA O COOLDOWN
+        canTakeDamage = false;
+        StartCoroutine(DamageCooldownRoutine());
+
+        // 3. APLICA O DANO E DESTROI O ÚLTIMO SEGMENTO
+
+        // Verifica se ainda existem segmentos de corpo para destruir
+        if (bodySegments.Count > 0)
+        {
+            // O segmento a ser destruído é SEMPRE o último da lista (a cauda)
+            BossSegment segmentToDestroy = bodySegments[bodySegments.Count - 1];
+
+            // 3.1. Reduz a vida
+            currentHealth--;
+            Debug.Log($"Boss Health: {currentHealth}. Segmento {segmentToDestroy.gameObject.name} (ÚLTIMO) destruído.");
+
+            // 3.2. Remove da lista
+            bodySegments.RemoveAt(bodySegments.Count - 1);
+
+            // 3.3. RECONFIGURAÇÃO DO ALVO DA COROA
+
+            // O novo alvo será o novo último segmento (ou a Cabeça se bodySegments.Count for 0)
+            Transform newCrownTarget;
+            if (bodySegments.Count > 0)
+            {
+                // Segue o novo último segmento do corpo
+                newCrownTarget = bodySegments[bodySegments.Count - 1].transform;
+            }
+            else
+            {
+                // Segue a cabeça
+                newCrownTarget = transform;
+            }
+
+            // Encontra a coroa (ou passe a referência no InitializeBody) e reconfigura
+            CrownControllerBoss crown = FindObjectOfType<CrownControllerBoss>();
+            if (crown != null)
+            {
+                crown.SetupFollow(newCrownTarget, segmentSpacing, moveSpeed, this);
+            }
+            // else: Caso a coroa tenha sido destruída ou não exista (geralmente não deve acontecer)
+
+            // 3.4. Destrói o objeto
+            Destroy(segmentToDestroy.gameObject);
+        }
+        else
+        {
+            // Se não há segmentos de corpo, só recebe dano se você quiser que a cabeça receba dano
+            // Por enquanto, apenas loga.
+            Debug.Log("Tentativa de dano, mas não há mais segmentos de corpo para destruir.");
+        }
+        
+        if (activeSpawnThresholds.Contains(currentHealth))
+    {
+        // 1. Remove o threshold da lista para não ativar novamente
+        activeSpawnThresholds.Remove(currentHealth);
+        
+        // 2. Inicia a corrotina de Spawn
+        StartCoroutine(SpawnEnemiesRoutine());
+    }
+
+        // 4. Lógica de Morte
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    // CORROTINA: Gerencia o Cooldown de Dano
+    private IEnumerator DamageCooldownRoutine()
+    {
+        yield return new WaitForSeconds(damageCooldown);
+        canTakeDamage = true;
+    }
+    
+    private IEnumerator SpawnEnemiesRoutine()
+{
+    Debug.Log($"Boss atingiu {currentHealth} HP! Iniciando Spawn.");
+
+    // 1. Mudar o estado e Parar o movimento
+    currentState = BossState.SpawningEnemies;
+    // (O Update deve checar o currentState e parar de mover se for SpawningEnemies)
+    
+    // 2. Efeito de Tremer/Vibrar
+    float shakeDuration = 1.0f;
+    float shakeIntensity = 0.2f;
+    float timer = 0f;
+    Vector3 originalPos = transform.position;
+
+    // Pausa e treme
+    while (timer < shakeDuration)
+    {
+        // Simulação de tremedeira: Deslocamento aleatório
+        transform.position = originalPos + (Vector3)Random.insideUnitCircle * shakeIntensity;
+        timer += Time.deltaTime;
+        yield return null;
+    }
+    
+    // Retorna à posição original após tremer
+    transform.position = originalPos;
+    
+    // 3. Spawna os Inimigos
+    for (int i = 0; i < numberOfEnemiesPerSpawn; i++)
+    {
+        SpawnFlyingEnemy();
+    }
+    
+    // 4. Retorna ao estado anterior ou Patrolling
+    currentState = BossState.Patrolling; 
+}
+
+// Método para Spawnar em Posição Aleatória (dentro do raio)
+private void SpawnFlyingEnemy()
+{
+    if (flyingEnemyPrefab == null)
+    {
+        Debug.LogError("flyingEnemyPrefab não está configurado!");
+        return;
+    }
+
+    // Posição aleatória dentro de um círculo ao redor do Boss
+    Vector2 randomOffset = Random.insideUnitCircle * spawnRadius;
+    Vector3 spawnPosition = transform.position + (Vector3)randomOffset;
+
+    // Cria o inimigo
+    Instantiate(flyingEnemyPrefab, spawnPosition, Quaternion.identity);
+    Debug.Log($"Inimigo Voador spawnado em: {spawnPosition}");
+}
+    
+    public void SegmentDestroyed(BossSegment destroyedSegment)
+    {
+        // 1. Encontra e remove o segmento destruído da lista
+        int segmentIndex = bodySegments.IndexOf(destroyedSegment);
+        
+        // Checagem de segurança: Só processa se for um segmento válido na lista
+        if (segmentIndex != -1)
+        {
+            // 2. Reduz a vida
+            currentHealth--;
+            Debug.Log($"Boss Health: {currentHealth}. Segmento destruído na posição {segmentIndex}.");
+            
+            // 3. Remove da lista
+            bodySegments.RemoveAt(segmentIndex);
+
+            // 4. Reconfigura o segmento seguinte (se houver)
+            if (bodySegments.Count > segmentIndex)
+            {
+                // O segmento seguinte é o que estava logo depois do segmento destruído.
+                BossSegment nextSegment = bodySegments[segmentIndex];
+                
+                // O novo alvo será o segmento anterior ao destruído, ou a própria Cabeça.
+                Transform newTarget;
+                if (segmentIndex == 0)
+                {
+                    // O segmento destruído era o primeiro do corpo, o alvo passa a ser a Cabeça.
+                    newTarget = transform; 
+                }
+                else
+                {
+                    // O novo alvo é o segmento que está uma posição antes na lista.
+                    newTarget = bodySegments[segmentIndex - 1].transform; 
+                }
+
+                // Reconfigura o segmento seguinte para seguir o novo alvo
+                nextSegment.SetupFollow(newTarget, segmentSpacing, moveSpeed, this);
+            }
+            
+            // 5. Destrói o objeto do segmento
+            Destroy(destroyedSegment.gameObject);
+
+            // 6. Verifica a Coroa e o próximo alvo da Coroa
+            // Se o último segmento do corpo foi destruído, a Coroa deve seguir o novo último segmento (ou a Cabeça)
+            if (bodySegments.Count == 0 && currentHealth > 0)
+            {
+                // A Coroa agora deve seguir a cabeça, pois não há mais segmentos de corpo.
+                CrownControllerBoss crown = FindObjectOfType<CrownControllerBoss>();
+                if (crown != null)
+                {
+                    crown.SetupFollow(transform, segmentSpacing, moveSpeed, this);
+                }
+            }
+            // Se bodySegments.Count > 0, a Coroa já está seguindo o último segmento válido.
+            
+            
+            // 7. Lógica de Morte (quando a vida chega a 0)
+            if (currentHealth <= 0)
+            {
+                Die(); 
+            }
+            
+            // Lembrete: A lógica de spawn de inimigos será adicionada depois.
+        }
+        else
+        {
+            Debug.LogWarning("Tentativa de destruir um BossSegment que não está na lista. Ignorado.");
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log("Boss Derrotado!");
+        // Implemente sua lógica de game over ou vitória aqui
+        // Ex: Destroy(gameObject);
+    }
+
     
     // --- DEBUG VISUAL (GIZMOS) ---
     void OnDrawGizmosSelected()

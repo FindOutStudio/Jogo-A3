@@ -10,10 +10,27 @@ public class WebDamageZone : MonoBehaviour
         Destroy(gameObject, duration);
     }
 
-    // Nota: O ideal para Dano Contínuo é usar OnTriggerStay2D
-    // Mas, mantendo o OnTriggerEnter2D, o cooldown já garante que ele só leve dano uma vez
     private void OnTriggerEnter2D(Collider2D other)
     {
+
+        BossSegment segment = other.GetComponent<BossSegment>();
+        if (segment != null)
+        {
+            // Se for um BossSegment, chama o método de dano
+            segment.TakeDamage(); 
+            // Se o rastro deve sumir ao atingir, descomente a linha abaixo:
+            // Destroy(gameObject); 
+            Destroy(gameObject);
+            return;
+        }
+
+        // 2. CHECAGEM DO BOSS: COROA (ignorar)
+        if (other.GetComponent<CrownControllerBoss>() != null)
+        {
+            // Não faz nada, a Coroa é imune ao dano de rastro
+            return;
+        }
+
         if (other.CompareTag("Enemy"))
         {
             // O inimigo entra na área de dano da coroa/teia
@@ -32,6 +49,8 @@ public class WebDamageZone : MonoBehaviour
                 // ** USANDO O NOVO MÉTODO **
                 rangedEnemy.TakeWebDamage(damageAmount);
             }
+
+    }
+
         }
     }
-}
