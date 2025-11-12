@@ -321,7 +321,7 @@ public class BossHeadController : MonoBehaviour
         
         if (rb != null)
         {
-            rb.velocity = Vector2.zero; 
+            rb.linearVelocity = Vector2.zero; 
         }
 
         // 2. Loop do Dash (Continua até BATER em Wall/Obstacle OU Player sair do range)
@@ -351,7 +351,7 @@ public class BossHeadController : MonoBehaviour
         
         if (rb != null)
         {
-            rb.velocity = Vector2.zero; 
+            rb.linearVelocity = Vector2.zero; 
         }
         
         currentMoveDirection = Vector2.zero; 
