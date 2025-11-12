@@ -10,10 +10,15 @@ public class RangedEnemyController : MonoBehaviour
         Chasing,
         Retreating,
         ChasingWithMemory,
-        WaitingToChase
+        WaitingToChase,
+        Death,
+        Attacking,
+        PlacingBomb,
+         Dashing
     }
 
     private EnemyState currentState = EnemyState.Patrolling;
+
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 2; 
@@ -54,6 +59,9 @@ public class RangedEnemyController : MonoBehaviour
     // --- NOVOS CAMPOS PARA CUSPIR PROJÉTIL (ATAQUE 1) ---
     [Tooltip("Ângulo total do cone de ataque de projéteis.")]
     public float coneAngle = 60f;
+    private bool canShoot = true;
+    private bool canPlaceBomb = true;
+
     // ---------------------------------------------------
 
     [Header("Dash Bomba (Ataque 2)")]
@@ -61,13 +69,46 @@ public class RangedEnemyController : MonoBehaviour
     public GameObject bombPrefab; // **Você precisará de um prefab de bomba!**
     [Tooltip("Distância do dash para trás.")]
     public float dashDistance = 3f;
-    [Tooltip("Duração do dash (para cálculo de velocidade).")]
-    public float dashDuration = 0.2f;
     // ---------------------------------------------------
+
+    [Header("Referências de Ataque")]
+    public Transform projectileSpawnPoint;
+
+
+    [Header("Dash")]
+
+    public float dashSpeed = 10f;
+
+    public float dashDuration = 0.3f;
+    private Vector2 dashDirection;
+
+
+    [Header("Configurações de Ataque Projétil")]
+
+[SerializeField] private float attackAnimationDuration = 0.5f; 
+[SerializeField] private float endAttackAnimationDuration = 0.3f; // Para a animação 'Fim'
+
+[Header("Configurações de Dash/Bomba")]
+[SerializeField] private float bombAnimationDuration = 0.5f;
+[SerializeField] private float dashCooldown = 3f;
+private float lastDashTime;
     
     private int currentPatrolIndex = 0;
     private Coroutine currentBehavior;
     private Rigidbody2D rb;
+
+    private Animator anim;
+
+    private SpriteRenderer spriteRenderer;
+
+    void Awake()
+{
+    anim = GetComponent<Animator>();
+    rb = GetComponent<Rigidbody2D>();
+    spriteRenderer = GetComponent<SpriteRenderer>();
+    currentHealth = maxHealth;
+ 
+}
 
     void Start()
     {
@@ -85,14 +126,19 @@ public class RangedEnemyController : MonoBehaviour
 
     void Update()
     {
-        if (player == null) return;
+        if (player == null)
+        {
+            currentState = EnemyState.Patrolling;
+            return;
+        } 
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         EnemyState nextState = currentState;
 
         if (currentState != EnemyState.Patrolling && currentState != EnemyState.Searching && currentState != EnemyState.WaitingToChase)
         {
-            RotateTowards((player.position - transform.position).normalized);
+            UpdateAnimator(); 
+        return;
         }
 
         // Se estiver executando um Dash/Recuo, não mude o estado no Update
@@ -106,7 +152,7 @@ public class RangedEnemyController : MonoBehaviour
         else if (distanceToPlayer <= projectileRange)
         {
             // O TryAttack() agora executa o Cuspir Projétil
-            TryAttack();
+            PerformRangedAttack();
             if (currentState != EnemyState.Chasing)
             {
                 nextState = EnemyState.WaitingToChase;
@@ -128,7 +174,25 @@ public class RangedEnemyController : MonoBehaviour
             nextState = EnemyState.Patrolling;
         }
 
+        if (currentState == EnemyState.Attacking || currentState == EnemyState.PlacingBomb || currentState == EnemyState.Dashing || currentState == EnemyState.Death)
+        {
+            UpdateAnimator();
+            return;
+        }
+
+    if (Time.time >= lastDashTime + dashCooldown && distanceToPlayer < dangerZoneRadius)
+    {
+        StartCoroutine(StartBombDashSequence());
+        return;
+    }
+    else if (Time.time >= lastAttackTime + attackCooldown && distanceToPlayer < projectileRange && distanceToPlayer >= dangerZoneRadius)
+    {
+        StartCoroutine(PerformRangedAttack());
+        return; // Sai do Update para começar a corrotina
+    }
+
         SetState(nextState);
+        UpdateAnimator();
     }
 
     private void SetState(EnemyState newState)
@@ -158,7 +222,7 @@ public class RangedEnemyController : MonoBehaviour
                 break;
             case EnemyState.Retreating:
                 // NOVO: Chama o Dash Bomba em vez de apenas Recuar
-                currentBehavior = StartCoroutine(DashBombRoutine());
+                currentBehavior = StartCoroutine(StartBombDashSequence());
                 break;
             case EnemyState.WaitingToChase:
                 currentBehavior = StartCoroutine(WaitForChaseRoutine());
@@ -198,6 +262,7 @@ public class RangedEnemyController : MonoBehaviour
 
             Transform targetPoint = patrolPoints[currentPatrolIndex];
             Vector2 direction = (targetPoint.position - transform.position).normalized;
+            UpdateAnimator(direction);
 
             while (Vector2.Distance(transform.position, targetPoint.position) > 0.1f)
             {
@@ -207,11 +272,11 @@ public class RangedEnemyController : MonoBehaviour
                     yield break;
                 }
                 transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
-                RotateTowards(direction);
                 yield return null;
             }
 
             currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
+            SetState(EnemyState.Searching);
             yield return new WaitForSeconds(waitTime);
         }
     }
@@ -237,75 +302,55 @@ public class RangedEnemyController : MonoBehaviour
 
             Vector2 dirToPlayer = (player.position - transform.position);
             Vector2 direction = dirToPlayer.normalized;
-            
+
+            UpdateAnimator(direction);
+
+            if (dirToPlayer.magnitude > dangerZoneRadius && dirToPlayer.magnitude < projectileRange && canShoot)
+            {
+                SetState(EnemyState.Attacking);
+                yield break;
+            }
+            else if (dirToPlayer.magnitude < dangerZoneRadius)
+            {
+                // NOVO: Lógica da bomba
+                if (canPlaceBomb)
+                {
+                    SetState(EnemyState.PlacingBomb);
+                    yield break;
+                }
+
+                // Se não puder colocar bomba, recua
+                SetState(EnemyState.Retreating);
+                yield break;
+            }
+
             if (dirToPlayer.magnitude > projectileRange)
             {
+                // Movimenta o inimigo (sem rotação do transform!)
                 transform.position += (Vector3)(direction * chaseSpeed * Time.deltaTime);
             }
 
-            RotateTowards(direction);
             yield return null;
         }
     }
     
+    private void UpdateAnimator(Vector2 direction)
+{
+    if (anim == null) return;
+
+    // Arredonda para o ponto mais próximo (-1, 0 ou 1) para o Blend Tree 2D
+    anim.SetFloat("Move_X", Mathf.Round(direction.x));
+    anim.SetFloat("Move_Y", Mathf.Round(direction.y));
+}
+    
     // ----------------------------------------------------------------------
     // NOVO: DASH BOMBA (Substitui o RetreatRoutine antigo)
     // ----------------------------------------------------------------------
-    private IEnumerator DashBombRoutine()
-    {
-        if (bombPrefab == null)
-        {
-            Debug.LogError("Dash Bomba requer que o 'bombPrefab' esteja configurado!");
-            SetState(EnemyState.ChasingWithMemory); // Fallback
-            yield break;
-        }
-
-        Vector3 initialDashPos = transform.position;
-        Vector2 dirToPlayer = (player.position - transform.position).normalized;
-        Vector2 dashDirection = -dirToPlayer; // Dash para trás (away from player)
-        
-        // 1. Solta a bomba na posição atual (onde o inimigo estava)
-        Instantiate(bombPrefab, transform.position, Quaternion.identity);
-
-        // 2. Dash para trás
-        float dashSpeedCalculated = dashDistance / dashDuration;
-        float startTime = Time.time;
-
-        while (Time.time < startTime + dashDuration)
-        {
-            // Move o inimigo
-            rb.MovePosition(rb.position + dashDirection * dashSpeedCalculated * Time.fixedDeltaTime);
-            yield return new WaitForFixedUpdate(); // Usa FixedUpdate para movimento do Rigidbody
-        }
-
-        // 3. Garante que ele parou e está no novo local (opcionalmente)
-        transform.position = initialDashPos + (Vector3)(dashDirection * dashDistance);
-
-        // 4. Volta para o estado de perseguição/procura
-        SetState(EnemyState.ChasingWithMemory);
-    }
-    // ----------------------------------------------------------------------
-
+    
     private bool CanMoveInDirection(Vector2 direction)
     {
         RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, obstacleCheckDistance, obstacleMask);
         return hit.collider == null;
-    }
-
-    private void TryAttack()
-    {
-        if (Time.time >= lastAttackTime + attackCooldown)
-        {
-            Vector2 dirToPlayer = (player.position - transform.position);
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToPlayer.normalized, dirToPlayer.magnitude, obstacleMask);
-            
-            if (hit.collider == null || hit.collider.transform == player)
-            {
-                // NOVO: Chama o ataque Cuspir Projétil
-                SpitProjectiles(dirToPlayer.normalized);
-                lastAttackTime = Time.time;
-            }
-        }
     }
 
     // ----------------------------------------------------------------------
@@ -365,7 +410,7 @@ public class RangedEnemyController : MonoBehaviour
         }
     }
 
-     public void TakeWebDamage(int damage)
+    public void TakeWebDamage(int damage)
     {
         if (isInvulnerableFromWeb)
         {
@@ -374,7 +419,7 @@ public class RangedEnemyController : MonoBehaviour
 
         // Aplica o dano
         currentHealth -= damage;
-        
+
         // Inicia o Cooldown
         StartCoroutine(WebDamageCooldownRoutine());
 
@@ -384,22 +429,164 @@ public class RangedEnemyController : MonoBehaviour
         }
     }
 
+    // Dentro da classe RangedEnemyController.cs
+
+    private IEnumerator StartBombDashSequence()
+    {
+        // ===================================
+        // 1. ANIMAÇÃO BOMB (Colocar Bomba)
+        // ===================================
+        currentState = EnemyState.PlacingBomb;
+        lastDashTime = Time.time;
+
+        // Define Move_X e Move_Y para a animação virar para o Player (8 direções)
+        SetAnimationDirectionTowardsPlayer();
+        anim.SetTrigger("IsBomb");
+
+        // Pausa para a animação da Bomba
+        yield return new WaitForSeconds(bombAnimationDuration);
+
+        // 2. AÇÃO: Coloca a bomba
+        if (bombPrefab != null)
+        {
+            // Instancia a bomba na posição atual do inimigo (ou em um ponto de spawn na base)
+            Instantiate(bombPrefab, transform.position, Quaternion.identity);
+        }
+
+        // ==========================================================
+        // 3. ANIMAÇÃO E AÇÃO DASH
+        // ==========================================================
+
+        // CÁLCULO DA DIREÇÃO DE DASH (Oposto do Player)
+        Vector2 directionToPlayer = (player.position - transform.position).normalized;
+        Vector2 dashDirection = -directionToPlayer; // Fuga: lado oposto
+
+        // Configura o estado de Dash
+        currentState = EnemyState.Dashing;
+
+        // Define Move_X e Move_Y para a direção do Dash (8 direções)
+        anim.SetFloat("Move_X", Mathf.Round(dashDirection.x));
+        anim.SetFloat("Move_Y", Mathf.Round(dashDirection.y));
+
+        // Dispara o Trigger
+        anim.SetTrigger("IsDashing");
+
+        // 4. AÇÃO: Movimento do Dash
+        // Aplica o dash usando o Rigidbody
+        if (rb != null)
+        {
+            rb.velocity = dashDirection * dashSpeed; // Aplica a velocidade de dash
+
+            // Espera a duração do Dash (que pode ser ajustada para a animação)
+            yield return new WaitForSeconds(dashDuration);
+
+            // Zera a velocidade após o dash
+            rb.velocity = Vector2.zero;
+        }
+
+        // 5. RETORNA AO ESTADO BASE
+        currentState = EnemyState.Patrolling;
+    }
+
+    // Dentro da classe RangedEnemyController.cs
+
+    private IEnumerator PerformRangedAttack()
+    {
+        // Bloqueia a máquina de estados para evitar movimento
+        currentState = EnemyState.Attacking;
+        lastAttackTime = Time.time;
+
+        // 1. ANIMAÇÃO: Vira o inimigo para o Player (8 direções) e dispara o Trigger
+        anim.SetTrigger("IsAttacking");
+
+        if (rb != null) rb.velocity = Vector2.zero;
+
+        // Pausa para sincronizar com o momento de disparo na animação
+        yield return new WaitForSeconds(attackAnimationDuration);
+
+        // 2. AÇÃO: Spawn do Projétil
+        if (projectilePrefab != null && projectileSpawnPoint != null)
+        {
+            // Calcula a direção para o Player
+            Vector2 dirToPlayer = (player.position - projectileSpawnPoint.position).normalized;
+            GameObject newProjectile = Instantiate(projectilePrefab, projectileSpawnPoint.position, Quaternion.identity);
+
+            // Define a direção do projétil (se ele usar transform.right para o movimento)
+            newProjectile.transform.right = dirToPlayer;
+        }
+
+        // 3. ANIMAÇÃO: Toca a animação de fim
+        anim.SetTrigger("Fim");
+        yield return new WaitForSeconds(endAttackAnimationDuration);
+
+        // 4. RETORNA AO ESTADO BASE
+        currentState = EnemyState.Patrolling;
+    }
+
+
     private IEnumerator WebDamageCooldownRoutine()
     {
         isInvulnerableFromWeb = true;
         // Opcional: Adicione um efeito de piscar ou mudança de cor aqui
-        
+
         yield return new WaitForSeconds(webDamageCooldown);
-        
+
         // Opcional: Volte o efeito visual ao normal
         isInvulnerableFromWeb = false;
     }
 
     private void Die()
     {
+        currentState = EnemyState.Death; 
+    
+    if (anim != null)
+    {
+        anim.SetTrigger("IsDeath"); // NOVO
+    }
         Destroy(gameObject);
+
     }
 
+    private void UpdateAnimator()
+{
+    if (anim == null) return;
+    
+    // --- 1. GESTÃO DE MORTE ---
+    if (currentState == EnemyState.Death)
+    {
+        anim.SetTrigger("IsDeath");
+        return; // Nenhuma outra animação deve rodar
+    }
+
+    float currentSpeed = rb != null ? rb.velocity.magnitude : moveSpeed; // Use a velocidade real se tiver RB
+    anim.SetFloat("Speed", currentSpeed > 0.1f ? 1f : 0f); // Se está se movendo, Speed=1, senão Speed=0 (IDLE)
+
+    // Se estiver se movendo, define a direção para o blend tree
+    if (currentSpeed > 0.1f)
+    {
+        // Encontra a direção atual do movimento
+        Vector2 currentDir = rb.velocity.normalized;
+
+        // Arredonda para o ponto mais próximo (para blend tree 2D)
+        anim.SetFloat("Move_X", Mathf.Round(currentDir.x));
+        anim.SetFloat("Move_Y", Mathf.Round(currentDir.y));
+    }
+    
+}
+
+// =====================================================================
+// NOVO: Chamada de Animações nos Métodos de Ação
+// =====================================================================
+private void SetAnimationDirectionTowardsPlayer()
+{
+    if (player == null || anim == null) return;
+
+    // Calcula a direção do Inimigo para o Player
+    Vector2 directionToPlayer = (player.position - transform.position).normalized;
+
+    anim.SetFloat("Move_X", Mathf.Round(directionToPlayer.x));
+    anim.SetFloat("Move_Y", Mathf.Round(directionToPlayer.y));
+}
 
     void OnDrawGizmosSelected()
     {
