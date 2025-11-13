@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Unity.Cinemachine;
 
 public class EnemyPatrol : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class EnemyPatrol : MonoBehaviour
     }
 
     private EnemyState currentState = EnemyState.Patrolling;
+    private CinemachineImpulseSource impulseSource;
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 3; 
@@ -99,6 +101,7 @@ public class EnemyPatrol : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         rb = GetComponent<Rigidbody2D>();
+        impulseSource = GetComponent<CinemachineImpulseSource>();
         
         // --- NOVO: PEGAR ANIMATOR ---
         anim = GetComponent<Animator>();
@@ -466,10 +469,13 @@ public class EnemyPatrol : MonoBehaviour
 
     public void TakeWebDamage(int damage)
     {
+       
         if (isInvulnerableFromWeb)
         {
             return;
         }
+
+        CameraShake.instance.MediumCameraShaking(impulseSource);
 
         currentHealth -= damage;
         

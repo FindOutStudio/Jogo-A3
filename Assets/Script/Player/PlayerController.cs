@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -12,8 +13,10 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private PlayerInputActions inputActions;
     private CrownController crownInstance;
+    private CinemachineImpulseSource impulseSource;
     [SerializeField] private GameObject webDamageZonePrefab;
     [SerializeField] private GameObject teleportEffect;
+
     private float lastMoveX = 0f;
     private float lastMoveY = 0f;
 
@@ -78,6 +81,7 @@ public class PlayerController : MonoBehaviour
         anim = GetComponent<Animator>();
         inputActions = new PlayerInputActions();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        impulseSource = GetComponent<CinemachineImpulseSource>();
         currentHealth = maxHealth;
     }
 
@@ -157,6 +161,8 @@ public class PlayerController : MonoBehaviour
         {
             // 3. Teletransporte para a Coroa com desenho de teia (reto ou ricochete)
             Vector3 ricochetPoint = crownInstance.GetLastRicochetPoint();
+            CameraShake.instance.WeakCameraShaking(impulseSource);
+
 
             if (ricochetPoint == Vector3.zero)
             {
@@ -309,6 +315,8 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage(int damageAmount)
     {
         if (isInvulnerable || isDead || isFalling) return; // Impede dano se estiver morto ou caindo
+
+        CameraShake.instance.StrongCameraShaking(impulseSource);
 
         isInvulnerable = true;
         currentHealth -= damageAmount;

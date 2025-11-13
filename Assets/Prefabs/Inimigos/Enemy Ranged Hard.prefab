@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 3253680705841173096}
   - component: {fileID: 6505398938109161363}
   - component: {fileID: 7202131267774599641}
+  - component: {fileID: 956125028898004880}
   m_Layer: 7
   m_Name: Enemy Ranged Hard
   m_TagString: Enemy
@@ -108,10 +109,9 @@ MonoBehaviour:
   webDamageCooldown: 0.3
   patrolPoints:
   - {fileID: 0}
-  - {fileID: 0}
   moveSpeed: 3
   waitTime: 1
-  player: {fileID: 0}
+  player: {fileID: 8044775217846974058, guid: 595038b53ba4a9c4db6bb86a3bb66b63, type: 3}
   visionRange: 4.6
   projectileRange: 4
   dangerZoneRadius: 1.3
@@ -130,7 +130,13 @@ MonoBehaviour:
   coneAngle: 60
   bombPrefab: {fileID: 5671363189448418434, guid: 236be654ca617994caf95b11874e9eb0, type: 3}
   dashDistance: 3
+  projectileSpawnPoint: {fileID: 6267381811527074934}
+  dashSpeed: 10
   dashDuration: 0.2
+  attackAnimationDuration: 0.5
+  endAttackAnimationDuration: 0.3
+  bombAnimationDuration: 0.5
+  dashCooldown: 3
 --- !u!61 &3253680705841173096
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -226,6 +232,59 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &956125028898004880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6842674454476929583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 180ecf9b41d478f468eb3e9083753217, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ImpulseDefinition:
+    ImpulseChannel: 1
+    ImpulseShape: 3
+    CustomImpulseShape:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ImpulseDuration: 0.2
+    ImpulseType: 0
+    DissipationRate: 0.25
+    RawSignal: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    RepeatMode: 0
+    Randomize: 1
+    TimeEnvelope:
+      AttackShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      DecayShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      AttackTime: 0
+      SustainTime: 0.2
+      DecayTime: 0.7
+      ScaleWithImpact: 1
+      HoldForever: 0
+    ImpactRadius: 100
+    DirectionMode: 0
+    DissipationMode: 2
+    DissipationDistance: 100
+    PropagationSpeed: 343
+  DefaultVelocity: {x: -1, y: -1, z: 0}
 --- !u!1 &7649567156402114611
 GameObject:
   m_ObjectHideFlags: 0
