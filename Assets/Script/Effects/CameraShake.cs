@@ -7,6 +7,8 @@ public class CameraShake : MonoBehaviour
     [SerializeField] private float StrongShakeForce = 1f;
     [SerializeField] private float MediumShakeForce = 0.6f;
     [SerializeField] private float WeakShakeForce = 0.1f;
+    [SerializeField] private float BossShakeForce = 2f;
+
 
     private void Awake()
     {
@@ -28,5 +30,9 @@ public class CameraShake : MonoBehaviour
     public void WeakCameraShaking(CinemachineImpulseSource impulseSource)
     {
         impulseSource.GenerateImpulseWithForce(WeakShakeForce);
+    }
+    public void BossCameraShaking(CinemachineImpulseSource impulseSource)
+    {
+        impulseSource.GenerateImpulseWithForce(BossShakeForce);
     }
 }

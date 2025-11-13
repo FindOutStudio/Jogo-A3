@@ -16,6 +16,8 @@ public class PlayerController : MonoBehaviour
     private CinemachineImpulseSource impulseSource;
     [SerializeField] private GameObject webDamageZonePrefab;
     [SerializeField] private GameObject teleportEffect;
+    [SerializeField] private HitStop hitStop;
+
 
     private float lastMoveX = 0f;
     private float lastMoveY = 0f;
@@ -316,7 +318,16 @@ public class PlayerController : MonoBehaviour
     {
         if (isInvulnerable || isDead || isFalling) return; // Impede dano se estiver morto ou caindo
 
+        // Feedback visual: shake da câmera
         CameraShake.instance.StrongCameraShaking(impulseSource);
+
+        // HitStop com duração variável
+        if (hitStop != null)
+        {
+            bool heavyHit = damageAmount > 1; // se o dano for maior que 1, usa duração longa
+            hitStop.Freeze(heavyHit);
+        }
+
 
         isInvulnerable = true;
         currentHealth -= damageAmount;
@@ -366,11 +377,12 @@ public class PlayerController : MonoBehaviour
         while (flashTime < invulnerabilityDuration)
         {
             spriteRenderer.enabled = !spriteRenderer.enabled; // Alterna a visibilidade
+
             yield return new WaitForSeconds(flashInterval);
             flashTime += flashInterval;
         }
 
-        // Garante que o sprite esteja visível após o término
+        //Garante que o sprite esteja visível após o término
         spriteRenderer.enabled = true;
         isInvulnerable = false;
     }
@@ -589,4 +601,5 @@ public class PlayerController : MonoBehaviour
         anim.SetFloat("MoveX", lastMoveX);
         anim.SetFloat("MoveY", lastMoveY);
     }
+
 }
