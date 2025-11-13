@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 8044775217846974058}
   - component: {fileID: 8418984865395020449}
   - component: {fileID: 6263449837906887648}
+  - component: {fileID: 667040311888665364}
   - component: {fileID: 362850839701047152}
   - component: {fileID: 4178776875588460465}
   - component: {fileID: 7782958148662901508}
@@ -93,7 +94,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: -876546973899608171, guid: 7d3d81fff60ffc7409af7293f7ecc79b, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -165,6 +166,20 @@ MonoBehaviour:
   shrinkRate: 3
   fallDuration: 1
   fallDelay: 0.1
+--- !u!114 &667040311888665364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4028713626492036423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8289ea351c020c848bfd26fc9c480329, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _flashColor: {r: 1, g: 1, b: 1, a: 1}
+  _flashTime: 0.25
 --- !u!50 &362850839701047152
 Rigidbody2D:
   serializedVersion: 5
