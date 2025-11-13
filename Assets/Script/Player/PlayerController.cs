@@ -331,6 +331,17 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(InvulnerabilityDurationRoutine());
         }
     }
+    public void Heal(int healAmount)
+    {
+        if (isDead || isFalling) return; // não cura se estiver morto ou caindo
+
+        currentHealth += healAmount;
+
+        if (currentHealth > maxHealth)
+            currentHealth = maxHealth;
+
+        Debug.Log($"Player curado! Vida atual: {currentHealth}");
+    }
 
     private IEnumerator InvulnerabilityDurationRoutine()
     {

@@ -475,13 +475,13 @@ private float lastDashTime;
         // Aplica o dash usando o Rigidbody
         if (rb != null)
         {
-            rb.velocity = dashDirection * dashSpeed; // Aplica a velocidade de dash
+            rb.linearVelocity = dashDirection * dashSpeed; // Aplica a velocidade de dash
 
             // Espera a duração do Dash (que pode ser ajustada para a animação)
             yield return new WaitForSeconds(dashDuration);
 
             // Zera a velocidade após o dash
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
         }
 
         // 5. RETORNA AO ESTADO BASE
@@ -499,7 +499,7 @@ private float lastDashTime;
         // 1. ANIMAÇÃO: Vira o inimigo para o Player (8 direções) e dispara o Trigger
         anim.SetTrigger("IsAttacking");
 
-        if (rb != null) rb.velocity = Vector2.zero;
+        if (rb != null) rb.linearVelocity = Vector2.zero;
 
         // Pausa para sincronizar com o momento de disparo na animação
         yield return new WaitForSeconds(attackAnimationDuration);
@@ -558,14 +558,14 @@ private float lastDashTime;
         return; // Nenhuma outra animação deve rodar
     }
 
-    float currentSpeed = rb != null ? rb.velocity.magnitude : moveSpeed; // Use a velocidade real se tiver RB
+    float currentSpeed = rb != null ? rb.linearVelocity.magnitude : moveSpeed; // Use a velocidade real se tiver RB
     anim.SetFloat("Speed", currentSpeed > 0.1f ? 1f : 0f); // Se está se movendo, Speed=1, senão Speed=0 (IDLE)
 
     // Se estiver se movendo, define a direção para o blend tree
     if (currentSpeed > 0.1f)
     {
         // Encontra a direção atual do movimento
-        Vector2 currentDir = rb.velocity.normalized;
+        Vector2 currentDir = rb.linearVelocity.normalized;
 
         // Arredonda para o ponto mais próximo (para blend tree 2D)
         anim.SetFloat("Move_X", Mathf.Round(currentDir.x));
