@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f9e49a218e11a04e87a677a26878280, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StrongShakeForce: 1
-  MediumShakeForce: 0.6
-  WeakShakeForce: 0.3
+  StrongShakeForce: 0.6
+  MediumShakeForce: 0.1
+  WeakShakeForce: 0.03
+  BossShakeForce: 2
