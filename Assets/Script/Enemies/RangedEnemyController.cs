@@ -1,5 +1,6 @@
-using UnityEngine;
 using System.Collections;
+using Unity.Cinemachine;
+using UnityEngine;
 
 public class RangedEnemyController : MonoBehaviour
 {
@@ -18,6 +19,8 @@ public class RangedEnemyController : MonoBehaviour
     }
 
     private EnemyState currentState = EnemyState.Patrolling;
+    private CinemachineImpulseSource impulseSource;
+
 
 
     [Header("Health")]
@@ -107,8 +110,9 @@ private float lastDashTime;
     rb = GetComponent<Rigidbody2D>();
     spriteRenderer = GetComponent<SpriteRenderer>();
     currentHealth = maxHealth;
- 
-}
+    impulseSource = GetComponent<CinemachineImpulseSource>();
+
+    }
 
     void Start()
     {
@@ -416,6 +420,8 @@ private float lastDashTime;
         {
             return;
         }
+
+        CameraShake.instance.MediumCameraShaking(impulseSource);
 
         // Aplica o dano
         currentHealth -= damage;
