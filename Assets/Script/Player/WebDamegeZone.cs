@@ -42,13 +42,14 @@ public class WebDamageZone : MonoBehaviour
                 meleeEnemy.TakeWebDamage(damageAmount);
                 return;
             }
-
+            
             RangedEnemyController rangedEnemy = other.GetComponent<RangedEnemyController>();
             if (rangedEnemy != null)
             {
                 // ** USANDO O NOVO MÉTODO **
                 rangedEnemy.TakeWebDamage(damageAmount);
             }
+       
 
     }
 

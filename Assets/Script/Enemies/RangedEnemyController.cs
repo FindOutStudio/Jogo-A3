@@ -1,121 +1,101 @@
-using System.Collections;
-using Unity.Cinemachine;
 using UnityEngine;
+using System.Collections;
+// Usamos este namespace se você for adicionar o Camera Shake no futuro
+// using Unity.Cinemachine; 
 
 public class RangedEnemyController : MonoBehaviour
 {
+    // --- ENUM DE ESTADOS ---
     public enum EnemyState
     {
         Patrolling,
-        Searching,
+        Alert,
         Chasing,
-        Retreating,
-        ChasingWithMemory,
-        WaitingToChase,
-        Death,
         Attacking,
-        PlacingBomb,
-         Dashing
+        Retreating
     }
 
     private EnemyState currentState = EnemyState.Patrolling;
-    private CinemachineImpulseSource impulseSource;
-
-
+    private Coroutine currentBehavior;
 
     [Header("Health")]
-    [SerializeField] private int maxHealth = 2; 
+    [SerializeField] private int maxHealth = 3;
     private int currentHealth;
 
-    // --- NOVO: COOLDOWN DE DANO DE TEIA ---
+    // --- COOLDOWN DE DANO DE TEIA ---
     [Header("Web Damage Cooldown")]
-    [SerializeField] private float webDamageCooldown = 0.3f; 
+    [SerializeField] private float webDamageCooldown = 0.3f;
     private bool isInvulnerableFromWeb = false;
 
     [Header("Patrulha")]
     public Transform[] patrolPoints;
     public float moveSpeed = 2f;
-    public float waitTime = 1f;
 
-    [Header("Detecção e Comportamento")]
-    public Transform player;
-    [SerializeField] private float visionRange = 10f; 
-    [SerializeField] private float projectileRange = 7f; 
-    [SerializeField] private float dangerZoneRadius = 3f; 
-    [SerializeField] private float memoryRange = 15f; 
-    [SerializeField] private LayerMask obstacleMask; 
-    [SerializeField] private float obstacleCheckDistance = 0.3f; 
+    [Header("ZONAS DE COMPORTAMENTO")]
+    [Tooltip("Área Azul: Distância máxima para manter a 'Memória'.")]
+    [SerializeField] private float memoryRange = 15f;
+    [Tooltip("Área Azul Claro: Distância máxima para detectar o player (Visão 360).")]
+    [SerializeField] private float visionRange = 10f;
+    [Tooltip("Área Verde: Distância ideal para PARAR e ATACAR (Tiro).")]
+    [SerializeField] private float combatRange = 5f;
+    [Tooltip("Área Vermelha: Distância de Perigo. Acionará a Bomba e o Recuo.")]
+    [SerializeField] private float dangerZoneRadius = 2f;
+    [SerializeField] private LayerMask obstacleMask; // Máscara para verificar obstáculos na linha de visão
 
-    [Header("Atrasos e Ajustes")]
-    [Tooltip("Tempo que o inimigo espera antes de iniciar a primeira perseguição.")]
-    public float initialChaseDelay = 0.5f;
-    public float retreatSpeed = 4f;
-    public float chaseSpeed = 3f;
-    public float attackCooldown = 2f;
-    private float lastAttackTime = -Mathf.Infinity;
-    private bool hasPlayerBeenSeen = false;
+    [Header("Detecção e Alvos")]
+    public Transform player; // O alvo a ser seguido
+    [Range(0, 360)] public float viewAngle = 90f; // Mantido, mas não usado na detecção de 360º.
+    public LayerMask obstacleMaskPlayer; // Máscara de layer para Raycast (geralmente Player, Enemy, etc)
+    public float chaseSpeed = 3.5f; // Velocidade de perseguição
 
-    [Header("Ataque de Projétil")]
-    public GameObject projectilePrefab;
-    public Transform firePoint;
-    public float projectileSpeed = 8f;
-    // --- NOVOS CAMPOS PARA CUSPIR PROJÉTIL (ATAQUE 1) ---
-    [Tooltip("Ângulo total do cone de ataque de projéteis.")]
-    public float coneAngle = 60f;
-    private bool canShoot = true;
-    private bool canPlaceBomb = true;
+    [Header("Ajustes de Patrulha")]
+    public float lookAroundDuration = 2f;
 
-    // ---------------------------------------------------
-
-    [Header("Dash Bomba (Ataque 2)")]
-    // --- NOVOS CAMPOS PARA DASH BOMBA (ATAQUE 2) ---
-    public GameObject bombPrefab; // **Você precisará de um prefab de bomba!**
-    [Tooltip("Distância do dash para trás.")]
-    public float dashDistance = 3f;
-    // ---------------------------------------------------
-
-    [Header("Referências de Ataque")]
-    public Transform projectileSpawnPoint;
+    // --- NOVO: Variáveis para Ataque e Recuo ---
+    [Header("ATAQUE (Ranged)")]
+    [SerializeField] private float attackCooldown = 2f;
+    [SerializeField] private GameObject projectilePrefab; // Prefab do projétil
+    [Tooltip("Tempo até o 6º frame da animação de ataque, onde os tiros são disparados.")]
+    [SerializeField] private float timeToShootFrame = 0.2f;
+    [SerializeField] private float projectileSpeed = 10f;
+    [Tooltip("Ângulo lateral para os dois projéteis diagonais (e.g., 20 graus).")]
+    [SerializeField] private float lateralAngle = 20f;
 
 
-    [Header("Dash")]
+    [Header("RECUO (Dash/Bomba)")]
+    [SerializeField] private GameObject bombPrefab; // O objeto da bomba 
+    [Tooltip("Tempo que o inimigo espera com a animação 'IsBomb' antes de dar o dash.")]
+    [SerializeField] private float bombAnimationDuration = 0.1f;
+    [SerializeField] private float retreatDashSpeed = 6f; // Velocidade do dash de recuo
+    [SerializeField] private float retreatDashDuration = 0.3f; // Duração máxima do dash
+    [SerializeField] private float postRetreatDelay = 0.5f; // Delay pós-dash 
 
-    public float dashSpeed = 10f;
+    // --- COOLDOWN DE RECUO ---
+    [Header("COOLDOWN DE RECUO")]
+    [Tooltip("Tempo mínimo entre um recuo e o próximo.")]
+    [SerializeField] private float retreatCooldown = 0.0f; // Cooldown removido
+    private float lastRetreatTime = -Mathf.Infinity; // Usado para controlar o tempo do último recuo
 
-    public float dashDuration = 0.3f;
-    private Vector2 dashDirection;
 
-
-    [Header("Configurações de Ataque Projétil")]
-
-[SerializeField] private float attackAnimationDuration = 0.5f; 
-[SerializeField] private float endAttackAnimationDuration = 0.3f; // Para a animação 'Fim'
-
-[Header("Configurações de Dash/Bomba")]
-[SerializeField] private float bombAnimationDuration = 0.5f;
-[SerializeField] private float dashCooldown = 3f;
-private float lastDashTime;
-    
-    private int currentPatrolIndex = 0;
-    private Coroutine currentBehavior;
-    private Rigidbody2D rb;
-
+    // Variáveis internas de estado
     private Animator anim;
+    private Rigidbody2D rb;
+    private int currentPatrolIndex = 0;
+    private bool hasPlayerBeenSeen = false;
+    private Vector2 currentFacingDirection = Vector2.right; // Usado para animação (Move_X/Y)
 
-    private SpriteRenderer spriteRenderer;
+    // Variável para evitar o Recuo/Ataque quando a distância é 0
+    private const float MIN_DISTANCE_TO_DANGER = 0.05f;
 
-    void Awake()
-{
-    anim = GetComponent<Animator>();
-    rb = GetComponent<Rigidbody2D>();
-    spriteRenderer = GetComponent<SpriteRenderer>();
-    currentHealth = maxHealth;
-    impulseSource = GetComponent<CinemachineImpulseSource>();
+    // Variáveis para o Cooldown de Ataque
+    private float lastAttackTime = -Mathf.Infinity;
 
-    }
+    // Variáveis de Dash (manter para Recuo)
+    private bool isDashActive = false; // TRAVA o Update() quando o inimigo está fazendo o Recuo/Dash
 
     void Start()
     {
+        // Garante que o player está definido
         if (player == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
@@ -124,117 +104,75 @@ private float lastDashTime;
         }
 
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
+
         currentHealth = maxHealth;
-        SetState(EnemyState.Patrolling);
+        currentBehavior = StartCoroutine(PatrolRoutine());
     }
 
-    void Update()
+    private void Update()
     {
-        if (player == null)
-        {
-            currentState = EnemyState.Patrolling;
-            return;
-        } 
+        // Trava a IA se o inimigo estiver ocupado (Dash, Ataque, Recuo)
+        // ESSENCIAL: Se isDashActive é true, a IA é travada para permitir a rotina de recuo completa
+        if (player == null || isDashActive || currentState == EnemyState.Attacking) return;
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         EnemyState nextState = currentState;
 
-        if (currentState != EnemyState.Patrolling && currentState != EnemyState.Searching && currentState != EnemyState.WaitingToChase)
+        // Se o player sair da zona de perigo, zera o cooldown de recuo.
+        if (distanceToPlayer > dangerZoneRadius + MIN_DISTANCE_TO_DANGER)
         {
-            UpdateAnimator(); 
-        return;
+            lastRetreatTime = -Mathf.Infinity;
         }
 
-        // Se estiver executando um Dash/Recuo, não mude o estado no Update
-        if (currentState == EnemyState.Retreating || currentState == EnemyState.WaitingToChase) return;
-
-        if (distanceToPlayer <= dangerZoneRadius)
+        // --- PRIORIDADE 1: RECUO (Zona de Perigo + COOLDOWN) ---
+        if (distanceToPlayer <= dangerZoneRadius + MIN_DISTANCE_TO_DANGER && Time.time >= lastRetreatTime + retreatCooldown)
         {
-            // O estado de 'Retreating' (Recuo) agora executa o Dash Bomba
             nextState = EnemyState.Retreating;
         }
-        else if (distanceToPlayer <= projectileRange)
+        // --- PRIORIDADE 2: ATAQUE (Zona de Combate + Cooldown Pronto) ---
+        else if (distanceToPlayer <= combatRange && Time.time >= lastAttackTime + attackCooldown)
         {
-            // O TryAttack() agora executa o Cuspir Projétil
-            PerformRangedAttack();
-            if (currentState != EnemyState.Chasing)
-            {
-                nextState = EnemyState.WaitingToChase;
-            }
+            nextState = EnemyState.Attacking;
         }
+        // --- PRIORIDADE 3: DETECÇÃO/CHASE/ALERTA (Visão 360) ---
         else if (IsPlayerInMemory() || CanSeePlayer())
         {
-            if (currentState == EnemyState.Patrolling || currentState == EnemyState.Searching)
+            if (distanceToPlayer > combatRange)
             {
-                nextState = EnemyState.WaitingToChase;
+                nextState = EnemyState.Chasing;
             }
             else
             {
-                nextState = EnemyState.ChasingWithMemory;
+                nextState = EnemyState.Alert;
             }
         }
+        // --- PRIORIDADE 4: PATRULHA ---
         else
         {
             nextState = EnemyState.Patrolling;
         }
 
-        if (currentState == EnemyState.Attacking || currentState == EnemyState.PlacingBomb || currentState == EnemyState.Dashing || currentState == EnemyState.Death)
-        {
-            UpdateAnimator();
-            return;
-        }
-
-    if (Time.time >= lastDashTime + dashCooldown && distanceToPlayer < dangerZoneRadius)
-    {
-        StartCoroutine(StartBombDashSequence());
-        return;
-    }
-    else if (Time.time >= lastAttackTime + attackCooldown && distanceToPlayer < projectileRange && distanceToPlayer >= dangerZoneRadius)
-    {
-        StartCoroutine(PerformRangedAttack());
-        return; // Sai do Update para começar a corrotina
-    }
-
         SetState(nextState);
-        UpdateAnimator();
     }
 
-    private void SetState(EnemyState newState)
+    // --- FUNÇÃO PARA CONTROLAR ANIMATOR ---
+    private void UpdateAnimation(Vector2 direction, float speed)
     {
-        if (currentState == newState) return;
+        if (anim == null) return;
 
-        if (currentBehavior != null)
+        anim.SetFloat("Speed", speed);
+
+        if (speed > 0.01f || direction != Vector2.zero)
         {
-            StopCoroutine(currentBehavior);
-        }
-
-        currentState = newState;
-
-        hasPlayerBeenSeen = (newState != EnemyState.Patrolling && newState != EnemyState.Searching);
-
-        switch (currentState)
-        {
-            case EnemyState.Patrolling:
-                currentBehavior = StartCoroutine(PatrolRoutine());
-                break;
-            case EnemyState.Searching:
-                currentBehavior = StartCoroutine(SearchingRoutine());
-                break;
-            case EnemyState.Chasing:
-            case EnemyState.ChasingWithMemory:
-                currentBehavior = StartCoroutine(ChaseRoutine());
-                break;
-            case EnemyState.Retreating:
-                // NOVO: Chama o Dash Bomba em vez de apenas Recuar
-                currentBehavior = StartCoroutine(StartBombDashSequence());
-                break;
-            case EnemyState.WaitingToChase:
-                currentBehavior = StartCoroutine(WaitForChaseRoutine());
-                break;
+            anim.SetFloat("Move_X", direction.x);
+            anim.SetFloat("Move_Y", direction.y);
+            // Atualiza a direção que o inimigo está 'olhando'
+            currentFacingDirection = direction.normalized;
         }
     }
-    
-    // ... (Métodos IsPlayerInMemory, CanSeePlayer, PatrolRoutine, SearchingRoutine, WaitForChaseRoutine, ChaseRoutine não alterados, mas inclusos para contexto) ...
+
+    // --- FUNÇÕES DE DETECÇÃO (360 GRAUS) ---
 
     private bool IsPlayerInMemory()
     {
@@ -250,159 +188,288 @@ private float lastDashTime;
 
         if (distance > visionRange) return false;
 
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToPlayer.normalized, distance, obstacleMask);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToPlayer.normalized, distance, obstacleMaskPlayer);
+
         return hit.collider == null || hit.collider.transform == player;
+    }
+
+    // --- FUNÇÕES DE ESTADO E COROUTINES (BASE) ---
+
+    private void SetState(EnemyState newState)
+    {
+        if (currentState == newState) return;
+
+        // Se o inimigo está em Dash, NUNCA permita que o Update interrompa.
+        if (isDashActive) return;
+
+        if (currentBehavior != null)
+        {
+            StopCoroutine(currentBehavior);
+        }
+
+        currentState = newState;
+
+        hasPlayerBeenSeen = (newState != EnemyState.Patrolling);
+
+        // Reseta animações de movimento ao trocar de estado
+        if (newState != EnemyState.Attacking && newState != EnemyState.Retreating)
+        {
+            UpdateAnimation(Vector2.zero, 0f);
+        }
+
+        switch (currentState)
+        {
+            case EnemyState.Patrolling:
+                currentBehavior = StartCoroutine(PatrolRoutine());
+                break;
+            case EnemyState.Alert:
+                currentBehavior = StartCoroutine(WaitForCooldownRoutine());
+                break;
+            case EnemyState.Chasing:
+                currentBehavior = StartCoroutine(ChasePlayerRoutine());
+                break;
+            case EnemyState.Attacking:
+                currentBehavior = StartCoroutine(RangedAttackRoutine());
+                break;
+            case EnemyState.Retreating:
+                currentBehavior = StartCoroutine(RetreatDashRoutine());
+                break;
+        }
+    }
+
+    private IEnumerator WaitForCooldownRoutine()
+    {
+        currentState = EnemyState.Alert;
+        UpdateAnimation(Vector2.zero, 0f); // Pára o movimento
+
+        while (currentState == EnemyState.Alert)
+        {
+            if (player != null)
+            {
+                // Garante que ele está virado para o player enquanto espera o cooldown
+                Vector2 dirToPlayer = (player.position - transform.position).normalized;
+                UpdateAnimation(dirToPlayer, 0.01f);
+            }
+            yield return null;
+        }
     }
 
     private IEnumerator PatrolRoutine()
     {
+        currentState = EnemyState.Patrolling;
         while (true)
         {
             if (CanSeePlayer())
             {
-                SetState(EnemyState.WaitingToChase);
+                SetState(EnemyState.Alert);
                 yield break;
             }
 
             Transform targetPoint = patrolPoints[currentPatrolIndex];
             Vector2 direction = (targetPoint.position - transform.position).normalized;
-            UpdateAnimator(direction);
 
+            // --- FASE 1: MOVIMENTO (WALK) ---
             while (Vector2.Distance(transform.position, targetPoint.position) > 0.1f)
             {
                 if (CanSeePlayer())
                 {
-                    SetState(EnemyState.WaitingToChase);
+                    SetState(EnemyState.Alert);
                     yield break;
                 }
                 transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+
+                UpdateAnimation(direction, moveSpeed);
+
                 yield return null;
             }
 
+            transform.position = targetPoint.position;
+
+            // --- FASE 2: PATRULHA (LOOK AROUND/ESPECIAL) ---
+            UpdateAnimation(Vector2.zero, 0f);
+
+            float timer = 0f;
+            while (timer < lookAroundDuration)
+            {
+                if (CanSeePlayer())
+                {
+                    SetState(EnemyState.Alert);
+                    yield break;
+                }
+                timer += Time.deltaTime;
+                yield return null;
+            }
+
+            UpdateAnimation(Vector2.zero, 0f);
+            yield return null;
+
+            // --- FASE 3: MUDANÇA DE PONTO E RETORNO AO INÍCIO ---
             currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
-            SetState(EnemyState.Searching);
-            yield return new WaitForSeconds(waitTime);
         }
     }
 
-    private IEnumerator SearchingRoutine()
+    private IEnumerator ChasePlayerRoutine()
     {
-        yield return new WaitForSeconds(waitTime);
-        SetState(EnemyState.Patrolling);
-    }
+        currentState = EnemyState.Chasing;
 
-    private IEnumerator WaitForChaseRoutine()
-    {
-        RotateTowards((player.position - transform.position).normalized);
-        yield return new WaitForSeconds(initialChaseDelay);
-        SetState(EnemyState.ChasingWithMemory);
-    }
-
-    private IEnumerator ChaseRoutine()
-    {
         while (true)
         {
             if (player == null) yield break;
 
-            Vector2 dirToPlayer = (player.position - transform.position);
-            Vector2 direction = dirToPlayer.normalized;
+            float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-            UpdateAnimator(direction);
-
-            if (dirToPlayer.magnitude > dangerZoneRadius && dirToPlayer.magnitude < projectileRange && canShoot)
+            if (distanceToPlayer <= combatRange)
             {
-                SetState(EnemyState.Attacking);
-                yield break;
-            }
-            else if (dirToPlayer.magnitude < dangerZoneRadius)
-            {
-                // NOVO: Lógica da bomba
-                if (canPlaceBomb)
-                {
-                    SetState(EnemyState.PlacingBomb);
-                    yield break;
-                }
-
-                // Se não puder colocar bomba, recua
-                SetState(EnemyState.Retreating);
                 yield break;
             }
 
-            if (dirToPlayer.magnitude > projectileRange)
+            Vector2 direction = (player.position - transform.position).normalized;
+            transform.position += (Vector3)(direction * chaseSpeed * Time.deltaTime);
+
+            if (direction.magnitude > 0.01f)
             {
-                // Movimenta o inimigo (sem rotação do transform!)
-                transform.position += (Vector3)(direction * chaseSpeed * Time.deltaTime);
+                UpdateAnimation(direction, chaseSpeed);
             }
 
             yield return null;
         }
     }
-    
-    private void UpdateAnimator(Vector2 direction)
-{
-    if (anim == null) return;
 
-    // Arredonda para o ponto mais próximo (-1, 0 ou 1) para o Blend Tree 2D
-    anim.SetFloat("Move_X", Mathf.Round(direction.x));
-    anim.SetFloat("Move_Y", Mathf.Round(direction.y));
-}
-    
-    // ----------------------------------------------------------------------
-    // NOVO: DASH BOMBA (Substitui o RetreatRoutine antigo)
-    // ----------------------------------------------------------------------
-    
-    private bool CanMoveInDirection(Vector2 direction)
+    private IEnumerator RangedAttackRoutine()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, obstacleCheckDistance, obstacleMask);
-        return hit.collider == null;
+        if (player == null) { SetState(EnemyState.Alert); yield break; }
+
+        lastAttackTime = Time.time;
+
+        // 1. Pára o movimento e ENCARA O PLAYER
+        UpdateAnimation(Vector2.zero, 0f);
+        Vector2 directionToPlayer = (player.position - transform.position).normalized;
+        UpdateAnimation(directionToPlayer, 0.01f); // Vira o sprite para o player
+
+        // 2. Dispara a animação de ataque
+        if (anim != null) anim.SetTrigger("IsAttacking");
+
+        // 3. Espera o tempo até o frame de disparo
+        yield return new WaitForSeconds(timeToShootFrame);
+
+        // 4. SPAWNAR OS PROJÉTEIS (Tiro Triplo)
+        if (projectilePrefab != null)
+        {
+            SpawnProjectile(directionToPlayer);
+            Vector2 rightAngle = Quaternion.Euler(0, 0, -lateralAngle) * directionToPlayer;
+            SpawnProjectile(rightAngle);
+            Vector2 leftAngle = Quaternion.Euler(0, 0, lateralAngle) * directionToPlayer;
+            SpawnProjectile(leftAngle);
+        }
+
+        // 5. Espera o restante do cooldown
+        float remainingCooldown = attackCooldown - timeToShootFrame;
+        if (remainingCooldown > 0)
+        {
+            yield return new WaitForSeconds(remainingCooldown);
+        }
+
+        // 6. Volta para o estado Alert
+        SetState(EnemyState.Alert);
     }
 
-    // ----------------------------------------------------------------------
-    // NOVO: CUSPINDO PROJÉTEIS (Substitui o FireProjectile)
-    // ----------------------------------------------------------------------
-    private void SpitProjectiles(Vector2 direction)
+    private void SpawnProjectile(Vector2 direction)
     {
-        if (projectilePrefab == null || firePoint == null) return;
-        
-        // Direção central
-        float baseAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        
-        // Ângulos dos 3 projéteis
-        float angle1 = baseAngle - coneAngle / 2f;
-        float angle2 = baseAngle; // Centro
-        float angle3 = baseAngle + coneAngle / 2f;
-        
-        // Dispara os projéteis
-        FireSingleProjectile(angle1);
-        FireSingleProjectile(angle2);
-        FireSingleProjectile(angle3);
-    }
-
-    private void FireSingleProjectile(float angle)
-    {
-        Vector2 dir = Quaternion.Euler(0, 0, angle) * Vector2.right;
-
-        GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+        GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
         Rigidbody2D projRb = projectile.GetComponent<Rigidbody2D>();
-        
+
         if (projRb != null)
         {
-            projRb.linearVelocity = dir * projectileSpeed;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            projectile.transform.rotation = Quaternion.Euler(0, 0, angle);
+
+            projRb.velocity = direction * projectileSpeed;
         }
-        
-        // Rotação visual
-        projectile.transform.rotation = Quaternion.Euler(0, 0, angle);
-
-        // NOTA: É necessário que o script do projétil saiba que ele deve causar 1 de dano no Player.
     }
-    // ----------------------------------------------------------------------
 
 
-    private void RotateTowards(Vector2 direction)
+    // --- ROTINA CRÍTICA: RECUO COMPLETO E ROBUSTO (FINAL) ---
+    private IEnumerator RetreatDashRoutine()
     {
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
+        if (player == null) { SetState(EnemyState.Alert); yield break; }
+
+        // 1. Inicia o cooldown DE RECUO IMEDIATAMENTE.
+        lastRetreatTime = Time.time;
+        isDashActive = true; // <--- TRAVA O UPDATE() AQUI! Garante que a rotina vai até o fim.
+
+        // 2. PÁRA e FREEZA o Rigidbody
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            // ESSENCIAL: Garante parada absoluta e evita dash descontrolado
+            rb.isKinematic = true;
+        }
+        UpdateAnimation(Vector2.zero, 0f); // Zera a animação de movimento
+
+        // A) A direção que o inimigo deve OLHAR (Player)
+        Vector2 directionToPlayer = (player.position - transform.position).normalized;
+        // B) A direção para onde o inimigo irá PULAR (Oposto ao Player)
+        Vector2 retreatDir = (transform.position - player.position).normalized;
+
+        // 3. Garante que o inimigo ENCARA o PLAYER (Como solicitado)
+        UpdateAnimation(directionToPlayer, 0.01f);
+
+        // --- FASE 1: ANIMAÇÃO DE COLOCAR A BOMBA (IsBomb) ---
+        if (anim != null) anim.SetTrigger("IsBomb"); // <--- A animação da bomba começa AGORA
+
+        // O inimigo **PARA** aqui pelo tempo da animação (0.1s)
+        yield return new WaitForSeconds(bombAnimationDuration);
+
+        // --- FASE 2: SPAWNAR BOMBA E DASH ---
+        if (bombPrefab != null)
+        {
+            Instantiate(bombPrefab, transform.position, Quaternion.identity);
+        }
+
+        // NENHUM UpdateAnimation é chamado aqui para manter o olhar no Player.
+
+        // 4. Reativa a física e inicia o dash
+        if (rb != null)
+        {
+            rb.isKinematic = false; // Restaura a física para o Dash
+        }
+
+        if (anim != null) anim.SetTrigger("IsDashing");
+
+        // Distância de parada do dash 
+        float targetDistance = combatRange;
+        float currentDashDuration = retreatDashDuration;
+
+        // Dash (Movimento)
+        while (Vector2.Distance(transform.position, player.position) <= targetDistance && currentDashDuration > 0)
+        {
+            // Move o inimigo usando 'retreatDir' (para trás)
+            transform.position += (Vector3)(retreatDir * retreatDashSpeed * Time.deltaTime);
+
+            // Não chamamos UpdateAnimation, então o sprite continua olhando para o player.
+
+            currentDashDuration -= Time.deltaTime;
+            yield return null;
+        }
+
+        // 5. Assegura que a velocidade foi zerada após o dash
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        // --- FASE 3: COOLDOWN POST-RECUO ---
+        // CORREÇÃO: Libera o Update() AGORA para que a IA possa rodar durante o delay.
+        isDashActive = false;
+
+        // Permite o delay de segurança antes de voltar ao estado de decisão
+        yield return new WaitForSeconds(postRetreatDelay);
+
+        // Volta para o estado Alert
+        SetState(EnemyState.Alert);
     }
+
+    // --- FUNÇÕES DE DANO E MORTE ---
 
     public void TakeDamage(int damage)
     {
@@ -421,12 +488,8 @@ private float lastDashTime;
             return;
         }
 
-        CameraShake.instance.MediumCameraShaking(impulseSource);
-
-        // Aplica o dano
         currentHealth -= damage;
 
-        // Inicia o Cooldown
         StartCoroutine(WebDamageCooldownRoutine());
 
         if (currentHealth <= 0)
@@ -435,187 +498,76 @@ private float lastDashTime;
         }
     }
 
-    // Dentro da classe RangedEnemyController.cs
-
-    private IEnumerator StartBombDashSequence()
-    {
-        // ===================================
-        // 1. ANIMAÇÃO BOMB (Colocar Bomba)
-        // ===================================
-        currentState = EnemyState.PlacingBomb;
-        lastDashTime = Time.time;
-
-        // Define Move_X e Move_Y para a animação virar para o Player (8 direções)
-        SetAnimationDirectionTowardsPlayer();
-        anim.SetTrigger("IsBomb");
-
-        // Pausa para a animação da Bomba
-        yield return new WaitForSeconds(bombAnimationDuration);
-
-        // 2. AÇÃO: Coloca a bomba
-        if (bombPrefab != null)
-        {
-            // Instancia a bomba na posição atual do inimigo (ou em um ponto de spawn na base)
-            Instantiate(bombPrefab, transform.position, Quaternion.identity);
-        }
-
-        // ==========================================================
-        // 3. ANIMAÇÃO E AÇÃO DASH
-        // ==========================================================
-
-        // CÁLCULO DA DIREÇÃO DE DASH (Oposto do Player)
-        Vector2 directionToPlayer = (player.position - transform.position).normalized;
-        Vector2 dashDirection = -directionToPlayer; // Fuga: lado oposto
-
-        // Configura o estado de Dash
-        currentState = EnemyState.Dashing;
-
-        // Define Move_X e Move_Y para a direção do Dash (8 direções)
-        anim.SetFloat("Move_X", Mathf.Round(dashDirection.x));
-        anim.SetFloat("Move_Y", Mathf.Round(dashDirection.y));
-
-        // Dispara o Trigger
-        anim.SetTrigger("IsDashing");
-
-        // 4. AÇÃO: Movimento do Dash
-        // Aplica o dash usando o Rigidbody
-        if (rb != null)
-        {
-            rb.linearVelocity = dashDirection * dashSpeed; // Aplica a velocidade de dash
-
-            // Espera a duração do Dash (que pode ser ajustada para a animação)
-            yield return new WaitForSeconds(dashDuration);
-
-            // Zera a velocidade após o dash
-            rb.linearVelocity = Vector2.zero;
-        }
-
-        // 5. RETORNA AO ESTADO BASE
-        currentState = EnemyState.Patrolling;
-    }
-
-    // Dentro da classe RangedEnemyController.cs
-
-    private IEnumerator PerformRangedAttack()
-    {
-        // Bloqueia a máquina de estados para evitar movimento
-        currentState = EnemyState.Attacking;
-        lastAttackTime = Time.time;
-
-        // 1. ANIMAÇÃO: Vira o inimigo para o Player (8 direções) e dispara o Trigger
-        anim.SetTrigger("IsAttacking");
-
-        if (rb != null) rb.linearVelocity = Vector2.zero;
-
-        // Pausa para sincronizar com o momento de disparo na animação
-        yield return new WaitForSeconds(attackAnimationDuration);
-
-        // 2. AÇÃO: Spawn do Projétil
-        if (projectilePrefab != null && projectileSpawnPoint != null)
-        {
-            // Calcula a direção para o Player
-            Vector2 dirToPlayer = (player.position - projectileSpawnPoint.position).normalized;
-            GameObject newProjectile = Instantiate(projectilePrefab, projectileSpawnPoint.position, Quaternion.identity);
-
-            // Define a direção do projétil (se ele usar transform.right para o movimento)
-            newProjectile.transform.right = dirToPlayer;
-        }
-
-        // 3. ANIMAÇÃO: Toca a animação de fim
-        anim.SetTrigger("Fim");
-        yield return new WaitForSeconds(endAttackAnimationDuration);
-
-        // 4. RETORNA AO ESTADO BASE
-        currentState = EnemyState.Patrolling;
-    }
-
-
     private IEnumerator WebDamageCooldownRoutine()
     {
         isInvulnerableFromWeb = true;
-        // Opcional: Adicione um efeito de piscar ou mudança de cor aqui
-
         yield return new WaitForSeconds(webDamageCooldown);
-
-        // Opcional: Volte o efeito visual ao normal
         isInvulnerableFromWeb = false;
+    }
+
+    private IEnumerator DieRoutine()
+    {
+        if (rb != null) rb.isKinematic = true;
+        Collider2D collider = GetComponent<Collider2D>();
+        if (collider != null) collider.enabled = false;
+
+        if (anim != null)
+        {
+            anim.SetTrigger("IsDeath");
+            yield return new WaitForSeconds(1.5f);
+        }
+
+        Destroy(gameObject);
     }
 
     private void Die()
     {
-        currentState = EnemyState.Death; 
-    
-    if (anim != null)
-    {
-        anim.SetTrigger("IsDeath"); // NOVO
-    }
-        Destroy(gameObject);
-
+        if (currentBehavior != null)
+        {
+            StopCoroutine(currentBehavior);
+        }
+        StartCoroutine(DieRoutine());
     }
 
-    private void UpdateAnimator()
-{
-    if (anim == null) return;
-    
-    // --- 1. GESTÃO DE MORTE ---
-    if (currentState == EnemyState.Death)
-    {
-        anim.SetTrigger("IsDeath");
-        return; // Nenhuma outra animação deve rodar
-    }
-
-    float currentSpeed = rb != null ? rb.linearVelocity.magnitude : moveSpeed; // Use a velocidade real se tiver RB
-    anim.SetFloat("Speed", currentSpeed > 0.1f ? 1f : 0f); // Se está se movendo, Speed=1, senão Speed=0 (IDLE)
-
-    // Se estiver se movendo, define a direção para o blend tree
-    if (currentSpeed > 0.1f)
-    {
-        // Encontra a direção atual do movimento
-        Vector2 currentDir = rb.linearVelocity.normalized;
-
-        // Arredonda para o ponto mais próximo (para blend tree 2D)
-        anim.SetFloat("Move_X", Mathf.Round(currentDir.x));
-        anim.SetFloat("Move_Y", Mathf.Round(currentDir.y));
-    }
-    
-}
-
-// =====================================================================
-// NOVO: Chamada de Animações nos Métodos de Ação
-// =====================================================================
-private void SetAnimationDirectionTowardsPlayer()
-{
-    if (player == null || anim == null) return;
-
-    // Calcula a direção do Inimigo para o Player
-    Vector2 directionToPlayer = (player.position - transform.position).normalized;
-
-    anim.SetFloat("Move_X", Mathf.Round(directionToPlayer.x));
-    anim.SetFloat("Move_Y", Mathf.Round(directionToPlayer.y));
-}
+    // --- VISUALIZAÇÃO DE GIZMOS NO EDITOR ---
 
     void OnDrawGizmosSelected()
     {
-        if (player == null) return;
+        Vector3 center = transform.position;
 
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, visionRange);
-
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawWireSphere(transform.position, memoryRange);
-
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, projectileRange);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, dangerZoneRadius);
-
-        Vector2 tempDir = Vector2.right;
-        if (player != null)
-        {
-            tempDir = (transform.position - player.position).normalized;
-        }
+        // Vision Range (Azul Claro)
         Gizmos.color = Color.cyan;
-        Gizmos.DrawRay(transform.position, tempDir * obstacleCheckDistance);
+        Gizmos.DrawWireSphere(center, visionRange);
+
+        // Memory Range (Azul)
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(center, memoryRange);
+
+        // Combat Range / Attack Range (Verde)
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(center, combatRange);
+
+        // Danger Zone / Retreat Range (Vermelho)
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(center, dangerZoneRadius);
+
+        // Patrulha
+        Gizmos.color = Color.yellow;
+        if (patrolPoints != null)
+        {
+            for (int i = 0; i < patrolPoints.Length; i++)
+            {
+                Transform point = patrolPoints[i];
+                Gizmos.DrawSphere(point.position, 0.2f);
+                if (i > 0)
+                {
+                    Gizmos.DrawLine(patrolPoints[i - 1].position, patrolPoints[0].position);
+                }
+            }
+            if (patrolPoints.Length > 1)
+            {
+                Gizmos.DrawLine(patrolPoints[patrolPoints.Length - 1].position, patrolPoints[0].position);
+            }
+        }
     }
 }
