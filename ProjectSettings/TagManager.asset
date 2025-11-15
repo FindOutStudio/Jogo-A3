@@ -8,6 +8,7 @@ TagManager:
   - Obstacle
   - Web
   - Hole
+  - Crown
   layers:
   - Default
   - TransparentFX
@@ -25,7 +26,7 @@ TagManager:
   - Hole
   - Post Processing
   - No Light
-  - 
+  - CrownRecall
   - 
   - 
   - 

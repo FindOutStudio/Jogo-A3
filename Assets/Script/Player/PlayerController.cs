@@ -88,10 +88,6 @@ public class PlayerController : MonoBehaviour
         _damageFlash = GetComponent<DamageFlash>();
         currentHealth = maxHealth;
 
-        if (hitStop == null) Debug.LogWarning("PlayerController: hitStop não atribuído no Inspector.", this);
-        if (_damageFlash == null) Debug.LogWarning("PlayerController: _damageFlash não atribuído no Inspector.", this);
-        if (impulseSource == null) Debug.LogWarning("PlayerController: impulseSource não atribuído no Inspector.", this);
-        if (spriteRenderer == null) Debug.LogWarning("PlayerController: spriteRenderer não encontrado/atribuído.", this);
     }
 
     private void OnEnable()
@@ -105,6 +101,7 @@ public class PlayerController : MonoBehaviour
             inputActions.Player.Aim.canceled += OnAimCanceled;
             inputActions.Player.ThrowCrown.performed += OnThrowCrownPerformed;
             inputActions.Player.Dash.performed += OnDashPerformed;
+            inputActions.Player.ReturnCrown.performed += OnRecallCrownPerformed;
         }
 
     }
@@ -120,6 +117,7 @@ public class PlayerController : MonoBehaviour
             inputActions.Player.ThrowCrown.performed -= OnThrowCrownPerformed;
             inputActions.Player.Disable();
             inputActions.Player.Dash.performed -= OnDashPerformed;
+            inputActions.Player.ReturnCrown.performed -= OnRecallCrownPerformed;
         }
     }
 
@@ -202,6 +200,22 @@ public class PlayerController : MonoBehaviour
             Destroy(crownInstance.gameObject);
             crownInstance = null;
             CrownReturned(); // Chama o método para reativar o lançamento
+        }
+    }
+    private void OnRecallCrownPerformed(InputAction.CallbackContext ctx)
+    {
+        if (!ctx.performed || isDead || isFalling) return;
+
+        // Se já está com a coroa, não há o que recordar
+        if (HasCrown) return;
+
+        // Se existe uma instância da coroa em jogo, manda retornar
+        if (crownInstance != null)
+        {
+            // pede para a coroa iniciar retorno imediato
+            crownInstance.ForceReturnToPlayer();
+            // opcional: feedback visual/sonoro
+            CameraShake.instance?.WeakCameraShaking(impulseSource);
         }
     }
 

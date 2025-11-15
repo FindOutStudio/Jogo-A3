@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 3688156258688397908}
   m_Layer: 8
   m_Name: Crown
-  m_TagString: Untagged
+  m_TagString: Crown
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -167,7 +167,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d609881c1a1ff43bdfcbf4847c21e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rastroPrefab: {fileID: 0}
+  physicsColliders:
+  - {fileID: 6867421831780922140}
+  pickupTriggerCollider: {fileID: 3688156258688397908}
+  rastroPrefab: {fileID: 2614509707347182237, guid: 9f8df620150e316448d18c185fdd686d, type: 3}
 --- !u!58 &3688156258688397908
 CircleCollider2D:
   m_ObjectHideFlags: 0
