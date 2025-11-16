@@ -383,7 +383,7 @@ public class RangedEnemyController : MonoBehaviour
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             projectile.transform.rotation = Quaternion.Euler(0, 0, angle);
 
-            projRb.velocity = direction * projectileSpeed;
+            projRb.linearVelocity = direction * projectileSpeed;
         }
     }
 
@@ -400,7 +400,7 @@ public class RangedEnemyController : MonoBehaviour
         // 2. PÁRA e FREEZA o Rigidbody
         if (rb != null)
         {
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
             // ESSENCIAL: Garante parada absoluta e evita dash descontrolado
             rb.isKinematic = true;
         }
