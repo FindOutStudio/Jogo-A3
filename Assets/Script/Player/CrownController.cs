@@ -3,6 +3,12 @@ using UnityEngine;
 
 public class CrownController : MonoBehaviour
 {
+
+    [SerializeField] private Collider2D[] physicsColliders; // colliders usados para física/ricochete (non-trigger)
+    [SerializeField] private Collider2D pickupTriggerCollider; // collider trigger usado para detectar Player/pegar coroa
+
+    private bool[] _originalPhysicsIsTrigger;
+
     private PlayerController player;
     private Rigidbody2D rb;
     private Vector2 launchDir;
@@ -22,6 +28,16 @@ public class CrownController : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        if (physicsColliders != null && physicsColliders.Length > 0)
+        {
+            _originalPhysicsIsTrigger = new bool[physicsColliders.Length];
+            for (int i = 0; i < physicsColliders.Length; i++)
+            {
+                var c = physicsColliders[i];
+                _originalPhysicsIsTrigger[i] = (c != null) ? c.isTrigger : false;
+            }
+        }
     }
 
     public void Initialize(PlayerController playerRef, Vector2 direction, float maxDist, float launchSpd, float returnSpd, float delayTime, GameObject webTrailPrefab)
@@ -56,9 +72,11 @@ public class CrownController : MonoBehaviour
     {
         if (player == null) return;
 
-        // Nova verificação de distância para destruir a coroa
+        //Restaurar colliders físicos antes de destruir a coroa ao chegar no player
         if (isReturning && Vector3.Distance(transform.position, player.transform.position) < 0.5f)
         {
+            RestorePhysicsColliders(); // CHANGED: restaura estado original antes de notificar/destroir
+
             player.CrownReturned();
             Destroy(gameObject);
             return;
@@ -90,7 +108,7 @@ public class CrownController : MonoBehaviour
             rb.AddForce(newDirection * velLaunch, ForceMode2D.Impulse);
 
             // ***************************************************************
-            // NOVO: Resetar o ponto de origem para iniciar a contagem de distância novamente
+            // Resetar o ponto de origem para iniciar a contagem de distância novamente
             initialPosition = transform.position; 
             // ***************************************************************
 
@@ -128,5 +146,60 @@ public class CrownController : MonoBehaviour
     {
         yield return new WaitForSeconds(0.1f);
         canCollideWithObstacle = true;
+    }
+
+    public void ForceReturnToPlayer()
+    {
+        if (player == null) return;
+
+        // interrompe qualquer movimento atual
+        rb.linearVelocity = Vector2.zero;
+
+        // evita novos ricochetes durante o recall
+        canCollideWithObstacle = false;
+
+        // transforma apenas os colliders de física em trigger para atravessar paredes,
+        // preservando o pickupTriggerCollider que deve continuar detectando o player por trigger.
+        SetPhysicsCollidersTriggerState(true);
+
+        // inicia retorno imediatamente (sem delay)
+        isReturning = true;
+    }
+
+    private void SetPhysicsCollidersTriggerState(bool makeTrigger)
+    {
+        if (physicsColliders == null) return;
+
+        for (int i = 0; i < physicsColliders.Length; i++)
+        {
+            var col = physicsColliders[i];
+            if (col == null) continue;
+
+            // se por acaso arrastaram o pickupTriggerCollider também no array physicsColliders, preserva-o
+            if (pickupTriggerCollider != null && col == pickupTriggerCollider) continue;
+
+            col.isTrigger = makeTrigger;
+        }
+    }
+
+    private void RestorePhysicsColliders()
+    {
+        if (physicsColliders == null || _originalPhysicsIsTrigger == null) return;
+
+        for (int i = 0; i < physicsColliders.Length; i++)
+        {
+            var col = physicsColliders[i];
+            if (col == null) continue;
+
+            bool original = (i < _originalPhysicsIsTrigger.Length) ? _originalPhysicsIsTrigger[i] : false;
+            col.isTrigger = original;
+        }
+    }
+
+    public void CancelRecall()
+    {
+        isReturning = false;
+        canCollideWithObstacle = true;
+        RestorePhysicsColliders();
     }
 }

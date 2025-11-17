@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -12,8 +13,13 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private PlayerInputActions inputActions;
     private CrownController crownInstance;
+    private CinemachineImpulseSource impulseSource;
+    private DamageFlash _damageFlash;
     [SerializeField] private GameObject webDamageZonePrefab;
     [SerializeField] private GameObject teleportEffect;
+    [SerializeField] private HitStop hitStop;
+
+
     private float lastMoveX = 0f;
     private float lastMoveY = 0f;
 
@@ -78,7 +84,10 @@ public class PlayerController : MonoBehaviour
         anim = GetComponent<Animator>();
         inputActions = new PlayerInputActions();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        impulseSource = GetComponent<CinemachineImpulseSource>();
+        _damageFlash = GetComponent<DamageFlash>();
         currentHealth = maxHealth;
+
     }
 
     private void OnEnable()
@@ -92,6 +101,7 @@ public class PlayerController : MonoBehaviour
             inputActions.Player.Aim.canceled += OnAimCanceled;
             inputActions.Player.ThrowCrown.performed += OnThrowCrownPerformed;
             inputActions.Player.Dash.performed += OnDashPerformed;
+            inputActions.Player.ReturnCrown.performed += OnRecallCrownPerformed;
         }
 
     }
@@ -107,6 +117,7 @@ public class PlayerController : MonoBehaviour
             inputActions.Player.ThrowCrown.performed -= OnThrowCrownPerformed;
             inputActions.Player.Disable();
             inputActions.Player.Dash.performed -= OnDashPerformed;
+            inputActions.Player.ReturnCrown.performed -= OnRecallCrownPerformed;
         }
     }
 
@@ -157,6 +168,8 @@ public class PlayerController : MonoBehaviour
         {
             // 3. Teletransporte para a Coroa com desenho de teia (reto ou ricochete)
             Vector3 ricochetPoint = crownInstance.GetLastRicochetPoint();
+            CameraShake.instance.WeakCameraShaking(impulseSource);
+
 
             if (ricochetPoint == Vector3.zero)
             {
@@ -187,6 +200,22 @@ public class PlayerController : MonoBehaviour
             Destroy(crownInstance.gameObject);
             crownInstance = null;
             CrownReturned(); // Chama o método para reativar o lançamento
+        }
+    }
+    private void OnRecallCrownPerformed(InputAction.CallbackContext ctx)
+    {
+        if (!ctx.performed || isDead || isFalling) return;
+
+        // Se já está com a coroa, não há o que recordar
+        if (HasCrown) return;
+
+        // Se existe uma instância da coroa em jogo, manda retornar
+        if (crownInstance != null)
+        {
+            // pede para a coroa iniciar retorno imediato
+            crownInstance.ForceReturnToPlayer();
+            // opcional: feedback visual/sonoro
+            CameraShake.instance?.WeakCameraShaking(impulseSource);
         }
     }
 
@@ -310,6 +339,44 @@ public class PlayerController : MonoBehaviour
     {
         if (isInvulnerable || isDead || isFalling) return; // Impede dano se estiver morto ou caindo
 
+        // Feedback visual: shake da câmera
+        if (CameraShake.instance != null)
+        {
+            if (impulseSource != null)
+            {
+                CameraShake.instance.StrongCameraShaking(impulseSource);
+            }
+            else
+            {
+                Debug.LogWarning("TakeDamage: impulseSource é null; não foi possível chamar StrongCameraShaking.", this);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("TakeDamage: CameraShake.instance é null.", this);
+        }
+
+        // HitStop com duração variável
+        if (hitStop != null)
+        {
+            bool heavyHit = damageAmount > 1; // se o dano for maior que 1, usa duração longa
+            hitStop.Freeze(heavyHit);
+        }
+        else
+        {
+            Debug.LogWarning("TakeDamage: hitStop não atribuído.", this);
+        }
+
+        //Flashing White
+        if (_damageFlash != null)
+        {
+            _damageFlash.CallDamageFlash();
+        }
+        else
+        {
+            Debug.LogWarning("TakeDamage: _damageFlash não atribuído.", this);
+        }
+
         isInvulnerable = true;
         currentHealth -= damageAmount;
         Debug.Log($"Player recebeu {damageAmount} de dano. Vida atual: {currentHealth}");
@@ -331,6 +398,17 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(InvulnerabilityDurationRoutine());
         }
     }
+    public void Heal(int healAmount)
+    {
+        if (isDead || isFalling) return; // não cura se estiver morto ou caindo
+
+        currentHealth += healAmount;
+
+        if (currentHealth > maxHealth)
+            currentHealth = maxHealth;
+
+        Debug.Log($"Player curado! Vida atual: {currentHealth}");
+    }
 
     private IEnumerator InvulnerabilityDurationRoutine()
     {
@@ -346,12 +424,11 @@ public class PlayerController : MonoBehaviour
         // Pisca o player durante a duração da invulnerabilidade
         while (flashTime < invulnerabilityDuration)
         {
-            spriteRenderer.enabled = !spriteRenderer.enabled; // Alterna a visibilidade
             yield return new WaitForSeconds(flashInterval);
             flashTime += flashInterval;
         }
 
-        // Garante que o sprite esteja visível após o término
+        //Garante que o sprite esteja visível após o término
         spriteRenderer.enabled = true;
         isInvulnerable = false;
     }
@@ -570,4 +647,5 @@ public class PlayerController : MonoBehaviour
         anim.SetFloat("MoveX", lastMoveX);
         anim.SetFloat("MoveY", lastMoveY);
     }
+
 }

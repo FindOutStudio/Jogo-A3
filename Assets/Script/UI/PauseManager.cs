@@ -127,12 +127,21 @@ public class PauseManager : MonoBehaviour
         Time.timeScale = 1f;
 
         // Troca a cena
-        SceneManager.LoadScene(nomeDaCenaDoMenu);
+        SceneManager.LoadScene("menu inicial");
     }
 
     public void SairDoJogo()
     {
         Debug.Log("Saindo do Jogo...");
         Application.Quit();
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false; // Para o jogo no editor
+#endif
+
+    }
+    public void ProximaFase()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 }

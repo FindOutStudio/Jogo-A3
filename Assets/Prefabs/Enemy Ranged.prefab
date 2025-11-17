@@ -30,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -11.51124, y: -0.31246698, z: 0}
-  m_LocalScale: {x: 0.48218966, y: 0.48218966, z: 0.48218966}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6267381811527074934}
@@ -103,33 +103,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c6cbcf0df8c7ad4f932a9ead3d6b824, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 2
-  webDamageCooldown: 0.3
   patrolPoints:
   - {fileID: 0}
   - {fileID: 0}
-  moveSpeed: 3
-  waitTime: 1
+  moveSpeed: 4
+  waitTime: 0.5
   player: {fileID: 0}
-  visionRange: 4.6
-  projectileRange: 4
-  dangerZoneRadius: 1.3
-  memoryRange: 8
+  visionRange: 4.27
+  projectileRange: 2.97
+  dangerZoneRadius: 0.8
+  memoryRange: 6.29
   obstacleMask:
     serializedVersion: 2
     m_Bits: 1
-  obstacleCheckDistance: 0.25
+  obstacleCheckDistance: 0.3
   initialChaseDelay: 0.5
-  retreatSpeed: 2
-  chaseSpeed: 3
-  attackCooldown: 2.3
+  postAttackChaseDelay: 0.8
+  desiredProjectileDistance: 7
+  postRetreatDelay: 0.3
+  chaseSpeed: 5
+  retreatSpeed: 5
+  attackCooldown: 0.5
   projectilePrefab: {fileID: 4834671800637921802, guid: fa479adae90288b4aaf1ec46be4134a3, type: 3}
   firePoint: {fileID: 6267381811527074934}
-  projectileSpeed: 1.5
-  coneAngle: 60
-  bombPrefab: {fileID: 5671363189448418434, guid: 236be654ca617994caf95b11874e9eb0, type: 3}
-  dashDistance: 3
-  dashDuration: 0.2
 --- !u!61 &3253680705841173096
 BoxCollider2D:
   m_ObjectHideFlags: 0

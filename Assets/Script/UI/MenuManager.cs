@@ -89,5 +89,9 @@ public class MenuManager : MonoBehaviour
     {
         Application.Quit();
         Debug.Log("Saindo do Jogo...");
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false; // Para o jogo no editor
+#endif
     }
 }

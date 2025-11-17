@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 6765852655807729411}
   - component: {fileID: -4440151978022281884}
   - component: {fileID: 7946973999830222240}
-  - component: {fileID: 8553735735052521652}
   m_Layer: 7
   m_Name: Enemy Melee
   m_TagString: Enemy
@@ -31,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.5, y: -3.58, z: 0}
-  m_LocalScale: {x: 0.6533085, y: 0.6533085, z: 0.6533085}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -149,43 +148,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b94010dc8f3b3347a6fac0d562c4859, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 3
-  webDamageCooldown: 0.3
   patrolPoints:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  moveSpeed: 3
-  patrolWaitTime: 1
-  memoryRange: 9.5
-  visionRange: 4.4
-  combatRange: 3
-  dangerZoneRadius: 1.5
+  moveSpeed: 2.5
+  waitTime: 1
+  player: {fileID: 0}
+  viewDistance: 7
+  viewAngle: 165
   obstacleMask:
     serializedVersion: 2
     m_Bits: 0
-  player: {fileID: 0}
-  viewAngle: 360
-  obstacleMaskPlayer:
-    serializedVersion: 2
-    m_Bits: 0
-  initialChaseDelay: 0.5
-  initialAttackDelay: 0.3
+  visionRange: 5
+  visionAngle: 360
+  lookAroundAtPoint: 1
   lookAroundDuration: 3
   lookAroundSpeed: 30
-  chaseSpeed: 4.5
-  attackDashSpeed: 14
-  attackDashDuration: 0.4
-  postAttackDelay: 0.5
-  postAttackCollisionTime: 0.05
+  chaseSpeed: 3.5
+  chaseDuration: 5
+  attackCooldown: 6
+  formationRadius: 2
+  formationSlot: -1
   damageAmount: 1
-  attackCooldown: 2.5
-  retreatDashSpeed: 14
-  retreatDashDuration: 4
-  retreatRotationSpeed: 720
-  postRetreatDelay: 0.5
-  retreatDamageAmount: 2
+  meleeDamage: 10
+  retreatSpeed: 2
+  retreatDuration: 1
+  postAttackDelay: 1
+  ignoreCollisionTime: 0.4
+  playerTransform: {fileID: 0}
+  patrolWaitTime: 1
 --- !u!58 &7946973999830222240
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -222,25 +215,3 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
---- !u!95 &8553735735052521652
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1341997383728040779}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 93325e5265ec74d458c780559a6b107e, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
