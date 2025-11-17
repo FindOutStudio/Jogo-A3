@@ -70,6 +70,7 @@ public class RangedEnemyController : MonoBehaviour
     [SerializeField] private float retreatDashDuration = 0.3f; // Duração máxima do dash
     [SerializeField] private float postRetreatDelay = 0.5f; // Delay pós-dash 
 
+
     // --- COOLDOWN DE RECUO ---
     [Header("COOLDOWN DE RECUO")]
     [Tooltip("Tempo mínimo entre um recuo e o próximo.")]
@@ -118,12 +119,6 @@ public class RangedEnemyController : MonoBehaviour
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         EnemyState nextState = currentState;
-
-        // Se o player sair da zona de perigo, zera o cooldown de recuo.
-        if (distanceToPlayer > dangerZoneRadius + MIN_DISTANCE_TO_DANGER)
-        {
-            lastRetreatTime = -Mathf.Infinity;
-        }
 
         // --- PRIORIDADE 1: RECUO (Zona de Perigo + COOLDOWN) ---
         if (distanceToPlayer <= dangerZoneRadius + MIN_DISTANCE_TO_DANGER && Time.time >= lastRetreatTime + retreatCooldown)
@@ -383,7 +378,7 @@ public class RangedEnemyController : MonoBehaviour
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             projectile.transform.rotation = Quaternion.Euler(0, 0, angle);
 
-            projRb.velocity = direction * projectileSpeed;
+            projRb.linearVelocity = direction * projectileSpeed;
         }
     }
 
@@ -391,81 +386,76 @@ public class RangedEnemyController : MonoBehaviour
     // --- ROTINA CRÍTICA: RECUO COMPLETO E ROBUSTO (FINAL) ---
     private IEnumerator RetreatDashRoutine()
     {
-        if (player == null) { SetState(EnemyState.Alert); yield break; }
+        if (player == null)
+        {
+            isDashActive = false;
+            SetState(EnemyState.Alert);
+            yield break;
+        }
 
-        // 1. Inicia o cooldown DE RECUO IMEDIATAMENTE.
+        // 1. TRAVA LÓGICA
+        isDashActive = true;
         lastRetreatTime = Time.time;
-        isDashActive = true; // <--- TRAVA O UPDATE() AQUI! Garante que a rotina vai até o fim.
 
-        // 2. PÁRA e FREEZA o Rigidbody
+        // 2. TRAVA FÍSICA (IMEDIATA)
         if (rb != null)
         {
-            rb.velocity = Vector2.zero;
-            // ESSENCIAL: Garante parada absoluta e evita dash descontrolado
+            rb.linearVelocity = Vector2.zero;
             rb.isKinematic = true;
         }
-        UpdateAnimation(Vector2.zero, 0f); // Zera a animação de movimento
 
-        // A) A direção que o inimigo deve OLHAR (Player)
+        // 3. LIMPEZA DE ANIMAÇÃO (CRÍTICO)
+        // Remove triggers antigos que possam estar "presos"
+        if (anim != null)
+        {
+            anim.ResetTrigger("IsAttacking");
+            anim.ResetTrigger("IsDashing");
+            // Dispara a bomba
+            anim.SetTrigger("IsBomb");
+        }
+
+        // 4. AJUSTE DE OLHAR (SEM MOVIMENTO)
+        // Usamos 0f na speed para garantir que ele não tente voltar para o estado "Run"
         Vector2 directionToPlayer = (player.position - transform.position).normalized;
-        // B) A direção para onde o inimigo irá PULAR (Oposto ao Player)
-        Vector2 retreatDir = (transform.position - player.position).normalized;
+        UpdateAnimation(directionToPlayer, 0f);
 
-        // 3. Garante que o inimigo ENCARA o PLAYER (Como solicitado)
-        UpdateAnimation(directionToPlayer, 0.01f);
-
-        // --- FASE 1: ANIMAÇÃO DE COLOCAR A BOMBA (IsBomb) ---
-        if (anim != null) anim.SetTrigger("IsBomb"); // <--- A animação da bomba começa AGORA
-
-        // O inimigo **PARA** aqui pelo tempo da animação (0.1s)
+        // --- O RESTO SEGUE IGUAL ---
         yield return new WaitForSeconds(bombAnimationDuration);
 
-        // --- FASE 2: SPAWNAR BOMBA E DASH ---
         if (bombPrefab != null)
         {
             Instantiate(bombPrefab, transform.position, Quaternion.identity);
         }
 
-        // NENHUM UpdateAnimation é chamado aqui para manter o olhar no Player.
-
-        // 4. Reativa a física e inicia o dash
-        if (rb != null)
-        {
-            rb.isKinematic = false; // Restaura a física para o Dash
-        }
-
         if (anim != null) anim.SetTrigger("IsDashing");
+        if (rb != null) rb.isKinematic = false;
 
-        // Distância de parada do dash 
-        float targetDistance = combatRange;
-        float currentDashDuration = retreatDashDuration;
+        Vector2 retreatDir = (transform.position - player.position).normalized;
+        float currentDashDuration = 0f;
 
-        // Dash (Movimento)
-        while (Vector2.Distance(transform.position, player.position) <= targetDistance && currentDashDuration > 0)
+        // Dash Loop
+        if (rb != null) rb.linearVelocity = retreatDir * retreatDashSpeed;
+
+        while (currentDashDuration < retreatDashDuration)
         {
-            // Move o inimigo usando 'retreatDir' (para trás)
-            transform.position += (Vector3)(retreatDir * retreatDashSpeed * Time.deltaTime);
+            float dist = Vector2.Distance(transform.position, player.position);
+            if (dist >= combatRange) break;
 
-            // Não chamamos UpdateAnimation, então o sprite continua olhando para o player.
+            if (rb != null) rb.linearVelocity = retreatDir * retreatDashSpeed;
 
-            currentDashDuration -= Time.deltaTime;
+            // Mantém o olhar no player, mas speed 0 para não bugar a animação
+            directionToPlayer = (player.position - transform.position).normalized;
+            UpdateAnimation(directionToPlayer, 0f);
+
+            currentDashDuration += Time.deltaTime;
             yield return null;
         }
 
-        // 5. Assegura que a velocidade foi zerada após o dash
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-        }
+        if (rb != null) rb.linearVelocity = Vector2.zero;
 
-        // --- FASE 3: COOLDOWN POST-RECUO ---
-        // CORREÇÃO: Libera o Update() AGORA para que a IA possa rodar durante o delay.
-        isDashActive = false;
-
-        // Permite o delay de segurança antes de voltar ao estado de decisão
         yield return new WaitForSeconds(postRetreatDelay);
 
-        // Volta para o estado Alert
+        isDashActive = false;
         SetState(EnemyState.Alert);
     }
 
