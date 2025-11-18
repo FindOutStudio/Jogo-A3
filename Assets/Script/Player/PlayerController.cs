@@ -65,8 +65,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject shadowPrefab;
     [SerializeField] private float shadowInterval = 0.05f;
     [SerializeField] private Color flashColor = Color.red;
-    [SerializeField] private float flashDuration = 0.1f;
-    [SerializeField] private int flashCount = 3;
 
     // << LÓGICA DO BURACO COMPLETA >>
     [Header("Queda no Buraco")]
