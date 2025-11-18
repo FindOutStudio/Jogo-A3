@@ -74,8 +74,10 @@ public class EnemyPatrol : MonoBehaviour
     [SerializeField] private int retreatDamageAmount = 5;
 
     [Header("Visual de Ataque/Recuo")]
-    private SpriteRenderer spriteRenderer; 
-    
+    private SpriteRenderer spriteRenderer;
+    private DamageFlash _damageFlashMelee;
+
+
     // --- NOVO: ANIMATION ---
     private Animator anim;
 
@@ -105,6 +107,8 @@ public class EnemyPatrol : MonoBehaviour
         
         // --- NOVO: PEGAR ANIMATOR ---
         anim = GetComponent<Animator>();
+
+        _damageFlashMelee = GetComponent<DamageFlash>();
 
         currentHealth = maxHealth;
         currentBehavior = StartCoroutine(PatrolRoutine());
@@ -476,6 +480,15 @@ public class EnemyPatrol : MonoBehaviour
         }
 
         CameraShake.instance.MediumCameraShaking(impulseSource);
+
+        if (_damageFlashMelee != null)
+        {
+            _damageFlashMelee.CallDamageFlash();
+        }
+        else
+        {
+            Debug.LogWarning("TakeDamage: _damageFlash não atribuído.", this);
+        }
 
         currentHealth -= damage;
         

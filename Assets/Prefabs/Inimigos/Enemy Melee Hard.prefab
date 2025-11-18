@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7968481186690904737}
   - component: {fileID: 6765852655807729411}
   - component: {fileID: -4440151978022281884}
+  - component: {fileID: 8210838979754094059}
   - component: {fileID: 7946973999830222240}
   - component: {fileID: 8553735735052521652}
   - component: {fileID: 1689467099446222921}
@@ -60,7 +61,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: -876546973899608171, guid: 256612d84e5411048817ecad7651e270, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -184,6 +185,20 @@ MonoBehaviour:
   retreatRotationSpeed: 720
   postRetreatDelay: 0.5
   retreatDamageAmount: 2
+--- !u!114 &8210838979754094059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1341997383728040779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8289ea351c020c848bfd26fc9c480329, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _flashColor: {r: 1, g: 1, b: 1, a: 1}
+  _flashTime: 0.25
 --- !u!58 &7946973999830222240
 CircleCollider2D:
   m_ObjectHideFlags: 0
