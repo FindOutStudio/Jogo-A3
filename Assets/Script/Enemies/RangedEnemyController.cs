@@ -1,5 +1,6 @@
-using UnityEngine;
 using System.Collections;
+using Unity.Cinemachine;
+using UnityEngine;
 // Usamos este namespace se você for adicionar o Camera Shake no futuro
 // using Unity.Cinemachine; 
 
@@ -17,6 +18,8 @@ public class RangedEnemyController : MonoBehaviour
 
     private EnemyState currentState = EnemyState.Patrolling;
     private Coroutine currentBehavior;
+    private CinemachineImpulseSource impulseSource;
+
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 3;
@@ -84,6 +87,8 @@ public class RangedEnemyController : MonoBehaviour
     private int currentPatrolIndex = 0;
     private bool hasPlayerBeenSeen = false;
     private Vector2 currentFacingDirection = Vector2.right; // Usado para animação (Move_X/Y)
+    private DamageFlash _damageFlashRanged;
+
 
     // Variável para evitar o Recuo/Ataque quando a distância é 0
     private const float MIN_DISTANCE_TO_DANGER = 0.05f;
@@ -106,6 +111,10 @@ public class RangedEnemyController : MonoBehaviour
 
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+
+        impulseSource = GetComponent<CinemachineImpulseSource>();
+        _damageFlashRanged = GetComponent<DamageFlash>();
+
 
         currentHealth = maxHealth;
         currentBehavior = StartCoroutine(PatrolRoutine());
@@ -481,6 +490,17 @@ public class RangedEnemyController : MonoBehaviour
         currentHealth -= damage;
 
         StartCoroutine(WebDamageCooldownRoutine());
+
+        CameraShake.instance.MediumCameraShaking(impulseSource);
+
+        if (_damageFlashRanged != null)
+        {
+            _damageFlashRanged.CallDamageFlash();
+        }
+        else
+        {
+            Debug.LogWarning("TakeDamage: _damageFlash não atribuído.", this);
+        }
 
         if (currentHealth <= 0)
         {
