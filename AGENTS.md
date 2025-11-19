@@ -8,7 +8,7 @@
   - Layers:
     - Default, TransparentFX, Ignore Raycast, CrownColision, Water, UI, Player, Enemy, Crown, Web, PlayerColision, EnemyProjectile, Ground, Hole, Post Processing, No Light, CrownRecall, Obstacle
 - Active game object:
-  - Name: PointC
-  - Tag: Untagged
+  - Name: Boss_Head
+  - Tag: Enemy
   - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

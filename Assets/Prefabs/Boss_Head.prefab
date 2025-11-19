@@ -79,8 +79,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 2680931088627575778, guid: 41b7994441acb9a409277280f00cc0da, type: 3}
-  m_Color: {r: 0.7830189, g: 0.15143289, b: 0.15143289, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 41b7994441acb9a409277280f00cc0da, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -108,6 +108,7 @@ MonoBehaviour:
   crownPrefab: {fileID: 1945027312225001967, guid: 1f48814981ee73c44bdf6a30bd71e44b, type: 3}
   segmentSpacing: 2
   rotationSpeed: 360
+  crownSpacing: 0.3
   flyingEnemyPrefab: {fileID: 6842674454476929583, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
   spawnRadius: 8
   numberOfEnemiesPerSpawn: 3
@@ -124,6 +125,10 @@ MonoBehaviour:
   obstacleMaskPlayer:
     serializedVersion: 2
     m_Bits: 64
+  obstacleCheckDistance: 1.5
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
   dashSpeed: 12
   attackCooldown: 2
   wallMask:
@@ -196,7 +201,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2, y: 1.6875}
+    oldSize: {x: 1, y: 1}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
