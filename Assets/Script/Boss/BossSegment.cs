@@ -7,30 +7,45 @@ public class BossSegment : MonoBehaviour
     private float spacingDistance;
     private float moveSpeed; 
     
-    // NOVO: Referência para a Cabeça para delegar o Dano
     private BossHeadController headController; 
 
     [SerializeField] private float segmentRotationSpeed = 540f; 
 
+    // NOVO: Referência ao Animator e Renderer
+    private Animator anim;
+    private SpriteRenderer spriteRenderer;
 
-    // Opcional: Propriedade pública para o CrownController acessar
     public BossHeadController HeadController => headController;
 
-    
+    private void Awake()
+    {
+        anim = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
     public void SetupFollow(Transform target, float spacing, float headMoveSpeed, BossHeadController head)
     {
         this.targetToFollow = target;
         this.spacingDistance = spacing;
         this.headController = head;
-        
-        
         this.moveSpeed = headMoveSpeed * 2.0f; 
+    }
+
+    // NOVO: Método para definir a ordem de renderização (Hierarquia visual)
+    public void SetSortingOrder(int order)
+    {
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sortingOrder = order;
+        }
     }
 
     void Update()
     {
-        // CORREÇÃO: Garante que o alvo não é nulo antes de tentar acessar sua posição.
         if (targetToFollow == null) return; 
+
+        // Variável para controlar a animação
+        float currentAnimSpeed = 0f;
 
         // 1. CÁLCULO DA POSIÇÃO (Seguimento)
         Vector2 directionToTarget = targetToFollow.position - transform.position;
@@ -44,6 +59,19 @@ public class BossSegment : MonoBehaviour
             float actualMove = Mathf.Min(distanceToMove, maxMove);
             
             transform.position += (Vector3)(directionToTarget.normalized * actualMove);
+
+            // NOVO: Se moveu, define speed como 1 (para ativar Walk no Animator)
+            // Você pode usar 'actualMove' se quiser uma transição suave, mas 0 e 1 funciona bem para bool/trigger
+            if (actualMove > 0.001f)
+            {
+                currentAnimSpeed = 1f; 
+            }
+        }
+
+        // NOVO: Atualiza o Animator
+        if (anim != null)
+        {
+            anim.SetFloat("Speed", currentAnimSpeed);
         }
 
         // 2. CÁLCULO DA ROTAÇÃO
@@ -68,10 +96,8 @@ public class BossSegment : MonoBehaviour
     public void TakeDamage()
     {
         Debug.Log($"BossSegment ({gameObject.name}) atingido! Delegando dano para a cabeça.");
-        // Garante que a cabeça existe antes de tentar aplicar o dano
         if (headController != null)
         {
-            // Delega o processamento do dano para a cabeça
             headController.TakeDamageFromSegment(this);
         }
         else
@@ -79,7 +105,5 @@ public class BossSegment : MonoBehaviour
             Debug.LogError("Segmento de corpo tentando aplicar dano sem referência ao BossHeadController.");
             Destroy(gameObject);
         }
-        
-        // O segmento será destruído pela HeadController depois do processamento.
     }
 }

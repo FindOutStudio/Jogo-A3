@@ -5679,6 +5679,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: HitStopManager
       objectReference: {fileID: 0}
+    - target: {fileID: 8987005615236972817, guid: 270eacf22635910469aab2b50a7cfe5e, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5756,7 +5760,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 321843342359447998, guid: ce1e714cd3484fa48b5792a277bc805b, type: 3}
       propertyPath: orthographic size
-      value: 3.75
+      value: 5.484375
       objectReference: {fileID: 0}
     - target: {fileID: 503590158007092758, guid: ce1e714cd3484fa48b5792a277bc805b, type: 3}
       propertyPath: m_Name

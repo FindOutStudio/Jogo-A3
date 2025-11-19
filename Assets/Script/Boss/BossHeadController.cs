@@ -35,6 +35,8 @@ public class BossHeadController : MonoBehaviour
     [SerializeField] private float segmentSpacing = 0.5f;
     [Tooltip("Velocidade com que a cabeça rotaciona para a direção do movimento.")]
     [SerializeField] private float rotationSpeed = 360f;
+    [Tooltip("Distância específica da coroa (geralmente menor para ficar colada).")]
+    [SerializeField] private float crownSpacing = 0.3f;
 
     [Header("Spawn de Inimigos")] // NOVO CABEÇALHO
     [Tooltip("Prefab do inimigo voador a ser instanciado.")]
@@ -60,7 +62,13 @@ public class BossHeadController : MonoBehaviour
     [SerializeField] private float visionRange = 10f;
     [Tooltip("Distância que o Boss deve estar para iniciar o Dash Contínuo de Ataque.")]
     [SerializeField] private float attackRange = 4f; 
-    [SerializeField] public LayerMask obstacleMaskPlayer; // Camada de obstáculos para o Raycast (inclui Player)
+    [SerializeField] public LayerMask obstacleMaskPlayer;
+    
+    [Header("Desvio de Obstáculos")]
+    [Tooltip("Distância para checar obstáculos à frente.")]
+    [SerializeField] private float obstacleCheckDistance = 1.5f;
+    [Tooltip("Camadas que o Boss deve desviar (Paredes, Pilastras).")]
+    [SerializeField] private LayerMask obstacleMask;
 
     [Header("ATAQUE (Dash Contínuo)")]
     public float dashSpeed = 12f;
@@ -79,6 +87,7 @@ public class BossHeadController : MonoBehaviour
     private Rigidbody2D rb;
     private int currentPatrolIndex = 0;
     private Coroutine currentBehavior;
+    private SpriteRenderer headSpriteRenderer;
     
     private Vector2 currentMoveDirection = Vector2.right; 
     private bool isDashActive = false;
@@ -104,12 +113,15 @@ public class BossHeadController : MonoBehaviour
 
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        headSpriteRenderer = GetComponent<SpriteRenderer>();
 
         // Manter o Rigidbody2D sempre Kinematic.
-        if (rb != null)
+       if (rb != null) { rb.isKinematic = true; rb.freezeRotation = true; }
+
+        // DICA: Se a cabeça estiver com Order in Layer baixo, aumente aqui via script ou no inspector
+        if(headSpriteRenderer != null && headSpriteRenderer.sortingOrder < 10)
         {
-            rb.isKinematic = true; 
-            rb.freezeRotation = true; 
+            headSpriteRenderer.sortingOrder = 20; // Força um valor alto para ficar acima do chão
         }
 
         currentHealth = maxHealth;
@@ -170,6 +182,43 @@ public class BossHeadController : MonoBehaviour
     
     // --- LÓGICA DE ROTAÇÃO E INICIALIZAÇÃO ---
 
+    private Vector2 GetDirectionWithAvoidance(Vector2 targetDir)
+    {
+        // Definição das direções
+        Vector2 forward = transform.right;
+        Vector2 leftDir = Quaternion.Euler(0, 0, 50) * forward; // Aumentei um pouco o ângulo para 50
+        Vector2 rightDir = Quaternion.Euler(0, 0, -50) * forward;
+
+        // Realiza os Raycasts
+        RaycastHit2D hitFront = Physics2D.Raycast(transform.position, forward, obstacleCheckDistance, obstacleMask);
+        RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, leftDir, obstacleCheckDistance, obstacleMask);
+        RaycastHit2D hitRight = Physics2D.Raycast(transform.position, rightDir, obstacleCheckDistance, obstacleMask);
+
+        // --- DEBUG VISUAL (LINHAS COLORIDAS NO JOGO) ---
+        // Frente: Vermelho se bater, Verde se livre
+        Debug.DrawRay(transform.position, forward * obstacleCheckDistance, hitFront.collider != null ? Color.red : Color.green);
+        // Bigodes laterais: Amarelo se bater, Azul se livre
+        Debug.DrawRay(transform.position, leftDir * obstacleCheckDistance, hitLeft.collider != null ? Color.yellow : Color.cyan);
+        Debug.DrawRay(transform.position, rightDir * obstacleCheckDistance, hitRight.collider != null ? Color.yellow : Color.cyan);
+        // -----------------------------------------------
+
+        if (hitFront.collider != null)
+        {
+            // Se tiver obstáculo na frente...
+            
+            // Se a esquerda estiver livre, vai pra esquerda
+            if (hitLeft.collider == null) return leftDir; 
+            
+            // Se a direita estiver livre, vai pra direita
+            if (hitRight.collider == null) return rightDir; 
+            
+            // Se tudo bloqueado, vira 90 graus (emergência)
+            return Quaternion.Euler(0, 0, 90) * transform.right;
+        }
+
+        return targetDir; // Caminho livre, segue o alvo normal
+    }
+
     private void RotateTowardsDirection(Vector2 direction)
     {
         if (direction == Vector2.zero) return;
@@ -182,55 +231,60 @@ public class BossHeadController : MonoBehaviour
     }
 
     private void InitializeBody(int numberOfSegments)
-{
-    Transform lastSegmentTransform = this.transform; // Começa na cabeça
-
-    // --- 1. INSTANCIAÇÃO DOS SEGMENTOS DO CORPO (9) ---
-    // numberOfSegments deve ser 9 (maxHealth 10 -> maxHealth - 1)
-    for (int i = 0; i < numberOfSegments; i++) 
     {
-        Vector3 spawnPos = transform.position - (Vector3)(transform.right * segmentSpacing * (i + 1));
+        Transform lastSegmentTransform = this.transform; 
         
-        GameObject segmentObj = Instantiate(segmentPrefab, spawnPos, Quaternion.identity, transform.parent);
-        BossSegment follower = segmentObj.GetComponent<BossSegment>();
-        
-        if (follower != null)
+        // NOVO: Pega a ordem de renderização da Cabeça
+        int currentSortOrder = 0;
+        if (headSpriteRenderer != null)
         {
-            // O CORPO se configura
-            follower.SetupFollow(lastSegmentTransform, segmentSpacing, moveSpeed, this); 
+            currentSortOrder = headSpriteRenderer.sortingOrder;
+        }
+
+        // --- 1. INSTANCIAÇÃO DOS SEGMENTOS DO CORPO ---
+        for (int i = 0; i < numberOfSegments; i++) 
+        {
+            Vector3 spawnPos = transform.position - (Vector3)(transform.right * segmentSpacing * (i + 1));
             
-            bodySegments.Add(follower);
-            lastSegmentTransform = segmentObj.transform; // Atualiza o alvo para o próximo
+            GameObject segmentObj = Instantiate(segmentPrefab, spawnPos, Quaternion.identity, transform.parent);
+            BossSegment follower = segmentObj.GetComponent<BossSegment>();
+            
+            if (follower != null)
+            {
+                follower.SetupFollow(lastSegmentTransform, segmentSpacing, moveSpeed, this); 
+                
+                // NOVO: Define a ordem visual (Hierarquia)
+                // A cabeça é X, o 1º segmento é X-1, o 2º é X-2, etc.
+                follower.SetSortingOrder(currentSortOrder - (i + 1));
+
+                bodySegments.Add(follower);
+                lastSegmentTransform = segmentObj.transform; 
+            }
+            else
+            {
+                Debug.LogError("O Prefab do segmento não tem o script BossSegment.");
+                Destroy(segmentObj);
+                break;
+            }
         }
-        else
-        {
-            Debug.LogError("O Prefab do segmento não tem o script BossSegment.");
-            Destroy(segmentObj);
-            break;
-        }
-    }
     
     // --- 2. INSTANCIAÇÃO DA COROA (1) ---
     if (crownPrefab != null)
-    {
-        // O último segmento do corpo é o alvo da coroa
-        Vector3 spawnPos = lastSegmentTransform.position - (Vector3)(transform.right * segmentSpacing);
-        
-        GameObject CrownBoss = Instantiate(crownPrefab, spawnPos, Quaternion.identity, transform.parent);
-        CrownControllerBoss crown = CrownBoss.GetComponent<CrownControllerBoss>();
+        {
+            // Usa crownSpacing ao invés de segmentSpacing para posicionar
+            Vector3 spawnPos = lastSegmentTransform.position - (Vector3)(transform.right * crownSpacing);
+            GameObject CrownBoss = Instantiate(crownPrefab, spawnPos, Quaternion.identity, transform.parent);
+            CrownControllerBoss crown = CrownBoss.GetComponent<CrownControllerBoss>();
 
-        if (crown != null)
-        {
-            // A COROA se configura para seguir o último segmento (lastSegmentTransform)
-            crown.SetupFollow(lastSegmentTransform, segmentSpacing, moveSpeed, this);
-            // NÃO adicionamos a coroa à lista bodySegments, pois ela é um tipo diferente.
+            if (crown != null)
+            {
+                // Passa o crownSpacing específico
+                crown.SetupFollow(lastSegmentTransform, crownSpacing, moveSpeed, this);
+                
+                SpriteRenderer crownRend = CrownBoss.GetComponent<SpriteRenderer>();
+                if (crownRend != null) crownRend.sortingOrder = currentSortOrder - (numberOfSegments + 2);
+            }
         }
-        else
-        {
-            Debug.LogError("O Prefab da coroa não tem o script CrownController.");
-            Destroy(CrownBoss);
-        }
-    }
     else
     {
         Debug.LogWarning("O crownPrefab não foi definido no Inspector. A Coroa não será instanciada.");
@@ -319,11 +373,17 @@ public class BossHeadController : MonoBehaviour
             Vector2 direction = (targetPoint.position - transform.position).normalized;
             currentMoveDirection = direction;
 
-            while (Vector2.Distance(transform.position, targetPoint.position) > 0.1f)
-            {
-                transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
-                yield return null;
-            }
+            while (Vector2.Distance(transform.position, targetPoint.position) > 0.5f)
+        {
+            // --- AQUI: DECLARA E CALCULA A DESIRED DIR ---
+            Vector2 desiredDir = (targetPoint.position - transform.position).normalized;
+            
+            // Agora passamos ela para a função de desvio
+            currentMoveDirection = GetDirectionWithAvoidance(desiredDir);
+            
+            transform.position += (Vector3)(currentMoveDirection * moveSpeed * Time.deltaTime);
+            yield return null;
+        }
 
             transform.position = targetPoint.position;
 
@@ -347,11 +407,11 @@ public class BossHeadController : MonoBehaviour
         {
             if (player == null) yield break;
 
-            Vector2 direction = (player.position - transform.position).normalized;
+            Vector2 desiredDir = (player.position - transform.position).normalized;
             
-            currentMoveDirection = direction; 
+            currentMoveDirection = GetDirectionWithAvoidance(desiredDir);
             
-            transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+            transform.position += (Vector3)(currentMoveDirection * moveSpeed * Time.deltaTime);
 
             yield return null;
         }
@@ -519,7 +579,7 @@ public class BossHeadController : MonoBehaviour
             CrownControllerBoss crown = FindObjectOfType<CrownControllerBoss>();
             if (crown != null)
             {
-                crown.SetupFollow(newCrownTarget, segmentSpacing, moveSpeed, this);
+              crown.SetupFollow(newCrownTarget, crownSpacing, moveSpeed, this);
             }
             // else: Caso a coroa tenha sido destruída ou não exista (geralmente não deve acontecer)
 
@@ -695,9 +755,20 @@ private void SpawnFlyingEnemy()
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(center, visionRange);
 
-        // Se o dash estiver em cooldown, a zona de ataque pode ser cinza.
         Gizmos.color = canDashAttack ? Color.red : Color.gray; 
         Gizmos.DrawWireSphere(center, attackRange);
+        
+        // --- VISUALIZAÇÃO DO SISTEMA DE DESVIO (NOVOS GIZMOS) ---
+        Gizmos.color = Color.magenta; // Cor dos sensores de obstáculo
+        
+        Vector3 forward = transform.right * obstacleCheckDistance;
+        Vector3 left = (Quaternion.Euler(0,0,50) * transform.right) * obstacleCheckDistance;
+        Vector3 right = (Quaternion.Euler(0,0,-50) * transform.right) * obstacleCheckDistance;
+
+        Gizmos.DrawRay(center, forward);
+        Gizmos.DrawRay(center, left);
+        Gizmos.DrawRay(center, right);
+        // --------------------------------------------------------
         
         Gizmos.color = Color.yellow;
         if (patrolPoints != null)
@@ -707,17 +778,12 @@ private void SpawnFlyingEnemy()
                 if (patrolPoints[i] != null)
                 {
                     Gizmos.DrawCube(patrolPoints[i].position, Vector3.one * 0.3f); 
-                    
                     if (i < patrolPoints.Length - 1 && patrolPoints[i + 1] != null)
-                    {
                         Gizmos.DrawLine(patrolPoints[i].position, patrolPoints[i + 1].position);
-                    }
                 }
             }
             if (patrolPoints.Length > 1 && patrolPoints[0] != null && patrolPoints[patrolPoints.Length - 1] != null)
-            {
                  Gizmos.DrawLine(patrolPoints[patrolPoints.Length - 1].position, patrolPoints[0].position);
-            }
         }
     }
 }
