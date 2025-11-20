@@ -1,13 +1,28 @@
 fileFormatVersion: 2
-guid: 8bf5c356d4dd30342bad1f31c14e5a75
+guid: 3c69e391785f5be47a861ed4f22a3e3c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9095849903018495494
-    second: "Op\xE7\xF5es-Menu_0"
+      213: 8607406885582630963
+    second: Ornamento (offWhite)- Menu_0
   - first:
-      213: -4245940025339717496
-    second: "Op\xE7\xF5es-Menu_1"
+      213: -7527931399982840212
+    second: Ornamento (offWhite)- Menu_1
+  - first:
+      213: 5550716685702745701
+    second: Ornamento (offWhite)- Menu_2
+  - first:
+      213: -6053156649114854244
+    second: Ornamento (offWhite)- Menu_3
+  - first:
+      213: 8233140652932004734
+    second: Ornamento (offWhite)- Menu_4
+  - first:
+      213: -5392894931242991853
+    second: Ornamento (offWhite)- Menu_5
+  - first:
+      213: 9184016358739147978
+    second: Ornamento (offWhite)- Menu_6
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,7 +64,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -142,13 +157,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "Op\xE7\xF5es-Menu_0"
+      name: Ornamento (offWhite)- Menu_0
       rect:
         serializedVersion: 2
-        x: 12
-        y: 319
-        width: 438
-        height: 181
+        x: 141
+        y: 372
+        width: 21
+        height: 22
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -157,20 +172,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 60e40bf7b43fa3e70800000000000000
-      internalID: 9095849903018495494
+      spriteID: 330776c55f6a37770800000000000000
+      internalID: 8607406885582630963
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "Op\xE7\xF5es-Menu_1"
+      name: Ornamento (offWhite)- Menu_1
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 438
-        height: 182
+        x: 162
+        y: 356
+        width: 265
+        height: 55
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -179,8 +194,118 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 888530cfa046315c0800000000000000
-      internalID: -4245940025339717496
+      spriteID: c668382c64a678790800000000000000
+      internalID: -7527931399982840212
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ornamento (offWhite)- Menu_2
+      rect:
+        serializedVersion: 2
+        x: 435
+        y: 369
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56e452caa6b180d40800000000000000
+      internalID: 5550716685702745701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ornamento (offWhite)- Menu_3
+      rect:
+        serializedVersion: 2
+        x: 475
+        y: 359
+        width: 52
+        height: 55
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9c17bf391edefba0800000000000000
+      internalID: -6053156649114854244
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ornamento (offWhite)- Menu_4
+      rect:
+        serializedVersion: 2
+        x: 533
+        y: 369
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7bf6d38dcdf14270800000000000000
+      internalID: 8233140652932004734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ornamento (offWhite)- Menu_5
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 359
+        width: 265
+        height: 55
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31fb14002a69825b0800000000000000
+      internalID: -5392894931242991853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ornamento (offWhite)- Menu_6
+      rect:
+        serializedVersion: 2
+        x: 838
+        y: 375
+        width: 21
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: accf502283e247f70800000000000000
+      internalID: 9184016358739147978
       vertices: []
       indices: 
       edges: []
@@ -189,7 +314,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -199,8 +324,13 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "Op\xE7\xF5es-Menu_0": 9095849903018495494
-      "Op\xE7\xF5es-Menu_1": -4245940025339717496
+      Ornamento (offWhite)- Menu_0: 8607406885582630963
+      Ornamento (offWhite)- Menu_1: -7527931399982840212
+      Ornamento (offWhite)- Menu_2: 5550716685702745701
+      Ornamento (offWhite)- Menu_3: -6053156649114854244
+      Ornamento (offWhite)- Menu_4: 8233140652932004734
+      Ornamento (offWhite)- Menu_5: -5392894931242991853
+      Ornamento (offWhite)- Menu_6: 9184016358739147978
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

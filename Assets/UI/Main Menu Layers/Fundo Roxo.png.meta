@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 8bf5c356d4dd30342bad1f31c14e5a75
+guid: 13ee3d1375acbcd43a0c9b8028f06ed3
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9095849903018495494
-    second: "Op\xE7\xF5es-Menu_0"
-  - first:
-      213: -4245940025339717496
-    second: "Op\xE7\xF5es-Menu_1"
+      213: -8831645744505272949
+    second: Fundo Roxo_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -142,35 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "Op\xE7\xF5es-Menu_0"
-      rect:
-        serializedVersion: 2
-        x: 12
-        y: 319
-        width: 438
-        height: 181
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 60e40bf7b43fa3e70800000000000000
-      internalID: 9095849903018495494
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: "Op\xE7\xF5es-Menu_1"
+      name: Fundo Roxo_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 438
-        height: 182
+        width: 1920
+        height: 1080
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -179,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 888530cfa046315c0800000000000000
-      internalID: -4245940025339717496
+      spriteID: b854ca8ccf0bf6580800000000000000
+      internalID: -8831645744505272949
       vertices: []
       indices: 
       edges: []
@@ -189,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -199,8 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "Op\xE7\xF5es-Menu_0": 9095849903018495494
-      "Op\xE7\xF5es-Menu_1": -4245940025339717496
+      Fundo Roxo_0: -8831645744505272949
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
