@@ -226,6 +226,7 @@ MonoBehaviour:
   webDamageZonePrefab: {fileID: 2540552615738515958, guid: 5de9f779335f5cd4ca08a8989a166838, type: 3}
   teleportEffect: {fileID: 2614509707347182237, guid: 9f8df620150e316448d18c185fdd686d, type: 3}
   hitStop: {fileID: 140100290423003614, guid: 270eacf22635910469aab2b50a7cfe5e, type: 3}
+  cooldownReadyEffect: {fileID: 4797586587018278494, guid: 25cda96342761fd489819a04e9ce5e58, type: 3}
   maxHealth: 5
   invulnerabilityDuration: 0.5
   flashInterval: 0.1
@@ -235,6 +236,7 @@ MonoBehaviour:
   deccel: 11
   crownPrefab: {fileID: 2531474156665532719, guid: 0d87a50486d9f1a43b3c847221efc097, type: 3}
   crownLaunchPoint: {fileID: 6903736971759105995}
+  throwCooldown: 0.5
   rastroDeTeiaPrefab: {fileID: 2614509707347182237, guid: 9f8df620150e316448d18c185fdd686d, type: 3}
   MaxDistance: 3.5
   VelLaunch: 10
@@ -245,9 +247,7 @@ MonoBehaviour:
   dashCooldown: 0.65
   shadowPrefab: {fileID: 1375171563940659917, guid: 1f4f2a285f43d9f48b61884608492610, type: 3}
   shadowInterval: 0.015
-  flashColor: {r: 1, g: 1, b: 1, a: 1}
-  flashDuration: 0.1
-  flashCount: 2
+  cooldownColor: {r: 1, g: 0.85550094, b: 0.3160377, a: 1}
   shrinkRate: 3
   fallDuration: 1
   fallDelay: 0.1
