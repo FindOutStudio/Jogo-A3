@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject webDamageZonePrefab;
     [SerializeField] private GameObject teleportEffect;
     [SerializeField] private HitStop hitStop;
+    [SerializeField] private ParticleSystem cooldownReadyEffect;
 
 
     private float lastMoveX = 0f;
@@ -48,6 +49,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform crownLaunchPoint;
     [SerializeField] private float throwCooldown = 1.0f;
     private float nextThrowAllowedTime = 0f;
+    private bool wasInCooldown = false;
+    private bool isInCooldown = false;
     public bool HasCrown { get; private set; } = true;
     public GameObject rastroDeTeiaPrefab;
 
@@ -170,7 +173,9 @@ public class PlayerController : MonoBehaviour
             if (Time.time < nextThrowAllowedTime) return;
             // 2. Lançamento da Coroa, passando a direção recalculada
             LaunchCrown(dir);
+
             nextThrowAllowedTime = Time.time + throwCooldown;
+            isInCooldown = true;
 
             if (spriteRenderer != null)
                 spriteRenderer.color = cooldownColor;
@@ -239,18 +244,28 @@ public class PlayerController : MonoBehaviour
             moveDir.Normalize();
         }
 
-        // Feedback Visual do Cooldown de Lançamento da Coroa
-        if (spriteRenderer != null && Time.time < nextThrowAllowedTime)
+        if (isInCooldown)
         {
             float remaining = nextThrowAllowedTime - Time.time;
-            float t = 1f - (remaining / throwCooldown); // 0 → início, 1 → fim
-            spriteRenderer.color = Color.Lerp(cooldownColor, originalColor, t);
+
+            if (remaining > 0f)
+            {
+                spriteRenderer.color = cooldownColor;
+            }
+            else
+            {
+                // ===== CHANGED: cooldown terminou → cor original + efeito =====
+                spriteRenderer.color = originalColor;
+                isInCooldown = false;
+
+                if (cooldownReadyEffect != null)
+                {
+                    ParticleSystem ps = Instantiate(cooldownReadyEffect, transform.position, Quaternion.identity, transform);
+                    ps.Play(); // CHANGED: força iniciar imediatamente
+                }
+            }
         }
-        else if (spriteRenderer != null)
-        {
-            // garante que volte à cor original quando cooldown terminar
-            spriteRenderer.color = originalColor;
-        }
+        
 
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 mouseAim = (mousePos - transform.position).normalized;
