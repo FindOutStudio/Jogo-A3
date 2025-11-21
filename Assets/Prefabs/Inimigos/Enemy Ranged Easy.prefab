@@ -25,6 +25,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
+      propertyPath: maxHealth
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: dangerZoneRadius
       value: 0
       objectReference: {fileID: 0}
@@ -42,11 +46,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7394464237808881029, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.0280142
+      value: -2.288
       objectReference: {fileID: 0}
     - target: {fileID: 7394464237808881029, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.875227
+      value: -0.835
       objectReference: {fileID: 0}
     - target: {fileID: 7394464237808881029, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_LocalPosition.z
