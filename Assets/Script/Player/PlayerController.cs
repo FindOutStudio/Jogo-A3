@@ -61,6 +61,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float VelReturn = 10f;
     [SerializeField] private float Delay = 0.5f;
 
+    [Header("Habilidades")]
+    // Essa variável define se estamos no Nível 1-3 (false) ou 4+ com powerup (true)
+    public bool hasRicochetAbility = false;
+
     [Header("Dash")]
     [SerializeField] private float dashForce = 15f;
     [SerializeField] private float dashDuration = 0.2f;
@@ -330,11 +334,18 @@ public class PlayerController : MonoBehaviour
             VelLaunch,
             VelReturn,
             Delay,
-            rastroDeTeiaPrefab
+            rastroDeTeiaPrefab,
+            hasRicochetAbility
         );
 
         crownInstance = newCrown;
         HasCrown = false;
+    }
+
+    public void EnableRicochet()
+    {
+        hasRicochetAbility = true;
+        Debug.Log("Poder de Ricochete Ativado!");
     }
 
     public void CrownReturned()
@@ -597,21 +608,24 @@ public class PlayerController : MonoBehaviour
         canDash = true;
     }
 
-    // ======================================================================
-    // >> LÓGICA DO BURACO (TRIGGER, DELAY e QUEDA)
-    // ======================================================================
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Verifica se o player já está morto ou caindo, ou se a colisão não é com o buraco
-        if (isDead || isFalling || !other.CompareTag("Hole")) return;
+        // 1. Segurança básica: se estiver morto ou caindo, ignora tudo
+        if (isDead || isFalling) return;
         
+        // 2. Se bateu no BURACO
         if (other.CompareTag("Hole"))
         {
             // Pega a posição central do buraco
             holeCenterPosition = other.transform.position;
-            
-            // Inicia o delay antes da queda (nova coroutine)
+            // Inicia o delay antes da queda
             StartCoroutine(FallDelayRoutine());
+        }
+        // 3. Se bateu no POWER UP (NOVO!)
+        else if (other.CompareTag("PowerUp"))
+        {
+            EnableRicochet();           // Ativa o poder
+            Destroy(other.gameObject);  // Destrói o objeto da cena
         }
     }
 
