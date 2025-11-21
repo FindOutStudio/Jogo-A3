@@ -15,9 +15,11 @@ public class PlayerController : MonoBehaviour
     private CrownController crownInstance;
     private CinemachineImpulseSource impulseSource;
     private DamageFlash _damageFlash;
+    private Color originalColor;
     [SerializeField] private GameObject webDamageZonePrefab;
     [SerializeField] private GameObject teleportEffect;
     [SerializeField] private HitStop hitStop;
+    [SerializeField] private ParticleSystem cooldownReadyEffect;
 
 
     private float lastMoveX = 0f;
@@ -45,6 +47,10 @@ public class PlayerController : MonoBehaviour
     [Header("Coroa e Lançamento")]
     [SerializeField] private CrownController crownPrefab;
     [SerializeField] private Transform crownLaunchPoint;
+    [SerializeField] private float throwCooldown = 1.0f;
+    private float nextThrowAllowedTime = 0f;
+    private bool wasInCooldown = false;
+    private bool isInCooldown = false;
     public bool HasCrown { get; private set; } = true;
     public GameObject rastroDeTeiaPrefab;
 
@@ -64,7 +70,7 @@ public class PlayerController : MonoBehaviour
     [Header("Efeitos")]
     [SerializeField] private GameObject shadowPrefab;
     [SerializeField] private float shadowInterval = 0.05f;
-    [SerializeField] private Color flashColor = Color.red;
+    [SerializeField] private Color cooldownColor = Color.red;
 
     // << LÓGICA DO BURACO COMPLETA >>
     [Header("Queda no Buraco")]
@@ -84,6 +90,10 @@ public class PlayerController : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         impulseSource = GetComponent<CinemachineImpulseSource>();
         _damageFlash = GetComponent<DamageFlash>();
+
+        if (spriteRenderer != null)
+            originalColor = spriteRenderer.color;
+
         currentHealth = maxHealth;
 
     }
@@ -143,6 +153,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!context.performed || isDead || isFalling) return; // Bloqueia a ação se estiver morto ou caindo
 
+       
         // 1. Recálculo da direção da mira na hora do disparo (Gamepad ou Mouse)
         Vector2 dir = Vector2.right; // Valor padrão
 
@@ -159,8 +170,15 @@ public class PlayerController : MonoBehaviour
 
         if (HasCrown)
         {
+            if (Time.time < nextThrowAllowedTime) return;
             // 2. Lançamento da Coroa, passando a direção recalculada
             LaunchCrown(dir);
+
+            nextThrowAllowedTime = Time.time + throwCooldown;
+            isInCooldown = true;
+
+            if (spriteRenderer != null)
+                spriteRenderer.color = cooldownColor;
         }
         else if (crownInstance != null)
         {
@@ -225,6 +243,29 @@ public class PlayerController : MonoBehaviour
         {
             moveDir.Normalize();
         }
+
+        if (isInCooldown)
+        {
+            float remaining = nextThrowAllowedTime - Time.time;
+
+            if (remaining > 0f)
+            {
+                spriteRenderer.color = cooldownColor;
+            }
+            else
+            {
+                // ===== CHANGED: cooldown terminou → cor original + efeito =====
+                spriteRenderer.color = originalColor;
+                isInCooldown = false;
+
+                if (cooldownReadyEffect != null)
+                {
+                    ParticleSystem ps = Instantiate(cooldownReadyEffect, transform.position, Quaternion.identity, transform);
+                    ps.Play(); // CHANGED: força iniciar imediatamente
+                }
+            }
+        }
+        
 
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Vector2 mouseAim = (mousePos - transform.position).normalized;
