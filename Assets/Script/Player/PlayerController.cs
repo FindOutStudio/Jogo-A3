@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     private CrownController crownInstance;
     private CinemachineImpulseSource impulseSource;
     private DamageFlash _damageFlash;
+    private HeartSystem _heartSystem;
     private Color originalColor;
     [SerializeField] private GameObject webDamageZonePrefab;
     [SerializeField] private GameObject teleportEffect;
@@ -100,6 +101,11 @@ public class PlayerController : MonoBehaviour
 
         currentHealth = maxHealth;
 
+    }
+
+    void Start()
+    {
+        _heartSystem = FindAnyObjectByType<HeartSystem>();
     }
 
     private void OnEnable()
@@ -430,6 +436,12 @@ public class PlayerController : MonoBehaviour
         isInvulnerable = true;
         currentHealth -= damageAmount;
         Debug.Log($"Player recebeu {damageAmount} de dano. Vida atual: {currentHealth}");
+
+        if (_heartSystem != null)
+        {
+            // Avisa a UI para perder a mesma quantidade de corações
+            _heartSystem.PerderVida(damageAmount);
+        }
 
         if (currentHealth <= 0)
         {

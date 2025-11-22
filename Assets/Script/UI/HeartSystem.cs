@@ -3,66 +3,65 @@ using UnityEngine.UI;
 
 public class HeartSystem : MonoBehaviour
 {
-    // 1. Variáveis de Estado (Saúde)
-    public int vidaMaxima = 3;
+    // 1. Variï¿½veis de Estado (Saï¿½de)
+    public int vidaMaxima = 5;
     public int vidaAtual;
 
-    // 2. Referências da UI (Array de Imagens)
+    // 2. Referï¿½ncias da UI (Array de Imagens)
     // No Inspector, defina o Size como 3 e arraste Coracao1, Coracao2, Coracao3.
     public Image[] iconesDeVida;
 
-    // 3. Referências dos Sprites (Arraste os arquivos .png/.asset aqui)
+    // 3. Referï¿½ncias dos Sprites (Arraste os arquivos .png/.asset aqui)
     public Sprite spriteCoracaoCheio;
     public Sprite spriteCoracaoVazio;
 
 
     void Start()
     {
-        // Garante que a vida atual comece na máxima
+        // Garante que a vida atual comece na mï¿½xima
         vidaAtual = vidaMaxima;
         AtualizarUI();
     }
 
-    // Chamada pelo Update() (o que seu código original sugeria) ou em qualquer momento.
-    // Usar uma função separada é a maneira correta.
+    // Chamada pelo Update() (o que seu cï¿½digo original sugeria) ou em qualquer momento.
+    // Usar uma funï¿½ï¿½o separada ï¿½ a maneira correta.
     void Update()
     {
-        // NOTA: Chamar AtualizarUI() no Update é muito ineficiente.
-        // O ideal é chamar essa função APENAS quando a vida mudar (ex: após PerderVida).
-        // Se o tutorial insiste, mantenha, mas saiba que não é a melhor prática.
-        // AtualizarUI(); 
+        AtualizarUI();
     }
 
     // -----------------------------------------------------
-    // FUNÇÃO PRINCIPAL: Atualiza os corações na tela
+    // FUNï¿½ï¿½O PRINCIPAL: Atualiza os coraï¿½ï¿½es na tela
     // -----------------------------------------------------
     void AtualizarUI()
     {
-        // Percorre o array de corações que você ligou no Inspector
+        // Percorre o array de coraï¿½ï¿½es que vocï¿½ ligou no Inspector
         for (int i = 0; i < iconesDeVida.Length; i++)
         {
-            // Lógica: Se o índice (i) for menor que a vida atual, o coração está cheio.
+            // Lï¿½gica: Se o ï¿½ndice (i) for menor que a vida atual, o coraï¿½ï¿½o estï¿½ cheio.
             if (i < vidaAtual)
             {
-                // Mude o sprite para CORAÇÃO CHEIO
+                // Mude o sprite para CORAï¿½ï¿½O CHEIO
                 iconesDeVida[i].sprite = spriteCoracaoCheio;
             }
             else
             {
-                // Mude o sprite para CORAÇÃO VAZIO
+                // Mude o sprite para CORAï¿½ï¿½O VAZIO
                 iconesDeVida[i].sprite = spriteCoracaoVazio;
             }
         }
     }
 
     // -----------------------------------------------------
-    // FUNÇÃO PÚBLICA: Para ser chamada por colisões, inimigos, etc.
+    // FUNï¿½ï¿½O Pï¿½BLICA: Para ser chamada por colisï¿½es, inimigos, etc.
     // -----------------------------------------------------
 
     public void PerderVida(int quantidade)
     {
-        // Reduz a vida, garantindo que o valor não seja negativo
+        // Reduz a vida, garantindo que o valor nï¿½o seja negativo
         vidaAtual = Mathf.Max(0, vidaAtual - quantidade);
+
+        Debug.Log($"Vida Depois: {vidaAtual}. Atualizando UI...");
 
         // Atualiza a barra de vida imediatamente
         AtualizarUI();
@@ -76,6 +75,6 @@ public class HeartSystem : MonoBehaviour
     void Morrer()
     {
         Debug.Log("Game Over!");
-        // Lógica de game over aqui
+        // Lï¿½gica de game over aqui
     }
 }
