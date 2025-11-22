@@ -23,19 +23,13 @@ public class HeartSystem : MonoBehaviour
         AtualizarUI();
     }
 
-    // Chamada pelo Update() (o que seu c�digo original sugeria) ou em qualquer momento.
-    // Usar uma fun��o separada � a maneira correta.
     void Update()
     {
         AtualizarUI();
     }
 
-    // -----------------------------------------------------
-    // FUN��O PRINCIPAL: Atualiza os cora��es na tela
-    // -----------------------------------------------------
     void AtualizarUI()
     {
-        // Percorre o array de cora��es que voc� ligou no Inspector
         for (int i = 0; i < iconesDeVida.Length; i++)
         {
             // L�gica: Se o �ndice (i) for menor que a vida atual, o cora��o est� cheio.

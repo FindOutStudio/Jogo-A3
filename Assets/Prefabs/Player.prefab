@@ -234,7 +234,7 @@ MonoBehaviour:
   maxSpd: 7
   accel: 14
   deccel: 11
-  crownPrefab: {fileID: 2531474156665532719, guid: 0d87a50486d9f1a43b3c847221efc097, type: 3}
+  crownPrefab: {fileID: 2531474156665532719, guid: 68f14e4d317bc274ea15afb1cb7926b5, type: 3}
   crownLaunchPoint: {fileID: 6903736971759105995}
   throwCooldown: 0.5
   rastroDeTeiaPrefab: {fileID: 2614509707347182237, guid: 9f8df620150e316448d18c185fdd686d, type: 3}
@@ -242,6 +242,7 @@ MonoBehaviour:
   VelLaunch: 10
   VelReturn: 14
   Delay: 0.5
+  hasRicochetAbility: 0
   dashForce: 13
   dashDuration: 0.17
   dashCooldown: 0.65
@@ -370,6 +371,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 376d233d-8453-4666-a53a-7f9dbc6dbab8
     m_ActionName: 'Player/Dash[/Keyboard/leftShift]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 1f546e84-0f9a-4049-a1b2-100b347afb7b
+    m_ActionName: 'Player/ReturnCrown[/Mouse/rightButton]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player

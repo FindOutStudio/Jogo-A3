@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Cinemachine;
 using Random = UnityEngine.Random;
 
 public class BossHeadController : MonoBehaviour
@@ -16,10 +17,17 @@ public class BossHeadController : MonoBehaviour
     }
 
     private BossState currentState = BossState.Patrolling;
+    private bool isBossActive = false;
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 10;
     private int currentHealth;
+
+    [Header("Morte & VFX")] // <--- NOVO CABEÇALHO
+    [SerializeField] private GameObject explosionPrefab; // Arraste a partícula de explosão aqui
+    [SerializeField] private float deathShakeDuration = 2.0f; // Tempo que ele fica tremendo antes de sumir
+    [SerializeField] private float deathShakeIntensity = 0.3f;
+    private CinemachineImpulseSource impulseSource;
     
     [Header("Dano & Cooldown")]
     [SerializeField] private float damageCooldown = 0.5f; 
@@ -33,6 +41,7 @@ public class BossHeadController : MonoBehaviour
     [SerializeField] private float rotationSpeed = 360f;
     [Tooltip("Distância específica da coroa.")]
     [SerializeField] private float crownSpacing = 0.3f;
+    [SerializeField] private int baseSortingOrder = 5;
 
     [Header("Spawn de Inimigos")]
     public GameObject flyingEnemyPrefab;
@@ -49,6 +58,7 @@ public class BossHeadController : MonoBehaviour
     public float moveSpeed = 2f;
     [Tooltip("O quão perto o boss precisa chegar do ponto para considerar que chegou.")]
     [SerializeField] private float waypointTolerance = 0.1f;
+    [SerializeField] private float patrolWaitTime = 2f;
 
     [Header("ZONAS DE COMPORTAMENTO")]
     public Transform player; 
@@ -60,6 +70,7 @@ public class BossHeadController : MonoBehaviour
     public float dashSpeed = 12f;
     public float attackCooldown = 3f;
     public LayerMask wallMask; 
+    [SerializeField] private float preDashWarningTime = 0.6f;
     
     [Header("Controle de Ataque por Acerto")]
     [SerializeField] private float dashCooldownDuration = 2f; 
@@ -96,22 +107,33 @@ public class BossHeadController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         headSpriteRenderer = GetComponent<SpriteRenderer>();
+        impulseSource = GetComponent<CinemachineImpulseSource>();
 
         if (rb != null) { rb.isKinematic = true; rb.freezeRotation = true; }
 
         // Garante que a cabeça fique acima do chão e do corpo
-        if(headSpriteRenderer != null && headSpriteRenderer.sortingOrder < 10)
+        if(headSpriteRenderer != null)
         {
-            headSpriteRenderer.sortingOrder = 20; 
+            headSpriteRenderer.sortingOrder = baseSortingOrder; 
         }
 
         currentHealth = maxHealth;
-        InitializeBody(maxHealth - 1); 
+        InitializeBody(maxHealth);
+    }
+    public void ActivateBoss()
+    {
+        if (isBossActive) return; // Já está ativo? Sai.
+
+        isBossActive = true;
+        Debug.Log("BOSS ATIVADO!");
+        
+        // Começa a patrulha agora
         currentBehavior = StartCoroutine(PatrolRoutine());
     }
 
     private void Update()
     {
+        if (!isBossActive) return;
         if (!canDashAttack && Time.time >= lastDashTime + dashCooldownDuration)
         {
             canDashAttack = true;
@@ -129,14 +151,6 @@ public class BossHeadController : MonoBehaviour
         {
             nextState = BossState.Attacking;
         }
-        // 2. Prioridade de Perseguição
-        else if (CanSeePlayer())
-        {
-            if (!canDashAttack) nextState = BossState.Patrolling;
-            else if (currentState == BossState.Patrolling) nextState = BossState.Alert; 
-            else nextState = BossState.Chasing; 
-        }
-        // 3. Padrão: Patrulha
         else
         {
             nextState = BossState.Patrolling;
@@ -156,12 +170,12 @@ public class BossHeadController : MonoBehaviour
     private void InitializeBody(int numberOfSegments)
     {
         Transform lastSegmentTransform = this.transform; 
-        int currentSortOrder = (headSpriteRenderer != null) ? headSpriteRenderer.sortingOrder : 20;
+        int currentSortOrder = baseSortingOrder;
 
         // Cria os segmentos do corpo
         for (int i = 0; i < numberOfSegments; i++) 
         {
-            Vector3 spawnPos = transform.position - (Vector3)(transform.right * segmentSpacing * (i + 1));
+            Vector3 spawnPos = transform.position;
             GameObject segmentObj = Instantiate(segmentPrefab, spawnPos, Quaternion.identity, transform.parent);
             BossSegment follower = segmentObj.GetComponent<BossSegment>();
             
@@ -178,7 +192,7 @@ public class BossHeadController : MonoBehaviour
         // Cria a Coroa no final
         if (crownPrefab != null)
         {
-            Vector3 spawnPos = lastSegmentTransform.position - (Vector3)(transform.right * crownSpacing);
+            Vector3 spawnPos = transform.position;
             GameObject CrownBoss = Instantiate(crownPrefab, spawnPos, Quaternion.identity, transform.parent);
             CrownControllerBoss crown = CrownBoss.GetComponent<CrownControllerBoss>();
 
@@ -245,10 +259,9 @@ public class BossHeadController : MonoBehaviour
             // Move até chegar bem perto do ponto (waypointTolerance)
             while (Vector2.Distance(transform.position, targetPoint.position) > waypointTolerance)
             {
+
                 Vector2 direction = (targetPoint.position - transform.position).normalized;
                 currentMoveDirection = direction;
-                
-                // MoveTowards garante que ele vai exatamente pro ponto sem passar direto
                 transform.position = Vector2.MoveTowards(transform.position, targetPoint.position, moveSpeed * Time.deltaTime);
                 yield return null;
             }
@@ -256,6 +269,8 @@ public class BossHeadController : MonoBehaviour
             // Garante posição exata no ponto
             transform.position = targetPoint.position; 
             currentMoveDirection = Vector2.zero; 
+
+            yield return new WaitForSeconds(patrolWaitTime);
             
             // Passa para o próximo ponto na lista (Sequencial)
             currentPatrolIndex++;
@@ -286,28 +301,73 @@ public class BossHeadController : MonoBehaviour
         if (player == null) { SetState(BossState.Patrolling); yield break; }
         
         currentState = BossState.Attacking;
+        
+        // --- FASE 1: PREPARAÇÃO (TELEGRAPH) ---
+        // Pára qualquer movimento residual
+        if (rb != null) rb.linearVelocity = Vector2.zero; 
+        currentMoveDirection = Vector2.zero;
+
+        // Feedback Visual: Fica Vermelho (Aviso de perigo!)
+        Color originalColor = Color.white;
+        if (headSpriteRenderer != null)
+        {
+            originalColor = headSpriteRenderer.color;
+            headSpriteRenderer.color = Color.red; 
+        }
+
+        float warningTimer = 0f;
+        while (warningTimer < preDashWarningTime)
+        {
+            // Opcional: Durante o aviso, ele continua virando a cara para o player (Tracking)
+            if (player != null)
+            {
+                Vector2 dirToPlayer = (player.position - transform.position).normalized;
+                RotateTowardsDirection(dirToPlayer); // Usa sua função de rotação existente
+            }
+            warningTimer += Time.deltaTime;
+            yield return null;
+        }
+
+        // Volta a cor ao normal antes de sair correndo
+        if (headSpriteRenderer != null) headSpriteRenderer.color = originalColor;
+
+        // --- FASE 2: O DASH (IGUAL AO ANTERIOR) ---
         isDashActive = true;
         lastAttackTime = Time.time;
         
-        Vector2 dashDirection = (player.position - transform.position).normalized;
-        currentMoveDirection = dashDirection;
-        if (rb != null) rb.linearVelocity = Vector2.zero; 
+        // Trava a direção final (onde o player está AGORA)
+        Vector2 dashDirection = Vector2.right;
+        if (player != null)
+            dashDirection = (player.position - transform.position).normalized;
 
+        currentMoveDirection = dashDirection; // Para a rotação travar nessa direção
+
+        // Loop do movimento
         while (isDashActive)
         {
+            if (player == null) break;
+
             float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-            if (distanceToPlayer > attackRange) break; 
+            // Se passar muito, para
+            if (distanceToPlayer > attackRange * 1.5f) break; 
 
             transform.position += (Vector3)(dashDirection * dashSpeed * Time.deltaTime);
             
+            // Se bater em algo, para
             if (CheckDashCollision(dashDirection)) break; 
             yield return null;
         }
         
+        // --- FINALIZAÇÃO ---
         isDashActive = false; 
         if (rb != null) rb.linearVelocity = Vector2.zero; 
         currentMoveDirection = Vector2.zero; 
-        yield return new WaitForSeconds(0.5f); 
+        
+        // Força cooldown mesmo se errar
+        canDashAttack = false; 
+        lastDashTime = Time.time;
+
+        yield return new WaitForSeconds(0.5f); // Pequeno delay pós-dash
         SetState(BossState.Patrolling);
     }
 
@@ -322,6 +382,7 @@ public class BossHeadController : MonoBehaviour
 
         if (hit.collider != null)
         {
+            
             if (hit.collider.CompareTag("Player"))
             {
                 if (Time.time > lastPlayerHitTime + playerHitCooldown)
@@ -335,7 +396,10 @@ public class BossHeadController : MonoBehaviour
                     }
                     lastPlayerHitTime = Time.time;
                 }
-                return false;
+                
+                // MUDANÇA IMPORTANTE AQUI:
+                isDashActive = false; // Manda parar o loop do dash no Update
+                return true;          // Retorna 'true' para dar break imediato
             }
 
             bool isObstacle = hit.collider.CompareTag("Obstacle");
@@ -352,14 +416,15 @@ public class BossHeadController : MonoBehaviour
 
     public void TakeDamageFromSegment(BossSegment hitSegment)
     {
-        if (!canTakeDamage) return;
+        if (!canTakeDamage || currentState == BossState.SpawningEnemies || currentState == BossState.Dead) return;
         canTakeDamage = false;
         StartCoroutine(DamageCooldownRoutine());
+        currentHealth--;
+        Debug.Log($"BOSS TOMOU DANO! Vida Restante: {currentHealth} / {maxHealth}");
 
         if (bodySegments.Count > 0)
         {
             BossSegment segmentToDestroy = bodySegments[bodySegments.Count - 1];
-            currentHealth--;
             bodySegments.RemoveAt(bodySegments.Count - 1);
 
             Transform newCrownTarget;
@@ -453,7 +518,69 @@ public class BossHeadController : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log("Boss Derrotado!");
+        // Evita chamar a morte mais de uma vez
+        if (currentState == BossState.Dead) return;
+
+        currentState = BossState.Dead;
+        
+        // Pára qualquer rotina de patrulha ou ataque que esteja rodando
+        if (currentBehavior != null) StopCoroutine(currentBehavior);
+        
+        // Pára a física
+        if (rb != null) rb.linearVelocity = Vector2.zero;
+
+        StartCoroutine(DeathRoutine());
+    }
+
+    private IEnumerator DeathRoutine()
+    {
+        Debug.Log("Iniciando sequência de morte do Boss...");
+
+        // 1. Aciona o Camera Shake (Câmera tremendo)
+        if (CameraShake.instance != null && impulseSource != null)
+        {
+            // Usa o shake forte (ou crie um SuperStrong se quiser mais caos)
+            CameraShake.instance.StrongCameraShaking(impulseSource);
+        }
+
+        // 2. Loop de Tremor do BOSS (O sprite dele chacoalha no lugar)
+        float timer = 0f;
+        Vector3 initialPos = transform.position;
+
+        while (timer < deathShakeDuration)
+        {
+            // Treme o boss aleatoriamente em volta da posição original
+            transform.position = initialPos + (Vector3)Random.insideUnitCircle * deathShakeIntensity;
+            
+            // Opcional: Se tiver animação de "Sofrendo", toque aqui
+            // if (anim != null) anim.SetTrigger("Hurt");
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        // 3. Destrói o restante do corpo (Segmentos) para não ficarem flutuando
+        foreach (var segment in bodySegments)
+        {
+            if (segment != null)
+            {
+                // Opcional: Criar mini explosões nos segmentos também
+                if (explosionPrefab != null) Instantiate(explosionPrefab, segment.transform.position, Quaternion.identity);
+                Destroy(segment.gameObject);
+            }
+        }
+        
+        // Destrói a Coroa se ainda existir
+        CrownControllerBoss crown = FindObjectOfType<CrownControllerBoss>();
+        if (crown != null) Destroy(crown.gameObject);
+
+        // 4. Efeito Final (Explosão na Cabeça)
+        if (explosionPrefab != null)
+        {
+            Instantiate(explosionPrefab, transform.position, Quaternion.identity);
+        }
+
+        // 5. Destrói o Boss
         Destroy(gameObject);
     }
 

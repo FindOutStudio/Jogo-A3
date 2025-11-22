@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  m_Sprite: {fileID: 3967376427901530360, guid: d8464ec653fb5514aa8b33921b02e17e, type: 3}
   m_Color: {r: 0.8962264, g: 0.41916117, b: 0.114142045, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -101,7 +101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageToPlayer: 2
-  timeToExplode: 1
+  timeToExplode: 2
   explosionParticlesPrefab: {fileID: 4787644528525156860, guid: b1492af4ef7b6dd4fb12ab0b4dd80461, type: 3}
   spriteRenderer: {fileID: 0}
   flashColor: {r: 1, g: 0, b: 0, a: 1}
