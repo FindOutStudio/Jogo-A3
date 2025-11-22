@@ -166,7 +166,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d609881c1a1ff43bdfcbf4847c21e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rastroPrefab: {fileID: 0}
+  physicsColliders: []
+  minCollisionAngle: 45
+  wallHitPause: 0.01
 --- !u!58 &3688156258688397908
 CircleCollider2D:
   m_ObjectHideFlags: 0
