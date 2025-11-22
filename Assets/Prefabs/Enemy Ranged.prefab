@@ -103,29 +103,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c6cbcf0df8c7ad4f932a9ead3d6b824, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 3
+  webDamageCooldown: 0.3
   patrolPoints:
   - {fileID: 0}
   - {fileID: 0}
   moveSpeed: 4
-  waitTime: 0.5
-  player: {fileID: 0}
-  visionRange: 4.27
-  projectileRange: 2.97
-  dangerZoneRadius: 0.8
+  lookAroundDuration: 2
   memoryRange: 6.29
+  visionRange: 4.27
+  combatRange: 5
+  dangerZoneRadius: 0.8
   obstacleMask:
     serializedVersion: 2
     m_Bits: 1
-  obstacleCheckDistance: 0.3
-  initialChaseDelay: 0.5
-  postAttackChaseDelay: 0.8
-  desiredProjectileDistance: 7
-  postRetreatDelay: 0.3
+  player: {fileID: 0}
+  obstacleMaskPlayer:
+    serializedVersion: 2
+    m_Bits: 0
   chaseSpeed: 5
-  retreatSpeed: 5
   attackCooldown: 0.5
-  projectilePrefab: {fileID: 4834671800637921802, guid: fa479adae90288b4aaf1ec46be4134a3, type: 3}
-  firePoint: {fileID: 6267381811527074934}
+  projectilePrefab: {fileID: 4834671800637921802, guid: fa23554acaaba454aa17726f70e1ec42, type: 3}
+  timeToShootFrame: 0.2
+  projectileSpeed: 10
+  lateralAngle: 20
+  bombPrefab: {fileID: 5671363189448418434, guid: d17ecf3d9b1e89644a6537cf296416d3, type: 3}
+  bombAnimationDuration: 0.1
+  retreatDashSpeed: 6
+  retreatDashDuration: 0.3
+  postRetreatDelay: 0.3
+  retreatCooldown: 0
 --- !u!61 &3253680705841173096
 BoxCollider2D:
   m_ObjectHideFlags: 0
