@@ -16,11 +16,12 @@ public class PlayerController : MonoBehaviour
     private CinemachineImpulseSource impulseSource;
     private DamageFlash _damageFlash;
     private HeartSystem _heartSystem;
-    private Color originalColor;
+    private Color originalColor;    
     [SerializeField] private GameObject webDamageZonePrefab;
     [SerializeField] private GameObject teleportEffect;
     [SerializeField] private HitStop hitStop;
     [SerializeField] private ParticleSystem cooldownReadyEffect;
+    public event System.Action<int, int> OnHealthChanged; // (vida atual, vida máxima)
 
 
     private float lastMoveX = 0f;
@@ -29,8 +30,8 @@ public class PlayerController : MonoBehaviour
 
     // --- Variáveis de Vida e Dano ---
     [Header("Vida e Dano")]
-    [SerializeField] private int maxHealth = 5; // Vida máxima do jogador
-    private int currentHealth;
+    public int maxHealth = 5; // Vida máxima do jogador
+    public int currentHealth;
     [SerializeField] private float invulnerabilityDuration = 0.5f; // Duração do estado de invulnerabilidade
     [SerializeField] private float flashInterval = 0.1f; // Frequência do pisca-pisca
     private bool isInvulnerable = false;
@@ -95,6 +96,9 @@ public class PlayerController : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         impulseSource = GetComponent<CinemachineImpulseSource>();
         _damageFlash = GetComponent<DamageFlash>();
+        _heartSystem = FindAnyObjectByType<HeartSystem>();
+
+
 
         if (spriteRenderer != null)
             originalColor = spriteRenderer.color;
@@ -103,10 +107,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    void Start()
-    {
-        _heartSystem = FindAnyObjectByType<HeartSystem>();
-    }
+  
 
     private void OnEnable()
     {
@@ -436,12 +437,9 @@ public class PlayerController : MonoBehaviour
         isInvulnerable = true;
         currentHealth -= damageAmount;
         Debug.Log($"Player recebeu {damageAmount} de dano. Vida atual: {currentHealth}");
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
-        if (_heartSystem != null)
-        {
-            // Avisa a UI para perder a mesma quantidade de corações
-            _heartSystem.PerderVida(damageAmount);
-        }
+
 
         if (currentHealth <= 0)
         {
@@ -470,6 +468,7 @@ public class PlayerController : MonoBehaviour
             currentHealth = maxHealth;
 
         Debug.Log($"Player curado! Vida atual: {currentHealth}");
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
     private IEnumerator InvulnerabilityDurationRoutine()

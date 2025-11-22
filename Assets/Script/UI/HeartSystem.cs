@@ -1,74 +1,50 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class HeartSystem : MonoBehaviour
 {
-    // 1. Vari�veis de Estado (Sa�de)
-    public int vidaMaxima = 5;
-    public int vidaAtual;
+    [Header("Referências")]
+    [SerializeField] private PlayerController player; // ALTERAÇÃO: referência ao PlayerControl
+    [SerializeField] private Sprite fullHeart;     // ALTERAÇÃO: sprite coração cheio
+    [SerializeField] private Sprite emptyHeart;    // ALTERAÇÃO: sprite coração vazio
+    [SerializeField] private Image heartPrefab;    // prefab de coração (UI Image)
+    [SerializeField] private Transform heartsParent; // container (ex: Horizontal Layout Group)
 
-    // 2. Refer�ncias da UI (Array de Imagens)
-    // No Inspector, defina o Size como 3 e arraste Coracao1, Coracao2, Coracao3.
-    public Image[] iconesDeVida;
-
-    // 3. Refer�ncias dos Sprites (Arraste os arquivos .png/.asset aqui)
-    public Sprite spriteCoracaoCheio;
-    public Sprite spriteCoracaoVazio;
-
+    private List<Image> hearts = new List<Image>();
 
     void Start()
     {
-        // Garante que a vida atual comece na m�xima
-        vidaAtual = vidaMaxima;
-        AtualizarUI();
-    }
-
-    void Update()
-    {
-        AtualizarUI();
-    }
-
-    void AtualizarUI()
-    {
-        for (int i = 0; i < iconesDeVida.Length; i++)
+        // ALTERAÇÃO: cria corações de acordo com a vida máxima
+        for (int i = 0; i < player.maxHealth; i++)
         {
-            // L�gica: Se o �ndice (i) for menor que a vida atual, o cora��o est� cheio.
-            if (i < vidaAtual)
-            {
-                // Mude o sprite para CORA��O CHEIO
-                iconesDeVida[i].sprite = spriteCoracaoCheio;
-            }
+            Image heart = Instantiate(heartPrefab, heartsParent);
+            hearts.Add(heart);
+        }
+
+        UpdateHearts(player.currentHealth, player.maxHealth);
+    }
+
+    void OnEnable()
+    {
+        // ALTERAÇÃO: inscreve no evento
+        player.OnHealthChanged += UpdateHearts;
+    }
+
+    void OnDisable()
+    {
+        player.OnHealthChanged -= UpdateHearts;
+    }
+
+    // ALTERAÇÃO: método recebe vida atual e máxima
+    public void UpdateHearts(int currentHealth, int maxHealth)
+    {
+        for (int i = 0; i < hearts.Count; i++)
+        {
+            if (i < currentHealth)
+                hearts[i].sprite = fullHeart;  // coração cheio
             else
-            {
-                // Mude o sprite para CORA��O VAZIO
-                iconesDeVida[i].sprite = spriteCoracaoVazio;
-            }
+                hearts[i].sprite = emptyHeart; // coração vazio
         }
-    }
-
-    // -----------------------------------------------------
-    // FUN��O P�BLICA: Para ser chamada por colis�es, inimigos, etc.
-    // -----------------------------------------------------
-
-    public void PerderVida(int quantidade)
-    {
-        // Reduz a vida, garantindo que o valor n�o seja negativo
-        vidaAtual = Mathf.Max(0, vidaAtual - quantidade);
-
-        Debug.Log($"Vida Depois: {vidaAtual}. Atualizando UI...");
-
-        // Atualiza a barra de vida imediatamente
-        AtualizarUI();
-
-        if (vidaAtual <= 0)
-        {
-            Morrer();
-        }
-    }
-
-    void Morrer()
-    {
-        Debug.Log("Game Over!");
-        // L�gica de game over aqui
     }
 }
