@@ -49,6 +49,13 @@ public class WebDamageZone : MonoBehaviour
                 // ** USANDO O NOVO MÉTODO **
                 rangedEnemy.TakeWebDamage(damageAmount);
             }
+
+            RangedTurretController rangedTurret = other.GetComponent<RangedTurretController>();
+            if (rangedTurret != null)
+            {
+                // ** USANDO O NOVO MÉTODO **
+                rangedTurret.TakeDamage(damageAmount);
+            }
        
 
     }
