@@ -36,7 +36,7 @@ public class BossHeadController : MonoBehaviour
 
     [Header("Spawn de Inimigos")]
     public GameObject flyingEnemyPrefab;
-    public float spawnRadius = 8f;
+    public Transform[] spawnPoints; 
     public int numberOfEnemiesPerSpawn = 3;
     
     private readonly List<int> spawnHealthThresholds = new List<int> { 7, 4, 1 };
@@ -390,6 +390,8 @@ public class BossHeadController : MonoBehaviour
     private IEnumerator SpawnEnemiesRoutine()
     {
         currentState = BossState.SpawningEnemies;
+        
+        // Efeito de tremor (Mantive o do seu código original)
         float shakeDuration = 1.0f;
         float shakeIntensity = 0.2f;
         float timer = 0f;
@@ -402,16 +404,26 @@ public class BossHeadController : MonoBehaviour
             yield return null;
         }
         transform.position = originalPos;
-        for (int i = 0; i < numberOfEnemiesPerSpawn; i++) SpawnFlyingEnemy();
+
+        // MUDANÇA AQUI: Chama uma única vez (o método abaixo percorre todos os pontos)
+        SpawnEnemiesInAllPoints();
+        
         currentState = BossState.Patrolling; 
     }
 
-    private void SpawnFlyingEnemy()
+    private void SpawnEnemiesInAllPoints()
     {
-        if (flyingEnemyPrefab == null) return;
-        Vector2 randomOffset = Random.insideUnitCircle * spawnRadius;
-        Vector3 spawnPosition = transform.position + (Vector3)randomOffset;
-        Instantiate(flyingEnemyPrefab, spawnPosition, Quaternion.identity);
+        // Segurança básica
+        if (flyingEnemyPrefab == null || spawnPoints == null || spawnPoints.Length == 0) return;
+
+        // PERCORRE TODOS OS PONTOS DO ARRAY E CRIA UM INIMIGO EM CADA UM
+        foreach (Transform point in spawnPoints)
+        {
+            if (point != null)
+            {
+                Instantiate(flyingEnemyPrefab, point.position, Quaternion.identity);
+            }
+        }
     }
     
     public void SegmentDestroyed(BossSegment destroyedSegment)
@@ -467,6 +479,15 @@ public class BossHeadController : MonoBehaviour
             }
             if (patrolPoints.Length > 1 && patrolPoints[0] != null && patrolPoints[patrolPoints.Length - 1] != null)
                  Gizmos.DrawLine(patrolPoints[patrolPoints.Length - 1].position, patrolPoints[0].position);
+        }
+
+        Gizmos.color = Color.magenta;
+        if (spawnPoints != null)
+        {
+            foreach(var sp in spawnPoints)
+            {
+                if(sp != null) Gizmos.DrawWireSphere(sp.position, 0.5f);
+            }
         }
     }
 }
