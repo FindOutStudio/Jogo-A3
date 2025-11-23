@@ -11,7 +11,6 @@ public class PauseManager : MonoBehaviour
 
     // NOVO: VARIÁVEIS PARA OS PAINÉIS DE OPÇÕES E MENU PRINCIPAL
     public GameObject optionsMenuUI;  // Painel de Opções que será ativado/desativado
-    public GameObject mainMenuUI;     // Painel do Menu Principal (para mostrar/ocultar)
 
     public static bool JogoEstaPausado = false;
 
@@ -41,8 +40,6 @@ public class PauseManager : MonoBehaviour
         if (optionsMenuUI == null)
             optionsMenuUI = GameObject.Find("OptionsMenuUI");
 
-        if (mainMenuUI == null)
-            mainMenuUI = GameObject.Find("MainMenuUI");
     }
 
 
@@ -96,10 +93,6 @@ public class PauseManager : MonoBehaviour
             pauseMenuUI.SetActive(false);
         }
 
-        if (mainMenuUI != null && mainMenuUI.activeSelf)
-        {
-            mainMenuUI.SetActive(false);
-        }
 
         // Ativa o painel de opções
         if (optionsMenuUI != null)
@@ -124,11 +117,7 @@ public class PauseManager : MonoBehaviour
         {
             pauseMenuUI.SetActive(true);
         }
-        // 2. Caso contrário (se estava no Menu Principal), volta para o menu principal.
-        else if (mainMenuUI != null)
-        {
-            mainMenuUI.SetActive(true);
-        }
+        
     }
 
     // --- Outras Funções de Botão (Chamadas públicas) ---
@@ -138,6 +127,9 @@ public class PauseManager : MonoBehaviour
         // Sempre despausa antes de trocar de cena
         Time.timeScale = 1f;
 
+        pauseMenuUI.SetActive(false);
+
+        JogoEstaPausado = false;
         // Troca a cena
         SceneManager.LoadScene("menu inicial");
     }
@@ -157,6 +149,8 @@ public class PauseManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         Time.timeScale = 1f;
         JogoEstaPausado = false;
+        pauseMenuUI.SetActive(false);
+
 
     }
 }

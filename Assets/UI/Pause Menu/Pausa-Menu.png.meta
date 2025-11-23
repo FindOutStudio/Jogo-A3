@@ -163,7 +163,7 @@ TextureImporter:
         width: 424
         height: 59
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -172,6 +172,28 @@ TextureImporter:
       bones: []
       spriteID: 69eccab8e1b6b8920800000000000000
       internalID: 2993604156254375574
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Pausa-Menu_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 437
+        height: 181
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a973ff4a7f1d5b345ab2a04e8b4c4ea4
+      internalID: -9060725811327061297
       vertices: []
       indices: 
       edges: []
@@ -192,7 +214,6 @@ TextureImporter:
     nameFileIdTable:
       Pausa-Menu_0: 2993604156254375574
       Pausa-Menu_1: -9060725811327061297
-      Pausa-Menu_2: -655701621
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
