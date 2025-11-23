@@ -33,6 +33,18 @@ public class PauseManager : MonoBehaviour
         }
     }
 
+    void Start()
+    {
+        if (pauseMenuUI == null)
+            pauseMenuUI = GameObject.Find("PauseMenuUI");
+
+        if (optionsMenuUI == null)
+            optionsMenuUI = GameObject.Find("OptionsMenuUI");
+
+        if (mainMenuUI == null)
+            mainMenuUI = GameObject.Find("MainMenuUI");
+    }
+
 
     void Update()
     {
@@ -143,5 +155,8 @@ public class PauseManager : MonoBehaviour
     public void ProximaFase()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        Time.timeScale = 1f;
+        JogoEstaPausado = false;
+
     }
 }

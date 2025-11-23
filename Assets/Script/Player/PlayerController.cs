@@ -396,6 +396,7 @@ public class PlayerController : MonoBehaviour
     {
         if (isInvulnerable || isDead || isFalling) return; // Impede dano se estiver morto ou caindo
 
+      
         // Feedback visual: shake da câmera
         if (CameraShake.instance != null)
         {

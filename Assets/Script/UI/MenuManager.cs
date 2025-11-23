@@ -11,7 +11,6 @@ public class MenuManager : MonoBehaviour
     // Esta função será chamada pelo botão para trocar a cena.
     public void CarregarJogo()
     {
-
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
