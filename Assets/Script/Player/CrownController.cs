@@ -118,6 +118,8 @@ public class CrownController : MonoBehaviour
         lastRicochetPoint = contact.point;
         Vector2 normal = contact.normal;
 
+        SFXManager.instance.TocarSom(SFXManager.instance.somCoroaR);
+
         Vector2 incomingDir = lastFrameVelocity.sqrMagnitude > 0.1f ? lastFrameVelocity.normalized : -normal;
         Vector2 naturalReflection = Vector2.Reflect(incomingDir, normal);
         float angleDiff = Vector2.SignedAngle(normal, naturalReflection);

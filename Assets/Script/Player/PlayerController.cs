@@ -78,6 +78,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float shadowInterval = 0.05f;
     [SerializeField] private Color cooldownColor = Color.red;
 
+    [Header("Audio Settings")]
+    [SerializeField] private float passoIntervalo = 0.4f; // Tempo entre cada som de passo (0.4s é um bom ritmo)
+    private float proximoPassoTime = 0f;
+
     // << LÓGICA DO BURACO COMPLETA >>
     [Header("Queda no Buraco")]
     [SerializeField] private float shrinkRate = 3f;    // Velocidade que a sprite encolhe
@@ -184,6 +188,7 @@ public class PlayerController : MonoBehaviour
             if (Time.time < nextThrowAllowedTime) return;
             // 2. Lançamento da Coroa, passando a direção recalculada
             LaunchCrown(dir);
+            SFXManager.instance.TocarSom(SFXManager.instance.somAtaque);
 
             nextThrowAllowedTime = Time.time + throwCooldown;
             isInCooldown = true;
@@ -213,6 +218,7 @@ public class PlayerController : MonoBehaviour
                 zonaDeDano.transform.localScale = new Vector3(distance, 0.2f, 1f);
 
                 transform.position = crownPos;
+                SFXManager.instance.TocarSom(SFXManager.instance.somTeleport);
                 if (teleportEffect != null)
                 {
                     Instantiate(teleportEffect, transform.position, Quaternion.identity);
@@ -312,15 +318,28 @@ public class PlayerController : MonoBehaviour
         Vector2 targetVelocity = moveDir * moveSpd;
         Vector2 force;
 
+        // Verifica se está se movendo (Input existe)
         if (moveDir.magnitude > 0)
         {
             force = (targetVelocity - rb.linearVelocity) * accel;
+
+            // --- LÓGICA DO SOM DE ANDAR ---
+            // Verifica se o tempo passou
+            if (Time.time >= proximoPassoTime)
+            {
+                // Toca o som
+                SFXManager.instance.TocarSom(SFXManager.instance.somAndar);
+                // Reseta o timer
+                proximoPassoTime = Time.time + passoIntervalo;
+            }
+            // -----------------------------
         }
         else
         {
             force = (targetVelocity - rb.linearVelocity) * deccel;
         }
 
+        // Aplica a física no final
         rb.AddForce(force);
         rb.linearVelocity = Vector2.ClampMagnitude(rb.linearVelocity, maxSpd);
     }
@@ -385,6 +404,8 @@ public class PlayerController : MonoBehaviour
 
         transform.position = crownPosition;
 
+        SFXManager.instance.TocarSom(SFXManager.instance.somTeleport);
+
         if (teleportEffect != null)
         {
             Instantiate(teleportEffect, transform.position, Quaternion.identity);
@@ -394,8 +415,9 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(int damageAmount)
     {
-        if (isInvulnerable || isDead || isFalling) return; // Impede dano se estiver morto ou caindo
+        if (isInvulnerable || isDead || isFalling) return;
 
+        SFXManager.instance.TocarSom(SFXManager.instance.somDano);
       
         // Feedback visual: shake da câmera
         if (CameraShake.instance != null)
@@ -502,6 +524,8 @@ public class PlayerController : MonoBehaviour
     {
         if (isDead) return;
 
+        SFXManager.instance.TocarSom(SFXManager.instance.somMorte);
+
         isDead = true;
         Debug.Log("Player Morreu! Iniciando rotina de Game Over...");
 
@@ -571,6 +595,8 @@ public class PlayerController : MonoBehaviour
         canDash = false;
         isInvulnerable = true;
         isDashing = true;
+
+        SFXManager.instance.TocarSom(SFXManager.instance.somDash);
 
         anim.SetBool("IsDashing", true);
 
