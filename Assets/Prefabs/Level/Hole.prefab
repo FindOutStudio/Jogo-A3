@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7847195443954799508}
   - component: {fileID: 2574899396364364730}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Hole
   m_TagString: Hole
   m_Icon: {fileID: 0}
