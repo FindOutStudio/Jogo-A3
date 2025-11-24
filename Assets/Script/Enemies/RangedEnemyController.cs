@@ -261,6 +261,12 @@ public class RangedEnemyController : MonoBehaviour
         while (true)
         {
             if (player == null) yield break;
+
+            if (!CanSeePlayer()) 
+            {
+                SetState(EnemyState.Alert);
+                yield break; 
+            }
             
             float distanceToPlayer = Vector2.Distance(transform.position, player.position);
             if (distanceToPlayer <= combatRange) yield break;
@@ -317,6 +323,7 @@ public class RangedEnemyController : MonoBehaviour
 
     private IEnumerator RetreatDashRoutine()
     {
+        // Se o player sumiu, cancela
         if (player == null)
         {
             isDashActive = false;
@@ -324,62 +331,55 @@ public class RangedEnemyController : MonoBehaviour
             yield break;
         }
 
-        // 1. TRAVA A LÓGICA
         isDashActive = true;
         lastRetreatTime = Time.time;
 
-        // 2. PARA O MOVIMENTO (Zera qualquer força física residual)
+        // 1. Zera movimento físico imediatamente
         if (rb != null) rb.linearVelocity = Vector2.zero;
 
-        // 3. ANIMAÇÃO DA BOMBA
+        // 2. Dispara a Animação SEM esperar virar (Reação Imediata)
         if (anim != null)
         {
             anim.ResetTrigger("IsAttacking");
             anim.ResetTrigger("IsDashing");
-            anim.SetTrigger("IsBomb");
+            
+            // Isso deve fazer a animação tocar no frame seguinte
+            anim.SetTrigger("IsBomb"); 
         }
 
-        // Garante que olhe para o player enquanto põe a bomba
-        Vector2 directionToPlayer = (player.position - transform.position).normalized;
-        UpdateAnimation(directionToPlayer, 0f);
-
-        // --- PAUSA PARA PLANTAR A BOMBA ---
         yield return new WaitForSeconds(bombAnimationDuration);
 
-        // Cria a bomba
+        // 3. Spawna a Bomba
         if (bombPrefab != null)
         {
             Instantiate(bombPrefab, transform.position, Quaternion.identity);
         }
 
-        // 4. INICIA O DASH
+        // 4. Inicia o Dash (Arrancada)
         if (anim != null) anim.SetTrigger("IsDashing");
 
-        // Calcula a direção oposta ao player (para fugir)
         Vector2 retreatDir = (transform.position - player.position).normalized;
         float currentDashDuration = 0f;
 
-        // Loop do Dash Manual (Sem Física)
+        // Loop do Dash
         while (currentDashDuration < retreatDashDuration)
         {
-            float dist = Vector2.Distance(transform.position, player.position);
-            
-            // Se já fugiu o suficiente (saiu do combate), para antes
-            if (dist >= combatRange) break;
-
-            // --- AQUI ESTÁ A CORREÇÃO: Move via Transform, igual a patrulha ---
+            // Move
             transform.position += (Vector3)(retreatDir * retreatDashSpeed * Time.deltaTime);
-            // ------------------------------------------------------------------
 
-            // Mantém o inimigo olhando para o player enquanto recua (opcional)
-            directionToPlayer = (player.position - transform.position).normalized;
-            UpdateAnimation(directionToPlayer, 0f); // Speed 0 para manter animação de Dash/Idle
+            // Aqui mantemos a atualização visual APENAS enquanto ele corre, para não ficar estático
+            if (player != null)
+            {
+                Vector2 dirDuringDash = (player.position - transform.position).normalized;
+                // Speed 0 garante que toque a animação de Dash (se configurada) ou Idle deslizante
+                UpdateAnimation(dirDuringDash, 0f); 
+            }
 
             currentDashDuration += Time.deltaTime;
             yield return null;
         }
 
-        // 5. FINALIZAÇÃO
+        // 5. Finalização
         yield return new WaitForSeconds(postRetreatDelay);
 
         isDashActive = false;

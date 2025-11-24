@@ -332,6 +332,12 @@ public class EnemyPatrol : MonoBehaviour
         {
             if (player == null) yield break;
 
+            if (!CanSeePlayer()) 
+            {
+                SetState(EnemyState.Alert); // Vai para o estado de Alerta (fica parado olhando)
+                yield break; 
+            }
+
             Vector2 direction = (player.position - transform.position).normalized;
             transform.position += (Vector3)(direction * chaseSpeed * Time.deltaTime);
             

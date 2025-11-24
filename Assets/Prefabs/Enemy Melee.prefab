@@ -164,12 +164,12 @@ MonoBehaviour:
   dangerZoneRadius: 2
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 139264
   player: {fileID: 0}
   viewAngle: 165
   obstacleMaskPlayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 139264
   initialChaseDelay: 1
   initialAttackDelay: 0.5
   lookAroundDuration: 3

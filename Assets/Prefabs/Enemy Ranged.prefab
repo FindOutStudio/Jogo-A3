@@ -116,11 +116,11 @@ MonoBehaviour:
   dangerZoneRadius: 0.8
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 131073
   player: {fileID: 0}
   obstacleMaskPlayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 131072
   chaseSpeed: 5
   attackCooldown: 0.5
   projectilePrefab: {fileID: 4834671800637921802, guid: fa23554acaaba454aa17726f70e1ec42, type: 3}
