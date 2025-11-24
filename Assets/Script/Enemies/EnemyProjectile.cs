@@ -22,6 +22,13 @@ public class EnemyProjectile : MonoBehaviour
     {
         string tag = other.tag;
 
+        if (tag.CompareTo("Player") == 0 || tag.CompareTo("Obstacle") == 0 || tag.CompareTo("PlayerCollision") == 0)
+        {
+             // Verifica se o singleton existe pra não dar erro se fechar o jogo
+            if (SFXManager.instance != null) 
+                SFXManager.instance.TocarSom(SFXManager.instance.somProjetil); 
+        }
+
         if (tag.CompareTo("Player") == 0)
         {
             PlayerController player = other.GetComponent<PlayerController>();
@@ -31,13 +38,9 @@ public class EnemyProjectile : MonoBehaviour
             }
             Destroy(gameObject); 
         }
-        // NOVO: Adicionando verificação para objetos de teia
-        // Se suas teias (WebTrail, WebDamageZone) têm a tag "Web", use isso.
+
         else if (tag.CompareTo("Web") == 0 || tag.CompareTo("WebTrail") == 0 || tag.CompareTo("WebDamageZone") == 0)
         {
-            // O projétil colidiu com a teia e deve ser destruído.
-            // A teia é destruída pelo projétil, o projétil é destruído pela teia.
-            // Aqui, o projétil destrói a si mesmo e a teia.
             Destroy(other.gameObject); 
             Destroy(gameObject);
         }
@@ -51,6 +54,13 @@ public class EnemyProjectile : MonoBehaviour
     void OnCollisionEnter2D(Collision2D collision)
     {
         string tag = collision.gameObject.tag;
+
+        if (tag.CompareTo("Player") == 0 || tag.CompareTo("Obstacle") == 0 || tag.CompareTo("PlayerCollision") == 0)
+        {
+             // Verifica se o singleton existe pra não dar erro se fechar o jogo
+            if (SFXManager.instance != null) 
+                SFXManager.instance.TocarSom(SFXManager.instance.somProjetil); 
+        }
 
         if (tag.CompareTo("Player") == 0)
         {

@@ -72,6 +72,7 @@ public class EnemyPatrol : MonoBehaviour
     public float retreatRotationSpeed = 720f; 
     public float postRetreatDelay = 0.5f;
     [SerializeField] private int retreatDamageAmount = 5;
+    [SerializeField] private float retreatSoundDelay = 0.2f;
 
     [Header("Visual de Ataque/Recuo")]
     private SpriteRenderer spriteRenderer;
@@ -424,6 +425,8 @@ public class EnemyPatrol : MonoBehaviour
         
         // --- NOVO: Dispara a animação de Recuo (agora iniciando o Spin) ---
         if (anim != null) anim.SetTrigger("Retreat");
+
+        yield return new WaitForSeconds(retreatSoundDelay);
 
         SFXManager.instance.TocarSom(SFXManager.instance.somRecuo);
 

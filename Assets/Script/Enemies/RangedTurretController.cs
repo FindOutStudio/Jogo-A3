@@ -126,6 +126,7 @@ public class RangedTurretController : MonoBehaviour
 
         // Dispara a animação
         if (anim != null) anim.SetTrigger("IsAttacking");
+        SFXManager.instance.TocarSom(SFXManager.instance.somCuspe);
 
         // Espera o momento certo do tiro (sincronia com animação)
         yield return new WaitForSeconds(timeToShootFrame);
@@ -168,6 +169,7 @@ public class RangedTurretController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+        SFXManager.instance.TocarSom(SFXManager.instance.somDanoR);
 
         // Feedback Visual (Piscar)
         if (_damageFlash != null) _damageFlash.CallDamageFlash();
@@ -180,6 +182,7 @@ public class RangedTurretController : MonoBehaviour
 
     private void Die()
     {
+        SFXManager.instance.TocarSom(SFXManager.instance.somMorteR);
         if (anim != null) anim.SetTrigger("IsDeath");
         
         // Desativa colisor para não bloquear mais

@@ -155,12 +155,12 @@ MonoBehaviour:
   somRecuo: {fileID: 8300000, guid: f8d13227ba078cc48a42102b5c4f4b8d, type: 3}
   somDanoM: {fileID: 8300000, guid: 1a5d00a6eafa3ff4bb6dde9e7e4176ab, type: 3}
   somMorteM: {fileID: 8300000, guid: 54eebbee14d2f6c4a8b34522551a0a8a, type: 3}
-  somVoo: {fileID: 0}
-  somProjetil: {fileID: 0}
-  somCuspe: {fileID: 0}
-  somDanoR: {fileID: 0}
-  somMorteR: {fileID: 0}
-  somExplosao: {fileID: 0}
+  somVoo: {fileID: 8300000, guid: e37fb343ead79044c974005a3ce86d56, type: 3}
+  somProjetil: {fileID: 8300000, guid: dc984281c5cd2db44a44dc646059c0d9, type: 3}
+  somCuspe: {fileID: 8300000, guid: b4bdb1012371b9141a4b26b33323b907, type: 3}
+  somDanoR: {fileID: 8300000, guid: ae4fca35e2eef01489d31086755b02e9, type: 3}
+  somMorteR: {fileID: 8300000, guid: 337772cf14f5f3d4a913ae331d072863, type: 3}
+  somExplosao: {fileID: 8300000, guid: f36405d8c800e2b4b87ebf1ddbf9ef75, type: 3}
   somRastejar: {fileID: 0}
   somSprint: {fileID: 0}
   somSummonar: {fileID: 0}

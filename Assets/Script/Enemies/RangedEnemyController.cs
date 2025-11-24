@@ -69,6 +69,11 @@ public class RangedEnemyController : MonoBehaviour
     [SerializeField] private float retreatCooldown = 0.0f; 
     private float lastRetreatTime = -Mathf.Infinity; 
 
+    [Header("Audio Settings")]
+    [Tooltip("Tempo entre cada som de 'flap' ou passo enquanto voa.")]
+    [SerializeField] private float intervaloSomVoo = 0.3f; // Ajuste conforme o tamanho do áudio
+    private float proximoSomVoo = 0f;
+
     // Variáveis internas
     private Animator anim;
     private Rigidbody2D rb;
@@ -215,8 +220,6 @@ public class RangedEnemyController : MonoBehaviour
         // --- CORREÇÃO DO CRASH: Verifica se existem pontos antes de tentar andar ---
         if (patrolPoints == null || patrolPoints.Length == 0)
         {
-            // Se esqueceu de colocar pontos, ele fica parado em alerta em vez de crashar o jogo
-            // Debug.LogWarning("Inimigo sem pontos de patrulha! Entrando em modo Alerta.");
             SetState(EnemyState.Alert);
             yield break;
         }
@@ -235,6 +238,7 @@ public class RangedEnemyController : MonoBehaviour
                 if (CanSeePlayer()) { SetState(EnemyState.Alert); yield break; }
                 transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
                 UpdateAnimation(direction, moveSpeed);
+                TentarTocarSomVoo();
                 yield return null;
             }
 
@@ -275,7 +279,7 @@ public class RangedEnemyController : MonoBehaviour
             transform.position += (Vector3)(direction * chaseSpeed * Time.deltaTime);
 
             if (direction.magnitude > 0.01f) UpdateAnimation(direction, chaseSpeed);
-
+            TentarTocarSomVoo();
             yield return null;
         }
     }
@@ -290,6 +294,7 @@ public class RangedEnemyController : MonoBehaviour
         UpdateAnimation(directionToPlayer, 0.01f); 
 
         if (anim != null) anim.SetTrigger("IsAttacking");
+        SFXManager.instance.TocarSom(SFXManager.instance.somCuspe);
 
         yield return new WaitForSeconds(timeToShootFrame);
 
@@ -388,6 +393,7 @@ public class RangedEnemyController : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        SFXManager.instance.TocarSom(SFXManager.instance.somDanoR);
         currentHealth -= damage;
         if (currentHealth <= 0) Die();
     }
@@ -396,6 +402,7 @@ public class RangedEnemyController : MonoBehaviour
     {
         if (isInvulnerableFromWeb) return;
         currentHealth -= damage;
+        SFXManager.instance.TocarSom(SFXManager.instance.somDanoR);
         StartCoroutine(WebDamageCooldownRoutine());
         CameraShake.instance.MediumCameraShaking(impulseSource);
         if (_damageFlashRanged != null) _damageFlashRanged.CallDamageFlash();
@@ -414,6 +421,7 @@ public class RangedEnemyController : MonoBehaviour
         if (rb != null) rb.isKinematic = true;
         Collider2D collider = GetComponent<Collider2D>();
         if (collider != null) collider.enabled = false;
+        SFXManager.instance.TocarSom(SFXManager.instance.somMorteR);
 
         if (anim != null)
         {
@@ -427,6 +435,15 @@ public class RangedEnemyController : MonoBehaviour
     {
         if (currentBehavior != null) StopCoroutine(currentBehavior);
         StartCoroutine(DieRoutine());
+    }
+
+    private void TentarTocarSomVoo()
+    {
+        if (Time.time >= proximoSomVoo)
+        {
+            SFXManager.instance.TocarSom(SFXManager.instance.somVoo);
+            proximoSomVoo = Time.time + intervaloSomVoo;
+        }
     }
 
     void OnDrawGizmosSelected()
