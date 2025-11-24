@@ -295,6 +295,8 @@ public class EnemyPatrol : MonoBehaviour
 
             // --- FASE 2: PATRULHA (LOOK AROUND/ESPECIAL) ---
             // 1. Ativa a animação de Patrulha
+
+            SFXManager.instance.TocarSom(SFXManager.instance.somPatrulha);
             UpdateAnimation(Vector2.zero, 0f, true);
             
             // 2. Espera pelo tempo de Patrulha
@@ -368,6 +370,8 @@ public class EnemyPatrol : MonoBehaviour
         // --- NOVO: Dispara a animação de Ataque ---
         if (anim != null) anim.SetTrigger("Attack");
 
+        SFXManager.instance.TocarSom(SFXManager.instance.somDashM);
+
         if (rb != null)
         {
             rb.isKinematic = true;
@@ -421,6 +425,8 @@ public class EnemyPatrol : MonoBehaviour
         // --- NOVO: Dispara a animação de Recuo (agora iniciando o Spin) ---
         if (anim != null) anim.SetTrigger("Retreat");
 
+        SFXManager.instance.TocarSom(SFXManager.instance.somRecuo);
+
         float timer = 0f;
 
         while (Vector2.Distance(transform.position, player.position) < combatRange)
@@ -469,6 +475,7 @@ public class EnemyPatrol : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        SFXManager.instance.TocarSom(SFXManager.instance.somDanoM);
         currentHealth -= damage;
 
         if (currentHealth <= 0)
@@ -486,6 +493,8 @@ public class EnemyPatrol : MonoBehaviour
         }
 
         CameraShake.instance.MediumCameraShaking(impulseSource);
+
+        SFXManager.instance.TocarSom(SFXManager.instance.somDanoM);
 
         if (_damageFlashMelee != null)
         {
@@ -523,6 +532,7 @@ public class EnemyPatrol : MonoBehaviour
         if (rb != null) rb.isKinematic = true;
         Collider2D collider = GetComponent<Collider2D>();
         if (collider != null) collider.enabled = false; 
+        SFXManager.instance.TocarSom(SFXManager.instance.somMorteM);
 
         // 2. Dispara a animação de Morte
         if (anim != null)
