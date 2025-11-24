@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI; // ESSENCIAL: Adicionada para usar funções de UI como o Dropdown
+using UnityEngine.Video;
 
 public class MenuManager : MonoBehaviour
 {
@@ -8,13 +9,63 @@ public class MenuManager : MonoBehaviour
     public GameObject painelOpcoes;
     public GameObject painelMenuPrincipal;
 
-    // Esta função será chamada pelo botão para trocar a cena.
+    [Header("Cutscene")]
+    public GameObject cutscenePanel;     // Painel que contém o vídeo
+    public VideoPlayer videoPlayer;      // Componente VideoPlayer
+    public Button continueButton;        // Botão "Continuar" (inicialmente desativado)
+
+    [Header("Áudio")]
+    public AudioSource musicaMenu;
+
+    void Start()
+    {
+        // Garante que cutscene e botão estão desligados no início
+        if (cutscenePanel != null) cutscenePanel.SetActive(false);
+        if (continueButton != null) continueButton.gameObject.SetActive(false);
+
+        // Listener para quando o vídeo terminar
+        if (videoPlayer != null)
+            videoPlayer.loopPointReached += OnVideoFinished;
+
+        // Listener para botão continuar
+        if (continueButton != null)
+            continueButton.onClick.AddListener(CarregarJogo);
+    }
+
+    public void Jogar()
+    {
+        if (musicaMenu != null)
+        {
+            musicaMenu.Pause(); // ou musicaMenu.Stop() se quiser parar totalmente
+        }
+
+        if (cutscenePanel != null)
+        {
+            cutscenePanel.SetActive(true);
+        }
+
+        if (videoPlayer != null)
+        {
+            videoPlayer.Play();
+        }
+
+        if (painelMenuPrincipal != null)
+        {
+            painelMenuPrincipal.SetActive(false);
+        }
+    }
+
     public void CarregarJogo()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
-    // NOVA FUNÇÃO: Para mostrar o painel de Opções e ocultar o Menu
+    void OnVideoFinished(VideoPlayer vp)
+    {
+        if (continueButton != null)
+            continueButton.gameObject.SetActive(true);
+    }
+
     public void AbrirOpcoes()
     {
         if (painelOpcoes != null)

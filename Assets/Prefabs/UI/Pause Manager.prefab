@@ -45,8 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cea534c0cfc85ae4c9f4cf1f06069bb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pauseMenuUI: {fileID: 3919230310459841126, guid: 80ea62f76a65af74d8e49756109dd636, type: 3}
-  optionsMenuUI: {fileID: 5301582555699296446, guid: f07b8b5bedd9aec4dba9aa6139494524, type: 3}
+  pauseMenuUI: {fileID: 5699513642553568280}
+  optionsMenuUI: {fileID: 3788290613443068670}
 --- !u!1001 &6561803466061219208
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -163,6 +163,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3790924238469375981, guid: 0cb2ba8fa70f6fc43a536412664962b0, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 8481261238641779106}
+    - target: {fileID: 3790924238469375981, guid: 0cb2ba8fa70f6fc43a536412664962b0, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: FecharOpcoes
+      objectReference: {fileID: 0}
     - target: {fileID: 4977902123640032518, guid: 0cb2ba8fa70f6fc43a536412664962b0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -184,6 +192,16 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0cb2ba8fa70f6fc43a536412664962b0, type: 3}
+--- !u!1 &3788290613443068670 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8035129002135455606, guid: 0cb2ba8fa70f6fc43a536412664962b0, type: 3}
+  m_PrefabInstance: {fileID: 6561803466061219208}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5699513642553568280 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1443553254425520528, guid: 0cb2ba8fa70f6fc43a536412664962b0, type: 3}
+  m_PrefabInstance: {fileID: 6561803466061219208}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &7694173954937442716 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3591346988196189204, guid: 0cb2ba8fa70f6fc43a536412664962b0, type: 3}
