@@ -3,24 +3,27 @@ using UnityEngine;
 public class MusicManager : MonoBehaviour
 {
     public static MusicManager instance;
-    public AudioSource musicSource; // ARRASTE UM AUDIO SOURCE AQUI (COM LOOP ATIVADO!)
 
-    [Header("Músicas da Fase")]
+    [Header("Alto-Falantes")]
+    public AudioSource musicSource;    // O que já existia (Música Principal)
+    public AudioSource ambienceSource; // <--- NOVO: Para sons de fundo (vento, chuva, etc)
+
+    [Header("Músicas")]
     public AudioClip somCastelo;
     public AudioClip somFloresta;
     public AudioClip somPenhasco;
-    public AudioClip somDentro; // <--- Vai começar tocando esse
+    public AudioClip somDentro;
     public AudioClip luta;
-    public AudioClip bossL;     // <--- Vai trocar pra esse
-    public AudioClip ambiente;
+    public AudioClip bossL;
+    public AudioClip ambiente;     // <--- O som de fundo
+    public AudioClip trilhaCronvs;
 
     private void Awake()
     {
-        // Singleton (Padrão para garantir que só tenha um tocando música)
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject); 
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -28,13 +31,46 @@ public class MusicManager : MonoBehaviour
         }
     }
 
+    // Função genérica para tocar música principal
     public void TocarMusica(AudioClip musica)
     {
-        // Só troca se a música for diferente da que já está tocando
         if (musicSource.clip == musica) return;
-
         musicSource.Stop();
         musicSource.clip = musica;
         musicSource.Play();
+    }
+
+    // Função genérica para tocar ambiente (separado)
+    public void TocarAmbiente(AudioClip clipAmbiente)
+    {
+        if (ambienceSource.clip == clipAmbiente) return;
+        ambienceSource.Stop();
+        ambienceSource.clip = clipAmbiente;
+        ambienceSource.Play();
+    }
+    public void TocarFloresta()
+    {
+        // Canal Principal: Toca a música da Floresta
+        TocarMusica(somFloresta);
+        
+        // Canal Secundário: Toca o som de Ambiente (vento, grilo, etc)
+        TocarAmbiente(ambiente);
+    }
+
+    // >>> FUNÇÃO ESPECIAL DO NÍVEL 5 <<<
+    public void TocarNivel5()
+    {
+        // Toca o Castelo no canal principal
+        TocarMusica(somCastelo);
+        
+        // Toca o Ambiente no canal secundário
+        TocarAmbiente(ambiente);
+    }
+    
+    // Função pra parar o ambiente se mudar de fase e não quiser mais barulho de vento
+    public void PararAmbiente()
+    {
+        ambienceSource.Stop();
+        ambienceSource.clip = null;
     }
 }
