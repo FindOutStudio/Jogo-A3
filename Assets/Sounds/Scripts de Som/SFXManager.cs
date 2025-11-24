@@ -63,4 +63,13 @@ public class SFXManager : MonoBehaviour
         // (ex: pular e atacar ao mesmo tempo sem cortar o som do pulo)
         audioSource.PlayOneShot(clip);
     }
+
+    public void TocarSom(AudioClip clip, float volume = 1f)
+    {
+        if (clip != null && audioSource != null)
+        {
+            // O PlayOneShot aceita (Clip, VolumeScale) nativamente!
+            audioSource.PlayOneShot(clip, volume);
+        }
+    }
 }

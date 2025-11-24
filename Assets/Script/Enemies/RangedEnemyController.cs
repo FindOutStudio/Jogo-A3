@@ -22,6 +22,12 @@ public class RangedEnemyController : MonoBehaviour
     [SerializeField] private int maxHealth = 3;
     private int currentHealth;
 
+    [Header("Volumes SFX (0.0 a 1.0)")]
+    [Range(0f, 1f)] [SerializeField] private float volVoo = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volCuspe = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volDano = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volMorte = 1f;
+
     // --- COOLDOWN DE DANO DE TEIA ---
     [Header("Web Damage Cooldown")]
     [SerializeField] private float webDamageCooldown = 0.3f;
@@ -296,7 +302,7 @@ public class RangedEnemyController : MonoBehaviour
         UpdateAnimation(directionToPlayer, 0.01f); 
 
         if (anim != null) anim.SetTrigger("IsAttacking");
-        TocarSFX(SFXManager.instance.somCuspe);
+        TocarSFX(SFXManager.instance.somCuspe, volCuspe);
 
         yield return new WaitForSeconds(timeToShootFrame);
 
@@ -395,7 +401,7 @@ public class RangedEnemyController : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        TocarSFX(SFXManager.instance.somDanoR);
+        TocarSFX(SFXManager.instance.somDanoR, volDano);
         currentHealth -= damage;
         if (currentHealth <= 0) Die();
     }
@@ -404,7 +410,7 @@ public class RangedEnemyController : MonoBehaviour
     {
         if (isInvulnerableFromWeb) return;
         currentHealth -= damage;
-        TocarSFX(SFXManager.instance.somDanoR);
+        TocarSFX(SFXManager.instance.somDanoR, volDano);
         StartCoroutine(WebDamageCooldownRoutine());
         CameraShake.instance.MediumCameraShaking(impulseSource);
         if (_damageFlashRanged != null) _damageFlashRanged.CallDamageFlash();
@@ -423,7 +429,7 @@ public class RangedEnemyController : MonoBehaviour
         if (rb != null) rb.isKinematic = true;
         Collider2D collider = GetComponent<Collider2D>();
         if (collider != null) collider.enabled = false;
-        TocarSFX(SFXManager.instance.somMorteR);
+        TocarSFX(SFXManager.instance.somMorteR, volMorte);
 
         if (anim != null)
         {
@@ -440,23 +446,46 @@ public class RangedEnemyController : MonoBehaviour
     }
 
     private void TentarTocarSomVoo()
+{
+    float intervaloReal = intervaloSomVoo <= 0 ? 0.3f : intervaloSomVoo;
+    if (Time.time >= proximoSomVoo)
     {
-        // Trava de segurança: Se o intervalo for 0 ou negativo, força ser 0.3
-        float intervaloReal = intervaloSomVoo <= 0 ? 0.3f : intervaloSomVoo;
+        // Passa o volume do voo aqui
+        TocarSFX(SFXManager.instance.somVoo, volVoo); 
+        proximoSomVoo = Time.time + intervaloReal;
+    }
+}
 
-        if (Time.time >= proximoSomVoo)
+    private void TocarSFX(AudioClip clip, float volume)
+    {
+        if (sr != null && sr.isVisible)
         {
-            TocarSFX(SFXManager.instance.somVoo);
-            proximoSomVoo = Time.time + intervaloReal;
+            SFXManager.instance.TocarSom(clip, volume);
         }
     }
 
-    private void TocarSFX(AudioClip clip)
+    void OnBecameVisible()
     {
-        // Verifica se 'sr' não é nulo e se está visível
-        if (sr != null && sr.isVisible)
+        if (currentHealth > 0 && MusicManager.instance != null)
         {
-            SFXManager.instance.TocarSom(clip);
+            MusicManager.instance.RegisterEnemyVisible();
+        }
+    }
+
+    void OnBecameInvisible()
+    {
+        if (currentHealth > 0 && MusicManager.instance != null)
+        {
+            MusicManager.instance.UnregisterEnemyVisible();
+        }
+    }
+
+    private void OnDisable()
+    {
+        // Usa o 'sr' que já criamos antes
+        if (sr != null && sr.isVisible && MusicManager.instance != null)
+        {
+            MusicManager.instance.UnregisterEnemyVisible();
         }
     }
 

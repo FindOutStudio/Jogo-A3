@@ -9,6 +9,9 @@ public class CrownController : MonoBehaviour
     [SerializeField] private Collider2D[] physicsColliders; 
     [SerializeField] private float minCollisionAngle = 45f; 
 
+    [Header("Audio")]
+    [Range(0f, 1f)] [SerializeField] private float volRicochete = 1f;
+
     private State currentState;
     private bool[] _originalPhysicsIsTrigger;
 
@@ -118,7 +121,7 @@ public class CrownController : MonoBehaviour
         lastRicochetPoint = contact.point;
         Vector2 normal = contact.normal;
 
-        SFXManager.instance.TocarSom(SFXManager.instance.somCoroaR);
+        SFXManager.instance.TocarSom(SFXManager.instance.somCoroaR, volRicochete);
 
         Vector2 incomingDir = lastFrameVelocity.sqrMagnitude > 0.1f ? lastFrameVelocity.normalized : -normal;
         Vector2 naturalReflection = Vector2.Reflect(incomingDir, normal);

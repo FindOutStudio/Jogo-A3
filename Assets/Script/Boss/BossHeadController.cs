@@ -23,6 +23,14 @@ public class BossHeadController : MonoBehaviour
     [SerializeField] private int maxHealth = 10;
     private int currentHealth;
 
+    [Header("Volumes SFX (0.0 a 1.0)")]
+    [Range(0f, 1f)] [SerializeField] private float volRastejar = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volSprint = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volSummon = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volDano = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volMorte = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volExplosao = 1f;
+
     [Header("Morte & VFX")] // <--- NOVO CABEÇALHO
     [SerializeField] private GameObject explosionPrefab; // Arraste a partícula de explosão aqui
     [SerializeField] private float deathShakeDuration = 2.0f; // Tempo que ele fica tremendo antes de sumir
@@ -343,7 +351,7 @@ public class BossHeadController : MonoBehaviour
         // --- FASE 2: O DASH (IGUAL AO ANTERIOR) ---
         isDashActive = true;
         lastAttackTime = Time.time;
-        SFXManager.instance.TocarSom(SFXManager.instance.somSprint);
+        SFXManager.instance.TocarSom(SFXManager.instance.somSprint, volSprint);
         
         // Trava a direção final (onde o player está AGORA)
         Vector2 dashDirection = Vector2.right;
@@ -427,7 +435,7 @@ public class BossHeadController : MonoBehaviour
     public void TakeDamageFromSegment(BossSegment hitSegment)
     {
         if (!canTakeDamage || currentState == BossState.SpawningEnemies || currentState == BossState.Dead) return;
-        SFXManager.instance.TocarSom(SFXManager.instance.somDanoB);
+        SFXManager.instance.TocarSom(SFXManager.instance.somDanoB, volDano);
         canTakeDamage = false;
         StartCoroutine(DamageCooldownRoutine());
         currentHealth--;
@@ -466,7 +474,7 @@ public class BossHeadController : MonoBehaviour
     private IEnumerator SpawnEnemiesRoutine()
     {
         currentState = BossState.SpawningEnemies;
-        SFXManager.instance.TocarSom(SFXManager.instance.somSummonar);
+        SFXManager.instance.TocarSom(SFXManager.instance.somSummonar, volSummon);
         
         // Efeito de tremor (Mantive o do seu código original)
         float shakeDuration = 1.0f;
@@ -547,7 +555,7 @@ public class BossHeadController : MonoBehaviour
     private IEnumerator DeathRoutine()
     {
         Debug.Log("Iniciando sequência de morte do Boss...");
-        SFXManager.instance.TocarSom(SFXManager.instance.somMorteB);
+        SFXManager.instance.TocarSom(SFXManager.instance.somMorteB, volMorte);
 
         // 1. Aciona o Camera Shake (Câmera tremendo)
         if (CameraShake.instance != null && impulseSource != null)
@@ -591,7 +599,7 @@ public class BossHeadController : MonoBehaviour
         if (explosionPrefab != null)
         {
             Instantiate(explosionPrefab, transform.position, Quaternion.identity);
-            SFXManager.instance.TocarSom(SFXManager.instance.somExplosaoB);
+            SFXManager.instance.TocarSom(SFXManager.instance.somExplosaoB, volExplosao);
         }
 
         // 5. Destrói o Boss

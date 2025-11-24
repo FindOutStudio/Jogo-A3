@@ -36,6 +36,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float flashInterval = 0.1f; // Frequência do pisca-pisca
     private bool isInvulnerable = false;
 
+    [Header("Volumes SFX (0.0 a 1.0)")]
+    [Range(0f, 1f)] [SerializeField] private float volAndar = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volAtaque = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volTeleport = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volDash = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volDano = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volMorte = 1f;
+
     // --- Variáveis de Movimentação ---
     [Header("Movimentação")]
     [SerializeField] private float moveSpd = 5f;
@@ -108,6 +116,12 @@ public class PlayerController : MonoBehaviour
             originalColor = spriteRenderer.color;
 
         currentHealth = maxHealth;
+
+        if (PlayerPrefs.GetInt("TemRicochete", 0) == 1)
+        {
+            hasRicochetAbility = true;
+            Debug.Log("Poder carregado da memória!");
+        }
 
     }
 
@@ -188,7 +202,7 @@ public class PlayerController : MonoBehaviour
             if (Time.time < nextThrowAllowedTime) return;
             // 2. Lançamento da Coroa, passando a direção recalculada
             LaunchCrown(dir);
-            SFXManager.instance.TocarSom(SFXManager.instance.somAtaque);
+            SFXManager.instance.TocarSom(SFXManager.instance.somAtaque, volAtaque);
 
             nextThrowAllowedTime = Time.time + throwCooldown;
             isInCooldown = true;
@@ -218,7 +232,7 @@ public class PlayerController : MonoBehaviour
                 zonaDeDano.transform.localScale = new Vector3(distance, 0.2f, 1f);
 
                 transform.position = crownPos;
-                SFXManager.instance.TocarSom(SFXManager.instance.somTeleport);
+                SFXManager.instance.TocarSom(SFXManager.instance.somTeleport, volTeleport);
                 if (teleportEffect != null)
                 {
                     Instantiate(teleportEffect, transform.position, Quaternion.identity);
@@ -328,7 +342,7 @@ public class PlayerController : MonoBehaviour
             if (Time.time >= proximoPassoTime)
             {
                 // Toca o som
-                SFXManager.instance.TocarSom(SFXManager.instance.somAndar);
+                SFXManager.instance.TocarSom(SFXManager.instance.somAndar, volAndar);
                 // Reseta o timer
                 proximoPassoTime = Time.time + passoIntervalo;
             }
@@ -371,6 +385,8 @@ public class PlayerController : MonoBehaviour
     public void EnableRicochet()
     {
         hasRicochetAbility = true;
+        PlayerPrefs.SetInt("TemRicochete", 1);
+        PlayerPrefs.Save();
         Debug.Log("Poder de Ricochete Ativado!");
     }
 
@@ -404,7 +420,7 @@ public class PlayerController : MonoBehaviour
 
         transform.position = crownPosition;
 
-        SFXManager.instance.TocarSom(SFXManager.instance.somTeleport);
+        SFXManager.instance.TocarSom(SFXManager.instance.somTeleport, volTeleport);
 
         if (teleportEffect != null)
         {
@@ -417,7 +433,7 @@ public class PlayerController : MonoBehaviour
     {
         if (isInvulnerable || isDead || isFalling) return;
 
-        SFXManager.instance.TocarSom(SFXManager.instance.somDano);
+        SFXManager.instance.TocarSom(SFXManager.instance.somDano, volDano);
       
         // Feedback visual: shake da câmera
         if (CameraShake.instance != null)
@@ -524,7 +540,7 @@ public class PlayerController : MonoBehaviour
     {
         if (isDead) return;
 
-        SFXManager.instance.TocarSom(SFXManager.instance.somMorte);
+        SFXManager.instance.TocarSom(SFXManager.instance.somMorte, volMorte);
 
         isDead = true;
         Debug.Log("Player Morreu! Iniciando rotina de Game Over...");
@@ -596,7 +612,7 @@ public class PlayerController : MonoBehaviour
         isInvulnerable = true;
         isDashing = true;
 
-        SFXManager.instance.TocarSom(SFXManager.instance.somDash);
+        SFXManager.instance.TocarSom(SFXManager.instance.somDash, volDash);
 
         anim.SetBool("IsDashing", true);
 
