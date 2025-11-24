@@ -27,6 +27,7 @@ public class RangedTurretController : MonoBehaviour
     private bool isAttacking = false;
     private float lastAttackTime = -Mathf.Infinity;
     private Vector2 currentFacingDirection = Vector2.right;
+    private SpriteRenderer sr;
 
     // Componentes
     private Animator anim;
@@ -44,6 +45,7 @@ public class RangedTurretController : MonoBehaviour
         anim = GetComponent<Animator>();
         _damageFlash = GetComponent<DamageFlash>();
         currentHealth = maxHealth;
+        sr = GetComponent<SpriteRenderer>();
     }
 
     void Update()
@@ -126,7 +128,7 @@ public class RangedTurretController : MonoBehaviour
 
         // Dispara a animação
         if (anim != null) anim.SetTrigger("IsAttacking");
-        SFXManager.instance.TocarSom(SFXManager.instance.somCuspe);
+        TocarSFX(SFXManager.instance.somCuspe);
 
         // Espera o momento certo do tiro (sincronia com animação)
         yield return new WaitForSeconds(timeToShootFrame);
@@ -169,7 +171,7 @@ public class RangedTurretController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        SFXManager.instance.TocarSom(SFXManager.instance.somDanoR);
+        TocarSFX(SFXManager.instance.somDanoR);
 
         // Feedback Visual (Piscar)
         if (_damageFlash != null) _damageFlash.CallDamageFlash();
@@ -182,7 +184,7 @@ public class RangedTurretController : MonoBehaviour
 
     private void Die()
     {
-        SFXManager.instance.TocarSom(SFXManager.instance.somMorteR);
+        TocarSFX(SFXManager.instance.somMorteR);
         if (anim != null) anim.SetTrigger("IsDeath");
         
         // Desativa colisor para não bloquear mais
@@ -190,6 +192,14 @@ public class RangedTurretController : MonoBehaviour
         if (col != null) col.enabled = false;
 
         Destroy(gameObject, 1.5f); // Espera animação de morte
+    }
+
+    private void TocarSFX(AudioClip clip)
+    {
+        if (sr != null && sr.isVisible)
+        {
+            SFXManager.instance.TocarSom(clip);
+        }
     }
 
     // --- GIZMOS (Para ver as áreas na Scene) ---

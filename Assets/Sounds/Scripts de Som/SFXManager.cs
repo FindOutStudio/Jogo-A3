@@ -39,12 +39,7 @@ public class SFXManager : MonoBehaviour
     public AudioClip somSummonar;
     public AudioClip somDanoB;
     public AudioClip somMorteB;
-
-    [Header("Sons Boss")]
-    public AudioClip somCastelo;
-    public AudioClip somFloresta;
-    public AudioClip somPenhasco;
-    public AudioClip somDentro;
+    public AudioClip somExplosaoB;
 
 
     private void Awake()

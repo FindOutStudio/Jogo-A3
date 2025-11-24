@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 9001733942789627843}
   - component: {fileID: 6133408941007881912}
   - component: {fileID: 2208062585765083753}
+  - component: {fileID: 2591521582997355765}
   m_Layer: 0
   m_Name: Boss_Head
   m_TagString: Enemy
@@ -103,12 +104,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 10
+  explosionPrefab: {fileID: 4787644528525156860, guid: 8a6c3b79ead05ae429d1b0462170a826, type: 3}
+  deathShakeDuration: 2
+  deathShakeIntensity: 0.3
+  intervaloSomRastejar: 0.5
   damageCooldown: 0.5
   segmentPrefab: {fileID: 5513071304715001082, guid: 9464d5084918a9a4eabfe5d442ca1b51, type: 3}
   crownPrefab: {fileID: 1945027312225001967, guid: 1f48814981ee73c44bdf6a30bd71e44b, type: 3}
   segmentSpacing: 1
   rotationSpeed: 360
   crownSpacing: 1
+  baseSortingOrder: 19
   flyingEnemyPrefab: {fileID: 5793878613363902743, guid: f01b4b3dfc3db4247b96e74e57f45cd0, type: 3}
   spawnPoints:
   - {fileID: 0}
@@ -123,6 +129,7 @@ MonoBehaviour:
   - {fileID: 0}
   moveSpeed: 5
   waypointTolerance: 0.1
+  patrolWaitTime: 2
   player: {fileID: 0}
   visionRange: 5
   attackRange: 3
@@ -134,6 +141,7 @@ MonoBehaviour:
   wallMask:
     serializedVersion: 2
     m_Bits: 131072
+  preDashWarningTime: 0.6
   dashCooldownDuration: 2
   playerHitCooldown: 1
 --- !u!50 &6133408941007881912
@@ -209,3 +217,63 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &2591521582997355765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5253462300994889660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd438dd108a0f284aa931a2da434f1d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ImpulseDefinition:
+    ImpulseChannel: 1
+    ImpulseShape: 0
+    CustomImpulseShape:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ImpulseDuration: 0.2
+    ImpulseType: 3
+    DissipationRate: 0
+    RawSignal: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    RepeatMode: 0
+    Randomize: 1
+    TimeEnvelope:
+      AttackShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      DecayShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      AttackTime: 0
+      SustainTime: 0.2
+      DecayTime: 0.7
+      ScaleWithImpact: 1
+      HoldForever: 0
+    ImpactRadius: 100
+    DirectionMode: 0
+    DissipationMode: 2
+    DissipationDistance: 100
+    PropagationSpeed: 343
+  DefaultVelocity: {x: 0, y: -1, z: 0}
+  LayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  IgnoreTag: 
+  UseImpactDirection: 0
+  ScaleImpactWithMass: 0
+  ScaleImpactWithSpeed: 0

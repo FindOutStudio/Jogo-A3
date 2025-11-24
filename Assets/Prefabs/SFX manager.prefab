@@ -161,11 +161,12 @@ MonoBehaviour:
   somDanoR: {fileID: 8300000, guid: ae4fca35e2eef01489d31086755b02e9, type: 3}
   somMorteR: {fileID: 8300000, guid: 337772cf14f5f3d4a913ae331d072863, type: 3}
   somExplosao: {fileID: 8300000, guid: f36405d8c800e2b4b87ebf1ddbf9ef75, type: 3}
-  somRastejar: {fileID: 0}
-  somSprint: {fileID: 0}
-  somSummonar: {fileID: 0}
-  somDanoB: {fileID: 0}
-  somMorteB: {fileID: 0}
+  somRastejar: {fileID: 8300000, guid: d0725ae2d493215428307b1ea828ee8f, type: 3}
+  somSprint: {fileID: 8300000, guid: bec0da75eda2d7647bf0bdaaae498886, type: 3}
+  somSummonar: {fileID: 8300000, guid: 64a10cffa9223e24a9191dba24b138e0, type: 3}
+  somDanoB: {fileID: 8300000, guid: 9d34f7d16e1433d448f2be2ad466814a, type: 3}
+  somMorteB: {fileID: 8300000, guid: fabd846fa98484e4887a78fb959fde91, type: 3}
+  somExplosaoB: {fileID: 8300000, guid: 89afc2173a6352a4089dd075df403cff, type: 3}
   somCastelo: {fileID: 0}
   somFloresta: {fileID: 0}
   somPenhasco: {fileID: 0}

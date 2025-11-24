@@ -85,6 +85,7 @@ public class RangedEnemyController : MonoBehaviour
     private const float MIN_DISTANCE_TO_DANGER = 0.05f;
     private float lastAttackTime = -Mathf.Infinity;
     private bool isDashActive = false; 
+    private SpriteRenderer sr;
 
     void Start()
     {
@@ -103,6 +104,7 @@ public class RangedEnemyController : MonoBehaviour
         
         // Inicia direto na Patrulha (com verificação de segurança)
         currentBehavior = StartCoroutine(PatrolRoutine());
+        sr = GetComponent<SpriteRenderer>();
     }
 
     private void Update()
@@ -294,7 +296,7 @@ public class RangedEnemyController : MonoBehaviour
         UpdateAnimation(directionToPlayer, 0.01f); 
 
         if (anim != null) anim.SetTrigger("IsAttacking");
-        SFXManager.instance.TocarSom(SFXManager.instance.somCuspe);
+        TocarSFX(SFXManager.instance.somCuspe);
 
         yield return new WaitForSeconds(timeToShootFrame);
 
@@ -393,7 +395,7 @@ public class RangedEnemyController : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        SFXManager.instance.TocarSom(SFXManager.instance.somDanoR);
+        TocarSFX(SFXManager.instance.somDanoR);
         currentHealth -= damage;
         if (currentHealth <= 0) Die();
     }
@@ -402,7 +404,7 @@ public class RangedEnemyController : MonoBehaviour
     {
         if (isInvulnerableFromWeb) return;
         currentHealth -= damage;
-        SFXManager.instance.TocarSom(SFXManager.instance.somDanoR);
+        TocarSFX(SFXManager.instance.somDanoR);
         StartCoroutine(WebDamageCooldownRoutine());
         CameraShake.instance.MediumCameraShaking(impulseSource);
         if (_damageFlashRanged != null) _damageFlashRanged.CallDamageFlash();
@@ -421,7 +423,7 @@ public class RangedEnemyController : MonoBehaviour
         if (rb != null) rb.isKinematic = true;
         Collider2D collider = GetComponent<Collider2D>();
         if (collider != null) collider.enabled = false;
-        SFXManager.instance.TocarSom(SFXManager.instance.somMorteR);
+        TocarSFX(SFXManager.instance.somMorteR);
 
         if (anim != null)
         {
@@ -439,10 +441,22 @@ public class RangedEnemyController : MonoBehaviour
 
     private void TentarTocarSomVoo()
     {
+        // Trava de segurança: Se o intervalo for 0 ou negativo, força ser 0.3
+        float intervaloReal = intervaloSomVoo <= 0 ? 0.3f : intervaloSomVoo;
+
         if (Time.time >= proximoSomVoo)
         {
-            SFXManager.instance.TocarSom(SFXManager.instance.somVoo);
-            proximoSomVoo = Time.time + intervaloSomVoo;
+            TocarSFX(SFXManager.instance.somVoo);
+            proximoSomVoo = Time.time + intervaloReal;
+        }
+    }
+
+    private void TocarSFX(AudioClip clip)
+    {
+        // Verifica se 'sr' não é nulo e se está visível
+        if (sr != null && sr.isVisible)
+        {
+            SFXManager.instance.TocarSom(clip);
         }
     }
 

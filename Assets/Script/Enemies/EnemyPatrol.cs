@@ -297,7 +297,7 @@ public class EnemyPatrol : MonoBehaviour
             // --- FASE 2: PATRULHA (LOOK AROUND/ESPECIAL) ---
             // 1. Ativa a animação de Patrulha
 
-            SFXManager.instance.TocarSom(SFXManager.instance.somPatrulha);
+            TocarSFX(SFXManager.instance.somPatrulha);
             UpdateAnimation(Vector2.zero, 0f, true);
             
             // 2. Espera pelo tempo de Patrulha
@@ -371,7 +371,7 @@ public class EnemyPatrol : MonoBehaviour
         // --- NOVO: Dispara a animação de Ataque ---
         if (anim != null) anim.SetTrigger("Attack");
 
-        SFXManager.instance.TocarSom(SFXManager.instance.somDashM);
+        TocarSFX(SFXManager.instance.somDash);
 
         if (rb != null)
         {
@@ -428,7 +428,7 @@ public class EnemyPatrol : MonoBehaviour
 
         yield return new WaitForSeconds(retreatSoundDelay);
 
-        SFXManager.instance.TocarSom(SFXManager.instance.somRecuo);
+        TocarSFX(SFXManager.instance.somRecuo);
 
         float timer = 0f;
 
@@ -478,7 +478,7 @@ public class EnemyPatrol : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        SFXManager.instance.TocarSom(SFXManager.instance.somDanoM);
+        TocarSFX(SFXManager.instance.somDanoM);
         currentHealth -= damage;
 
         if (currentHealth <= 0)
@@ -497,7 +497,7 @@ public class EnemyPatrol : MonoBehaviour
 
         CameraShake.instance.MediumCameraShaking(impulseSource);
 
-        SFXManager.instance.TocarSom(SFXManager.instance.somDanoM);
+        TocarSFX(SFXManager.instance.somDanoM);
 
         if (_damageFlashMelee != null)
         {
@@ -535,7 +535,7 @@ public class EnemyPatrol : MonoBehaviour
         if (rb != null) rb.isKinematic = true;
         Collider2D collider = GetComponent<Collider2D>();
         if (collider != null) collider.enabled = false; 
-        SFXManager.instance.TocarSom(SFXManager.instance.somMorteM);
+        TocarSFX(SFXManager.instance.somMorteM);
 
         // 2. Dispara a animação de Morte
         if (anim != null)
@@ -556,6 +556,15 @@ public class EnemyPatrol : MonoBehaviour
             StopCoroutine(currentBehavior);
         }
         StartCoroutine(DieRoutine());
+    }
+
+    private void TocarSFX(AudioClip clip)
+    {
+        // Se o spriteRenderer existir E estiver visível na câmera
+        if (spriteRenderer != null && spriteRenderer.isVisible)
+        {
+            SFXManager.instance.TocarSom(clip);
+        }
     }
 
 
