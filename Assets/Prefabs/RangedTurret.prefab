@@ -177,6 +177,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 2
+  volCuspe: 0
+  volDano: 1
+  volMorte: 1
   player: {fileID: 0}
   visionRange: 4.5
   attackRange: 4

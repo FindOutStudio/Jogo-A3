@@ -59,6 +59,8 @@ public class BossHeadController : MonoBehaviour
     public GameObject flyingEnemyPrefab;
     public Transform[] spawnPoints; 
     public int numberOfEnemiesPerSpawn = 3;
+    [SerializeField] private LayerMask enemyLayer; 
+    [SerializeField] private float checkRadius = 1.0f;
     
     private readonly List<int> spawnHealthThresholds = new List<int> { 7, 4, 1 };
     private List<int> activeSpawnThresholds;
@@ -151,8 +153,6 @@ public class BossHeadController : MonoBehaviour
     private void Update()
     {
         if (!isBossActive) return;
-
-        // Recupera o cooldown se necessário
         if (!canDashAttack && Time.time >= lastDashTime + dashCooldownDuration)
         {
             canDashAttack = true;
@@ -160,8 +160,7 @@ public class BossHeadController : MonoBehaviour
 
         RotateTowardsDirection(currentMoveDirection);
         
-
-        if (isDashActive || currentState == BossState.Attacking || player == null || currentState == BossState.Dead || currentState == BossState.SpawningEnemies) return; 
+        if (isDashActive || player == null || currentState == BossState.Dead || currentState == BossState.SpawningEnemies) return; 
 
         BossState nextState = currentState;
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
@@ -504,12 +503,23 @@ public class BossHeadController : MonoBehaviour
         // Segurança básica
         if (flyingEnemyPrefab == null || spawnPoints == null || spawnPoints.Length == 0) return;
 
-        // PERCORRE TODOS OS PONTOS DO ARRAY E CRIA UM INIMIGO EM CADA UM
         foreach (Transform point in spawnPoints)
         {
             if (point != null)
             {
-                Instantiate(flyingEnemyPrefab, point.position, Quaternion.identity);
+                // CHECAGEM DE VAGA:
+                // Cria um círculo invisível no ponto. Se bater em algo da layer 'enemyLayer', retorna true.
+                Collider2D hit = Physics2D.OverlapCircle(point.position, checkRadius, enemyLayer);
+
+                // Se hit for null, significa que está vazio, então PODE spawnar
+                if (hit == null)
+                {
+                    Instantiate(flyingEnemyPrefab, point.position, Quaternion.identity);
+                }
+                else
+                {
+                    Debug.Log("Spawn bloqueado: Já tem um inimigo neste ponto!");
+                }
             }
         }
     }

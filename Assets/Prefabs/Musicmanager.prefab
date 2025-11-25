@@ -45,10 +45,10 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: a202d9b1aed6f0848859cdad5a9fb28b, type: 3}
+  m_Resource: {fileID: 8300000, guid: a202d9b1aed6f0848859cdad5a9fb28b, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.1
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -149,6 +149,7 @@ MonoBehaviour:
   battleSource: {fileID: 2597858324982212799}
   battleFadeInDuration: 1
   battleFadeOutDuration: 2
+  maxBattleVolume: 0.8
   somCastelo: {fileID: 8300000, guid: 0fdb84a2f6127644f89499839aa85e6a, type: 3}
   somFloresta: {fileID: 8300000, guid: 06f4be42b276d374282807aaf4abcb7b, type: 3}
   somPenhasco: {fileID: 8300000, guid: 93f9f87d3e1590e41a28b423562085f6, type: 3}
