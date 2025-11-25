@@ -8,6 +8,11 @@ public class RangedTurretController : MonoBehaviour
     [SerializeField] private int maxHealth = 3;
     private int currentHealth;
 
+    [Header("Volumes SFX (0.0 a 1.0)")]
+    [Range(0f, 1f)] [SerializeField] private float volCuspe = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volDano = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volMorte = 1f;
+
     [Header("Combate")]
     public Transform player; 
     [SerializeField] private float visionRange = 10f; // Distância para começar a olhar pro player
@@ -128,7 +133,7 @@ public class RangedTurretController : MonoBehaviour
 
         // Dispara a animação
         if (anim != null) anim.SetTrigger("IsAttacking");
-        TocarSFX(SFXManager.instance.somCuspe);
+        TocarSFX(SFXManager.instance.somCuspe, volCuspe);
 
         // Espera o momento certo do tiro (sincronia com animação)
         yield return new WaitForSeconds(timeToShootFrame);
@@ -171,7 +176,7 @@ public class RangedTurretController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        TocarSFX(SFXManager.instance.somDanoR);
+        TocarSFX(SFXManager.instance.somDanoR, volDano);
 
         // Feedback Visual (Piscar)
         if (_damageFlash != null) _damageFlash.CallDamageFlash();
@@ -184,7 +189,7 @@ public class RangedTurretController : MonoBehaviour
 
     private void Die()
     {
-        TocarSFX(SFXManager.instance.somMorteR);
+        TocarSFX(SFXManager.instance.somMorteR, volMorte);
         if (anim != null) anim.SetTrigger("IsDeath");
         
         // Desativa colisor para não bloquear mais
@@ -194,11 +199,11 @@ public class RangedTurretController : MonoBehaviour
         Destroy(gameObject, 1.5f); // Espera animação de morte
     }
 
-    private void TocarSFX(AudioClip clip)
+    private void TocarSFX(AudioClip clip, float volume)
     {
         if (sr != null && sr.isVisible)
         {
-            SFXManager.instance.TocarSom(clip);
+            SFXManager.instance.TocarSom(clip, volume);
         }
     }
 

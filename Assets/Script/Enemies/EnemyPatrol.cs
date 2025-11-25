@@ -18,6 +18,14 @@ public class EnemyPatrol : MonoBehaviour
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 3; 
+
+    [Header("Volumes SFX (0.0 a 1.0)")]
+    [Range(0f, 1f)] [SerializeField] private float volPatrulha = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volAtaque = 1f; // Dash
+    [Range(0f, 1f)] [SerializeField] private float volRecuo = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volDano = 1f;
+    [Range(0f, 1f)] [SerializeField] private float volMorte = 1f;
+
     private int currentHealth;
 
     // --- NOVO: COOLDOWN DE DANO DE TEIA ---
@@ -297,7 +305,7 @@ public class EnemyPatrol : MonoBehaviour
             // --- FASE 2: PATRULHA (LOOK AROUND/ESPECIAL) ---
             // 1. Ativa a animação de Patrulha
 
-            TocarSFX(SFXManager.instance.somPatrulha);
+            TocarSFX(SFXManager.instance.somPatrulha, volPatrulha);
             UpdateAnimation(Vector2.zero, 0f, true);
             
             // 2. Espera pelo tempo de Patrulha
@@ -371,7 +379,7 @@ public class EnemyPatrol : MonoBehaviour
         // --- NOVO: Dispara a animação de Ataque ---
         if (anim != null) anim.SetTrigger("Attack");
 
-        TocarSFX(SFXManager.instance.somDash);
+        TocarSFX(SFXManager.instance.somDash, volAtaque);
 
         if (rb != null)
         {
@@ -428,7 +436,7 @@ public class EnemyPatrol : MonoBehaviour
 
         yield return new WaitForSeconds(retreatSoundDelay);
 
-        TocarSFX(SFXManager.instance.somRecuo);
+        TocarSFX(SFXManager.instance.somRecuo, volRecuo);
 
         float timer = 0f;
 
@@ -478,7 +486,7 @@ public class EnemyPatrol : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        TocarSFX(SFXManager.instance.somDanoM);
+        TocarSFX(SFXManager.instance.somDanoM, volDano);
         currentHealth -= damage;
 
         if (currentHealth <= 0)
@@ -497,7 +505,7 @@ public class EnemyPatrol : MonoBehaviour
 
         CameraShake.instance.MediumCameraShaking(impulseSource);
 
-        TocarSFX(SFXManager.instance.somDanoM);
+        TocarSFX(SFXManager.instance.somDanoM, volDano);
 
         if (_damageFlashMelee != null)
         {
@@ -535,7 +543,7 @@ public class EnemyPatrol : MonoBehaviour
         if (rb != null) rb.isKinematic = true;
         Collider2D collider = GetComponent<Collider2D>();
         if (collider != null) collider.enabled = false; 
-        TocarSFX(SFXManager.instance.somMorteM);
+        TocarSFX(SFXManager.instance.somMorteM, volMorte);
 
         // 2. Dispara a animação de Morte
         if (anim != null)
@@ -558,12 +566,39 @@ public class EnemyPatrol : MonoBehaviour
         StartCoroutine(DieRoutine());
     }
 
-    private void TocarSFX(AudioClip clip)
+    private void TocarSFX(AudioClip clip, float volume)
     {
         // Se o spriteRenderer existir E estiver visível na câmera
         if (spriteRenderer != null && spriteRenderer.isVisible)
         {
-            SFXManager.instance.TocarSom(clip);
+            SFXManager.instance.TocarSom(clip, volume);
+        }
+    }
+
+    void OnBecameVisible()
+    {
+        if (currentHealth > 0 && MusicManager.instance != null)
+        {
+            MusicManager.instance.RegisterEnemyVisible();
+        }
+    }
+
+    // Quando sai da câmera
+    void OnBecameInvisible()
+    {
+        if (currentHealth > 0 && MusicManager.instance != null)
+        {
+            MusicManager.instance.UnregisterEnemyVisible();
+        }
+    }
+
+    // IMPORTANTE: Se o inimigo morrer enquanto está visível, precisamos avisar pra diminuir o contador!
+    private void OnDisable() 
+    {
+        // Se o objeto for desligado/destruído e estava visível, remove da conta
+        if (spriteRenderer != null && spriteRenderer.isVisible && MusicManager.instance != null)
+        {
+            MusicManager.instance.UnregisterEnemyVisible();
         }
     }
 
