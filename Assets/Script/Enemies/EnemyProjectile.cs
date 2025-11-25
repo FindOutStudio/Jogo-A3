@@ -6,6 +6,10 @@ public class EnemyProjectile : MonoBehaviour
     public int damage = 1;
     public float lifetime = 3f;
 
+    [Header("Áudio")]
+    [Range(0f, 1f)] 
+    [SerializeField] private float volumeImpacto = 1f;
+
     void Start()
     {
         // Certifica que o projétil se destrói após um tempo
@@ -80,6 +84,37 @@ public class EnemyProjectile : MonoBehaviour
         else if (tag.CompareTo("Obstacle") == 0 || tag.CompareTo("PlayerCollision") == 0)
         {
             Destroy(gameObject);
+        }
+    }
+
+    void HandleCollision(GameObject otherObj)
+    {
+        string tag = otherObj.tag;
+
+        // Toca o som se bater no Player ou Parede
+        if (tag.CompareTo("Player") == 0 || tag.CompareTo("Obstacle") == 0 || tag.CompareTo("PlayerCollision") == 0)
+        {
+            if (SFXManager.instance != null) 
+            {
+                // USA O VOLUME QUE O PRODUCER ESCOLHEU
+                SFXManager.instance.TocarSom(SFXManager.instance.somProjetil, volumeImpacto); 
+            }
+        }
+
+        if (tag.CompareTo("Player") == 0)
+        {
+            PlayerController player = otherObj.GetComponent<PlayerController>();
+            if (player != null) player.TakeDamage(damage);
+            Destroy(gameObject); 
+        }
+        else if (tag.CompareTo("Web") == 0 || tag.CompareTo("WebTrail") == 0 || tag.CompareTo("WebDamageZone") == 0)
+        {
+            Destroy(otherObj); 
+            Destroy(gameObject);
+        }
+        else if (tag.CompareTo("Obstacle") == 0 || tag.CompareTo("PlayerCollision") == 0)
+        {
+            Destroy(gameObject); 
         }
     }
 }

@@ -6,29 +6,38 @@ public class MusicManager : MonoBehaviour
 
     [Header("Alto-Falantes")]
     public AudioSource musicSource;    // Música da Fase
-    public AudioSource ambienceSource; // Ambiente (Vento, etc)
-    public AudioSource battleSource;   // Música de Luta
+    public AudioSource ambienceSource; // Ambiente
+    public AudioSource battleSource;   // Inimigos comuns
+    
+    // --- NOVO: Canal exclusivo do Boss ---
+    public AudioSource bossSource;     // Música do Boss (Separada!)
 
-    [Header("Configuração de Fade (Luta)")]
+    [Header("Configuração de Fade (Luta Comum)")]
     [SerializeField] private float battleFadeInDuration = 1.0f;
     [SerializeField] private float battleFadeOutDuration = 2.0f;
     
-    // CORREÇÃO BUG 4: O produtor define o máximo aqui
     [Range(0f, 1f)] 
     [SerializeField] private float maxBattleVolume = 0.8f; 
     
-    // Variáveis de controle
+    // --- NOVO: Volume Máximo do Boss ---
+    [Header("Configuração Boss")]
+    [Range(0f, 1f)] 
+    [SerializeField] private float maxBossVolume = 1.0f; 
+    
     private int visibleEnemiesCount = 0;
     private float defaultMusicVolume = 0.5f; 
-    private float defaultAmbienceVolume = 0.5f; // Para salvar o volume original do ambiente
+    private float defaultAmbienceVolume = 0.5f; 
+    
+    // Flag para saber se estamos na luta contra o boss
+    private bool isBossFight = false;
 
     [Header("Músicas")]
     public AudioClip somCastelo;
     public AudioClip somFloresta;
     public AudioClip somPenhasco;
     public AudioClip somDentro;
-    public AudioClip luta;
-    public AudioClip bossL;
+    public AudioClip luta;     // Luta comum
+    public AudioClip bossL;    // Luta Boss
     public AudioClip ambiente;
     public AudioClip trilhaCronvs;
 
@@ -47,7 +56,7 @@ public class MusicManager : MonoBehaviour
 
     private void Start()
     {
-        // Configuração inicial do canal de batalha
+        // Configura Battle Source
         if (battleSource != null)
         {
             battleSource.clip = luta;
@@ -57,64 +66,110 @@ public class MusicManager : MonoBehaviour
             battleSource.Pause();
         }
         
-        // Salva os volumes iniciais
+        // Configura Boss Source (Inicialmente mudo e parado)
+        if (bossSource != null)
+        {
+            bossSource.clip = bossL;
+            bossSource.loop = true;
+            bossSource.volume = 0f;
+            bossSource.Stop(); 
+        }
+        
         if (musicSource != null) defaultMusicVolume = musicSource.volume;
         if (ambienceSource != null) defaultAmbienceVolume = ambienceSource.volume;
     }
 
     private void Update()
     {
-        HandleBattleCrossfade();
+        // Se estiver no Boss, ignora a lógica de inimigos comuns
+        if (isBossFight)
+        {
+            HandleBossFade();
+        }
+        else
+        {
+            HandleBattleCrossfade();
+        }
     }
 
-    // --- SISTEMA DE FADE DA BATALHA ---
+    // --- LÓGICA DE FADE PADRÃO (INIMIGOS COMUNS) ---
     private void HandleBattleCrossfade()
     {
         if (battleSource == null || musicSource == null) return;
 
-        // CORREÇÃO BUG 4: Usa 'maxBattleVolume' em vez de 1f fixo
         float targetVol = (visibleEnemiesCount > 0) ? maxBattleVolume : 0f;
-        
         float fadeSpeed = (visibleEnemiesCount > 0) ? (1f / battleFadeInDuration) : (1f / battleFadeOutDuration);
 
-        // 1. Ajusta volume da Batalha
         battleSource.volume = Mathf.MoveTowards(battleSource.volume, targetVol, fadeSpeed * Time.deltaTime);
 
-        // Calcula "porcentagem" de quanto estamos em batalha (0.0 a 1.0)
-        // Se maxBattleVolume for 0.5 e estamos em 0.25, o ratio é 0.5 (metade do caminho)
         float battleRatio = (maxBattleVolume > 0.001f) ? (battleSource.volume / maxBattleVolume) : 0f;
 
-        // 2. Crossfade Música da Fase (Baixa para 10%)
         musicSource.volume = Mathf.Lerp(defaultMusicVolume, 0.1f, battleRatio);
 
-        // CORREÇÃO BUG 5: Zera o som ambiente completamente na batalha
         if (ambienceSource != null)
         {
-            // Vai do volume padrão até 0
             ambienceSource.volume = Mathf.Lerp(defaultAmbienceVolume, 0f, battleRatio);
         }
+        
+        // Garante que o source do Boss esteja mudo se não for boss fight
+        if (bossSource != null && bossSource.volume > 0)
+        {
+            bossSource.volume = Mathf.MoveTowards(bossSource.volume, 0f, Time.deltaTime);
+            if(bossSource.volume <= 0.01f) bossSource.Stop();
+        }
 
-        // 3. Lógica de Pause/Unpause
-        if (visibleEnemiesCount > 0 && !battleSource.isPlaying)
-        {
-            battleSource.UnPause();
-        }
-        else if (visibleEnemiesCount == 0 && battleSource.volume <= 0.001f && battleSource.isPlaying)
-        {
-            battleSource.Pause();
-        }
+        if (visibleEnemiesCount > 0 && !battleSource.isPlaying) battleSource.UnPause();
+        else if (visibleEnemiesCount == 0 && battleSource.volume <= 0.001f && battleSource.isPlaying) battleSource.Pause();
+    }
+    
+    // --- NOVO: LÓGICA DE FADE DO BOSS ---
+    private void HandleBossFade()
+    {
+        if (bossSource == null) return;
+
+        // 1. Sobe o volume do Boss até o máximo definido
+        bossSource.volume = Mathf.MoveTowards(bossSource.volume, maxBossVolume, Time.deltaTime * 0.5f);
+
+        // 2. Zera todas as outras músicas
+        if (musicSource != null) musicSource.volume = Mathf.MoveTowards(musicSource.volume, 0f, Time.deltaTime * 0.5f);
+        if (battleSource != null) battleSource.volume = Mathf.MoveTowards(battleSource.volume, 0f, Time.deltaTime * 0.5f);
+        if (ambienceSource != null) ambienceSource.volume = Mathf.MoveTowards(ambienceSource.volume, 0f, Time.deltaTime * 0.5f);
     }
 
-    // --- FUNÇÕES ---
+    // --- FUNÇÕES DE CONTROLE ---
+
+    // Chame isso quando o Boss ativar! (Ex: no BossHeadController.ActivateBoss)
+    public void EntrarNoBoss()
+    {
+        isBossFight = true;
+        if (bossSource != null)
+        {
+            bossSource.clip = bossL;
+            bossSource.Play();
+        }
+        // Reseta contador de inimigos comuns pra não bugar a volta
+        visibleEnemiesCount = 0; 
+    }
+
+    // Chame isso quando o Boss morrer
+    public void SairDoBoss()
+    {
+        isBossFight = false;
+        // O Update vai cuidar de abaixar o volume do Boss e subir o da fase
+    }
+
     public void RegisterEnemyVisible()
     {
-        visibleEnemiesCount++;
+        if (!isBossFight) visibleEnemiesCount++;
     }
 
     public void UnregisterEnemyVisible()
     {
-        visibleEnemiesCount--;
-        if (visibleEnemiesCount < 0) visibleEnemiesCount = 0;
+        if (!isBossFight)
+        {
+            visibleEnemiesCount--;
+            if (visibleEnemiesCount < 0) visibleEnemiesCount = 0;
+        }
     }
 
     public void TocarMusica(AudioClip musica)
@@ -123,7 +178,6 @@ public class MusicManager : MonoBehaviour
         musicSource.Stop();
         musicSource.clip = musica;
         musicSource.Play();
-        // Assume que ao trocar música, o volume volta para um padrão (ou capture o atual)
         defaultMusicVolume = 0.5f; 
     }
     
@@ -133,7 +187,6 @@ public class MusicManager : MonoBehaviour
         ambienceSource.Stop();
         ambienceSource.clip = clipAmbiente;
         ambienceSource.Play();
-        // Atualiza o padrão para o volume atual do source, caso tenha mudado no inspector
         defaultAmbienceVolume = ambienceSource.volume;
     }
     
