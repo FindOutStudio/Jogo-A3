@@ -63,7 +63,6 @@ public class MusicManager : MonoBehaviour
             bossSource.Stop(); 
         }
         
-        // Salva o volume que o producer colocou no Inspector
         if (musicSource != null) defaultMusicVolume = musicSource.volume;
         if (ambienceSource != null) defaultAmbienceVolume = ambienceSource.volume;
     }
@@ -85,7 +84,6 @@ public class MusicManager : MonoBehaviour
 
         float battleRatio = (maxBattleVolume > 0.001f) ? (battleSource.volume / maxBattleVolume) : 0f;
 
-        // Mantém a lógica de zerar o som da fase na batalha
         musicSource.volume = Mathf.Lerp(defaultMusicVolume, 0f, battleRatio);
 
         if (ambienceSource != null)
@@ -150,9 +148,6 @@ public class MusicManager : MonoBehaviour
         musicSource.Stop();
         musicSource.clip = musica;
         musicSource.Play();
-        
-        // CORREÇÃO: Removi a linha 'defaultMusicVolume = 0.5f;'
-        // Agora ele mantém o valor capturado no Start() ou definido anteriormente.
     }
     
     public void TocarAmbiente(AudioClip clipAmbiente)
@@ -161,10 +156,6 @@ public class MusicManager : MonoBehaviour
         ambienceSource.Stop();
         ambienceSource.clip = clipAmbiente;
         ambienceSource.Play();
-        
-        // Aqui também mantivemos a lógica que já existia (pega o volume atual do source),
-        // mas cuidado: se chamar isso DURANTE uma batalha (fade baixo), ele pode salvar o volume baixo como padrão.
-        // Se der problema no ambiente, me avisa que travamos isso também.
         defaultAmbienceVolume = ambienceSource.volume;
     }
     
@@ -178,5 +169,39 @@ public class MusicManager : MonoBehaviour
     {
         TocarMusica(somCastelo);
         TocarAmbiente(ambiente);
+    }
+
+    // --- NOVA FUNÇÃO: CHAMAR NO MENU INICIAR ---
+    public void PararTudo()
+    {
+        // 1. Reseta variaveis de controle
+        isBossFight = false;
+        visibleEnemiesCount = 0;
+
+        // 2. Para e Zera Boss
+        if (bossSource != null) 
+        { 
+            bossSource.Stop(); 
+            bossSource.volume = 0f; 
+        }
+
+        // 3. Para e Zera Batalha
+        if (battleSource != null) 
+        { 
+            battleSource.Stop(); 
+            battleSource.volume = 0f; 
+        }
+
+        // 4. Para Música Principal
+        if (musicSource != null) 
+        { 
+            musicSource.Stop(); 
+        }
+
+        // 5. Para Ambiente
+        if (ambienceSource != null) 
+        { 
+            ambienceSource.Stop(); 
+        }
     }
 }
