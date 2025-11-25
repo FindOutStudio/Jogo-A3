@@ -107,11 +107,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 3
+  volVoo: 1
+  volCuspe: 1
+  volDano: 1
+  volMorte: 1
   webDamageCooldown: 0.3
   patrolPoints:
   - {fileID: 0}
   - {fileID: 0}
   moveSpeed: 3
+  lookAroundDuration: 2
   memoryRange: 15
   visionRange: 10
   combatRange: 2
@@ -120,12 +125,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   player: {fileID: 0}
-  viewAngle: 90
   obstacleMaskPlayer:
     serializedVersion: 2
     m_Bits: 0
   chaseSpeed: 3
-  lookAroundDuration: 2
   attackCooldown: 2.3
   projectilePrefab: {fileID: 4834671800637921802, guid: fa479adae90288b4aaf1ec46be4134a3, type: 3}
   timeToShootFrame: 0.2
@@ -137,6 +140,7 @@ MonoBehaviour:
   retreatDashDuration: 0.3
   postRetreatDelay: 0.5
   retreatCooldown: 0
+  intervaloSomVoo: 0.3
 --- !u!114 &389860795844107387
 MonoBehaviour:
   m_ObjectHideFlags: 0
