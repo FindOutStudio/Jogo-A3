@@ -96,6 +96,7 @@ public class EnemyPatrol : MonoBehaviour
     private bool isDashActive = false;
     private Rigidbody2D rb;
     private bool hitPlayerThisDash = false;
+    private bool musicRegistered = false;
 
     private bool hasPlayerBeenSeen = false;
 
@@ -216,16 +217,15 @@ public class EnemyPatrol : MonoBehaviour
     {
         if (currentState == newState) return;
 
-        if (currentBehavior != null)
-        {
-            StopCoroutine(currentBehavior);
-        }
+        if (currentBehavior != null) StopCoroutine(currentBehavior);
 
         currentState = newState;
-
         hasPlayerBeenSeen = (newState != EnemyState.Patrolling);
-        
-        // Garante que as animações de dash/patrulha especial sejam resetadas ao mudar de estado
+
+        // --- ATUALIZA A MÚSICA BASEADO NO ESTADO ---
+        CheckBattleMusic(); 
+        // -------------------------------------------
+
         if (newState != EnemyState.Retreating && newState != EnemyState.Attacking)
         {
             UpdateAnimation(Vector2.zero, 0f, false);
@@ -233,21 +233,30 @@ public class EnemyPatrol : MonoBehaviour
 
         switch (currentState)
         {
-            case EnemyState.Patrolling:
-                currentBehavior = StartCoroutine(PatrolRoutine());
-                break;
-            case EnemyState.Alert:
-                currentBehavior = StartCoroutine(WaitForCooldownRoutine());
-                break;
-            case EnemyState.Chasing:
-                currentBehavior = StartCoroutine(ChasePlayerRoutine());
-                break;
-            case EnemyState.Attacking:
-                currentBehavior = StartCoroutine(AttackDashRoutine());
-                break;
-            case EnemyState.Retreating:
-                currentBehavior = StartCoroutine(RetreatDashRoutine());
-                break;
+            case EnemyState.Patrolling: currentBehavior = StartCoroutine(PatrolRoutine()); break;
+            case EnemyState.Alert:      currentBehavior = StartCoroutine(WaitForCooldownRoutine()); break;
+            case EnemyState.Chasing:    currentBehavior = StartCoroutine(ChasePlayerRoutine()); break;
+            case EnemyState.Attacking:  currentBehavior = StartCoroutine(AttackDashRoutine()); break;
+            case EnemyState.Retreating: currentBehavior = StartCoroutine(RetreatDashRoutine()); break;
+        }
+    }
+
+    private void CheckBattleMusic()
+    {
+        // Consideramos "Em Batalha" qualquer estado que NÃO seja Patrulha e NÃO seja Morto
+        bool inCombat = (currentState != EnemyState.Patrolling && currentState != EnemyState.Dead);
+
+        if (inCombat && !musicRegistered)
+        {
+            // Entrou em combate agora: Avisa o MusicManager
+            if (MusicManager.instance != null) MusicManager.instance.RegisterEnemyVisible();
+            musicRegistered = true;
+        }
+        else if (!inCombat && musicRegistered)
+        {
+            // Saiu do combate (voltou a patrulhar ou morreu): Remove aviso
+            if (MusicManager.instance != null) MusicManager.instance.UnregisterEnemyVisible();
+            musicRegistered = false;
         }
     }
 
@@ -646,10 +655,11 @@ public class EnemyPatrol : MonoBehaviour
     // IMPORTANTE: Se o inimigo morrer enquanto está visível, precisamos avisar pra diminuir o contador!
     private void OnDisable() 
     {
-        // Se o objeto for desligado/destruído e estava visível, remove da conta
-        if (spriteRenderer != null && spriteRenderer.isVisible && MusicManager.instance != null)
+        // Se for desativado/destruído e ainda estiver "segurando" a música, solta ela
+        if (musicRegistered && MusicManager.instance != null)
         {
             MusicManager.instance.UnregisterEnemyVisible();
+            musicRegistered = false;
         }
     }
 

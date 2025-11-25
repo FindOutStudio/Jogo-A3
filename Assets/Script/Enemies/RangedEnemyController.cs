@@ -93,6 +93,7 @@ public class RangedEnemyController : MonoBehaviour
     private float lastAttackTime = -Mathf.Infinity;
     private bool isDashActive = false; 
     private SpriteRenderer sr;
+    private bool musicRegistered = false;
 
     void Start()
     {
@@ -193,12 +194,16 @@ public class RangedEnemyController : MonoBehaviour
     private void SetState(EnemyState newState)
     {
         if (currentState == newState) return;
-        if (isDashActive) return; // Não interrompe dash
+        if (isDashActive) return; 
 
         if (currentBehavior != null) StopCoroutine(currentBehavior);
 
         currentState = newState;
         hasPlayerBeenSeen = (newState != EnemyState.Patrolling);
+
+        // --- ATUALIZA A MÚSICA ---
+        CheckBattleMusic();
+        // -------------------------
 
         if (newState != EnemyState.Attacking && newState != EnemyState.Retreating)
         {
@@ -212,6 +217,23 @@ public class RangedEnemyController : MonoBehaviour
             case EnemyState.Chasing:    currentBehavior = StartCoroutine(ChasePlayerRoutine()); break;
             case EnemyState.Attacking:  currentBehavior = StartCoroutine(RangedAttackRoutine()); break;
             case EnemyState.Retreating: currentBehavior = StartCoroutine(RetreatDashRoutine()); break;
+        }
+    }
+
+    private void CheckBattleMusic()
+    {
+        // Se não está patrulhando e não está morto, é combate!
+        bool inCombat = (currentState != EnemyState.Patrolling && currentState != EnemyState.Dead);
+
+        if (inCombat && !musicRegistered)
+        {
+            if (MusicManager.instance != null) MusicManager.instance.RegisterEnemyVisible();
+            musicRegistered = true;
+        }
+        else if (!inCombat && musicRegistered)
+        {
+            if (MusicManager.instance != null) MusicManager.instance.UnregisterEnemyVisible();
+            musicRegistered = false;
         }
     }
 
@@ -507,10 +529,10 @@ public class RangedEnemyController : MonoBehaviour
 
     private void OnDisable()
     {
-        // Usa o 'sr' que já criamos antes
-        if (sr != null && sr.isVisible && MusicManager.instance != null)
+        if (musicRegistered && MusicManager.instance != null)
         {
             MusicManager.instance.UnregisterEnemyVisible();
+            musicRegistered = false;
         }
     }
 
