@@ -11,7 +11,8 @@ public class RangedEnemyController : MonoBehaviour
         Alert,
         Chasing,
         Attacking,
-        Retreating
+        Retreating,
+        Dead
     }
 
     private EnemyState currentState = EnemyState.Patrolling;
@@ -106,6 +107,14 @@ public class RangedEnemyController : MonoBehaviour
         impulseSource = GetComponent<CinemachineImpulseSource>();
         _damageFlashRanged = GetComponent<DamageFlash>();
 
+        if (rb != null)
+        {
+            rb.gravityScale = 0f; 
+            rb.mass = 50f;          // Pesado pra caramba (player não consegue empurrar fácil)
+            rb.linearDamping = 10f; // Alto atrito: se for empurrado, para quase na hora
+            rb.freezeRotation = true; 
+        }
+
         currentHealth = maxHealth;
         
         // Inicia direto na Patrulha (com verificação de segurança)
@@ -115,6 +124,7 @@ public class RangedEnemyController : MonoBehaviour
 
     private void Update()
     {
+        if (currentState == EnemyState.Dead) return;
         if (player == null || isDashActive || currentState == EnemyState.Attacking) return;
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
@@ -424,25 +434,40 @@ public class RangedEnemyController : MonoBehaviour
         isInvulnerableFromWeb = false;
     }
 
+    private void Die()
+    {
+        if (currentState == EnemyState.Dead) return;
+        
+        currentState = EnemyState.Dead;
+        isDashActive = false;
+
+        StopAllCoroutines(); // Pára de voar/atirar/patrulhar na hora
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            rb.isKinematic = true;
+        }
+
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
+        StartCoroutine(DieRoutine());
+    }
+
     private IEnumerator DieRoutine()
     {
-        if (rb != null) rb.isKinematic = true;
-        Collider2D collider = GetComponent<Collider2D>();
-        if (collider != null) collider.enabled = false;
         TocarSFX(SFXManager.instance.somMorteR, volMorte);
 
         if (anim != null)
         {
+            // Força a animação de morte
             anim.SetTrigger("IsDeath");
-            yield return new WaitForSeconds(1.5f);
         }
-        Destroy(gameObject);
-    }
 
-    private void Die()
-    {
-        if (currentBehavior != null) StopCoroutine(currentBehavior);
-        StartCoroutine(DieRoutine());
+        yield return new WaitForSeconds(1.5f);
+        Destroy(gameObject);
     }
 
     private void TentarTocarSomVoo()

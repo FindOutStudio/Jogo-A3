@@ -10,7 +10,8 @@ public class EnemyPatrol : MonoBehaviour
         Alert,
         Chasing,
         Attacking,
-        Retreating
+        Retreating,
+        Dead
     }
 
     private EnemyState currentState = EnemyState.Patrolling;
@@ -125,6 +126,7 @@ public class EnemyPatrol : MonoBehaviour
 
     private void Update()
     {
+        if (currentState == EnemyState.Dead) return;
         if (player == null || isDashActive || currentState == EnemyState.Attacking || currentState == EnemyState.Retreating) return;
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
@@ -572,33 +574,47 @@ public class EnemyPatrol : MonoBehaviour
         isInvulnerableFromWeb = false;
     }
 
-    private IEnumerator DieRoutine()
-    {
-        // 1. Desliga o Rigidbody e o Collider
-        if (rb != null) rb.isKinematic = true;
-        Collider2D collider = GetComponent<Collider2D>();
-        if (collider != null) collider.enabled = false; 
-        TocarSFX(SFXManager.instance.somMorteM, volMorte);
-
-        // 2. Dispara a animação de Morte
-        if (anim != null)
-        {
-            anim.SetTrigger("Die");
-            // ***AJUSTE ESTE TEMPO***: Defina a duração da sua animação 'Detah'
-            yield return new WaitForSeconds(1.5f); // 1.5s é um valor de exemplo
-        }
-        
-        // 3. Destrói o objeto APÓS a animação
-        Destroy(gameObject);
-    }
-
     private void Die()
     {
-        if (currentBehavior != null)
+        // Evita morrer duas vezes
+        if (currentState == EnemyState.Dead) return;
+
+        currentState = EnemyState.Dead; // Trava o Update imediatamente
+        isDashActive = false; // Destrava flags de dash
+
+        // Pára TODAS as corrotinas (Movimento, Dash, Ataque, Patrulha)
+        StopAllCoroutines(); 
+        
+        // ZERA a física imediatamente para ele não deslizar
+        if (rb != null)
         {
-            StopCoroutine(currentBehavior);
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            rb.isKinematic = true; // Trava física
         }
+
+        // Desliga colisão para o player não bater no cadáver
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
         StartCoroutine(DieRoutine());
+    }
+
+    private IEnumerator DieRoutine()
+    {
+        TocarSFX(SFXManager.instance.somMorteM, volMorte);
+
+        // Garante que o Animator saia do Dash e toque a Morte
+        if (anim != null)
+        {
+            anim.Rebind(); // Reseta o animator para limpar estados travados (opcional, mas ajuda se travar)
+            anim.SetTrigger("Die");
+        }
+        
+        // Espera a animação
+        yield return new WaitForSeconds(1.5f); 
+        
+        Destroy(gameObject);
     }
 
     private void TocarSFX(AudioClip clip, float volume)
