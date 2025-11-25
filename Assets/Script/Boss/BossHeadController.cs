@@ -151,6 +151,8 @@ public class BossHeadController : MonoBehaviour
     private void Update()
     {
         if (!isBossActive) return;
+
+        // Recupera o cooldown se necessário
         if (!canDashAttack && Time.time >= lastDashTime + dashCooldownDuration)
         {
             canDashAttack = true;
@@ -158,7 +160,8 @@ public class BossHeadController : MonoBehaviour
 
         RotateTowardsDirection(currentMoveDirection);
         
-        if (isDashActive || player == null || currentState == BossState.Dead || currentState == BossState.SpawningEnemies) return; 
+
+        if (isDashActive || currentState == BossState.Attacking || player == null || currentState == BossState.Dead || currentState == BossState.SpawningEnemies) return; 
 
         BossState nextState = currentState;
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);

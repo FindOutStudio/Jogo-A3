@@ -7,23 +7,27 @@ public class MusicManager : MonoBehaviour
     [Header("Alto-Falantes")]
     public AudioSource musicSource;    // Música da Fase
     public AudioSource ambienceSource; // Ambiente (Vento, etc)
-    public AudioSource battleSource;   // <--- NOVO: Música de Luta
+    public AudioSource battleSource;   // Música de Luta
 
     [Header("Configuração de Fade (Luta)")]
-    [SerializeField] private float battleFadeInDuration = 1.0f;  // Tempo pra música entrar
-    [SerializeField] private float battleFadeOutDuration = 2.0f; // Tempo pra música sair
+    [SerializeField] private float battleFadeInDuration = 1.0f;
+    [SerializeField] private float battleFadeOutDuration = 2.0f;
+    
+    // CORREÇÃO BUG 4: O produtor define o máximo aqui
+    [Range(0f, 1f)] 
+    [SerializeField] private float maxBattleVolume = 0.8f; 
     
     // Variáveis de controle
-    private int visibleEnemiesCount = 0; // Quantos inimigos estão na tela agora?
-    private float targetBattleVolume = 0f;
-    private float defaultMusicVolume = 0.5f; // Volume padrão da música da fase
+    private int visibleEnemiesCount = 0;
+    private float defaultMusicVolume = 0.5f; 
+    private float defaultAmbienceVolume = 0.5f; // Para salvar o volume original do ambiente
 
     [Header("Músicas")]
     public AudioClip somCastelo;
     public AudioClip somFloresta;
     public AudioClip somPenhasco;
     public AudioClip somDentro;
-    public AudioClip luta; // <--- Sua música de luta
+    public AudioClip luta;
     public AudioClip bossL;
     public AudioClip ambiente;
     public AudioClip trilhaCronvs;
@@ -49,11 +53,13 @@ public class MusicManager : MonoBehaviour
             battleSource.clip = luta;
             battleSource.loop = true;
             battleSource.volume = 0f;
-            battleSource.Play();   // Dá o Play...
-            battleSource.Pause();  // ...e Pausa imediatamente pra esperar o Fade In
+            battleSource.Play();
+            battleSource.Pause();
         }
         
+        // Salva os volumes iniciais
         if (musicSource != null) defaultMusicVolume = musicSource.volume;
+        if (ambienceSource != null) defaultAmbienceVolume = ambienceSource.volume;
     }
 
     private void Update()
@@ -66,31 +72,40 @@ public class MusicManager : MonoBehaviour
     {
         if (battleSource == null || musicSource == null) return;
 
-        // Se tem pelo menos 1 inimigo na tela, volume alvo é 1. Senão, é 0.
-        float targetVol = (visibleEnemiesCount > 0) ? 1f : 0f;
+        // CORREÇÃO BUG 4: Usa 'maxBattleVolume' em vez de 1f fixo
+        float targetVol = (visibleEnemiesCount > 0) ? maxBattleVolume : 0f;
         
-        // Define a velocidade do fade (Entrar é rápido, Sair é lento)
         float fadeSpeed = (visibleEnemiesCount > 0) ? (1f / battleFadeInDuration) : (1f / battleFadeOutDuration);
 
-        // 1. Move o volume da Batalha em direção ao alvo
+        // 1. Ajusta volume da Batalha
         battleSource.volume = Mathf.MoveTowards(battleSource.volume, targetVol, fadeSpeed * Time.deltaTime);
 
-        // 2. Crossfade: Baixa a música da fase proporcionalmente
-        // Se a batalha tá alta (1), a fase fica baixa (0.1). Se batalha tá (0), fase fica normal.
-        musicSource.volume = Mathf.Lerp(defaultMusicVolume, 0.1f, battleSource.volume);
+        // Calcula "porcentagem" de quanto estamos em batalha (0.0 a 1.0)
+        // Se maxBattleVolume for 0.5 e estamos em 0.25, o ratio é 0.5 (metade do caminho)
+        float battleRatio = (maxBattleVolume > 0.001f) ? (battleSource.volume / maxBattleVolume) : 0f;
 
-        // 3. Lógica de Pause/Unpause (Para continuar de onde parou)
+        // 2. Crossfade Música da Fase (Baixa para 10%)
+        musicSource.volume = Mathf.Lerp(defaultMusicVolume, 0.1f, battleRatio);
+
+        // CORREÇÃO BUG 5: Zera o som ambiente completamente na batalha
+        if (ambienceSource != null)
+        {
+            // Vai do volume padrão até 0
+            ambienceSource.volume = Mathf.Lerp(defaultAmbienceVolume, 0f, battleRatio);
+        }
+
+        // 3. Lógica de Pause/Unpause
         if (visibleEnemiesCount > 0 && !battleSource.isPlaying)
         {
-            battleSource.UnPause(); // "Despausa" para continuar
+            battleSource.UnPause();
         }
-        else if (visibleEnemiesCount == 0 && battleSource.volume <= 0.01f && battleSource.isPlaying)
+        else if (visibleEnemiesCount == 0 && battleSource.volume <= 0.001f && battleSource.isPlaying)
         {
-            battleSource.Pause(); // "Pausa" para salvar o ponto da música
+            battleSource.Pause();
         }
     }
 
-    // --- FUNÇÕES QUE OS INIMIGOS VÃO CHAMAR ---
+    // --- FUNÇÕES ---
     public void RegisterEnemyVisible()
     {
         visibleEnemiesCount++;
@@ -99,17 +114,17 @@ public class MusicManager : MonoBehaviour
     public void UnregisterEnemyVisible()
     {
         visibleEnemiesCount--;
-        if (visibleEnemiesCount < 0) visibleEnemiesCount = 0; // Segurança
+        if (visibleEnemiesCount < 0) visibleEnemiesCount = 0;
     }
 
-    // ... (Mantenha suas funções antigas TocarMusica, TocarAmbiente, TocarNivel5, etc aqui embaixo) ...
     public void TocarMusica(AudioClip musica)
     {
         if (musicSource.clip == musica) return;
         musicSource.Stop();
         musicSource.clip = musica;
         musicSource.Play();
-        defaultMusicVolume = 0.5f; // Reseta volume alvo
+        // Assume que ao trocar música, o volume volta para um padrão (ou capture o atual)
+        defaultMusicVolume = 0.5f; 
     }
     
     public void TocarAmbiente(AudioClip clipAmbiente)
@@ -118,6 +133,8 @@ public class MusicManager : MonoBehaviour
         ambienceSource.Stop();
         ambienceSource.clip = clipAmbiente;
         ambienceSource.Play();
+        // Atualiza o padrão para o volume atual do source, caso tenha mudado no inspector
+        defaultAmbienceVolume = ambienceSource.volume;
     }
     
     public void TocarFloresta()

@@ -152,6 +152,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 3
+  volPatrulha: 1
+  volAtaque: 1
+  volRecuo: 1
+  volDano: 1
+  volMorte: 1
   webDamageCooldown: 0.3
   patrolPoints:
   - {fileID: 0}
@@ -160,15 +165,15 @@ MonoBehaviour:
   memoryRange: 9.5
   visionRange: 4.4
   combatRange: 3
-  dangerZoneRadius: 1.5
+  dangerZoneRadius: 1
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 139264
   player: {fileID: 0}
   viewAngle: 360
   obstacleMaskPlayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 139264
   initialChaseDelay: 0.5
   initialAttackDelay: 0.3
   lookAroundDuration: 3
@@ -185,6 +190,7 @@ MonoBehaviour:
   retreatRotationSpeed: 720
   postRetreatDelay: 0.5
   retreatDamageAmount: 2
+  retreatSoundDelay: 0.2
 --- !u!114 &8210838979754094059
 MonoBehaviour:
   m_ObjectHideFlags: 0

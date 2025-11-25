@@ -272,6 +272,23 @@ public class EnemyPatrol : MonoBehaviour
    private IEnumerator PatrolRoutine()
     {
         currentState = EnemyState.Patrolling;
+        
+        // BUG 2: Se não tiver pontos de patrulha, ele vira um "Turret" (Fica parado igual o Ranged)
+        if (patrolPoints == null || patrolPoints.Length == 0)
+        {
+            UpdateAnimation(Vector2.zero, 0f, false);
+            while (currentState == EnemyState.Patrolling)
+            {
+                if (CanSeePlayer())
+                {
+                    SetState(EnemyState.Alert);
+                    yield break;
+                }
+                yield return null;
+            }
+            yield break; // Sai da rotina se mudar de estado
+        }
+
         while (true)
         {
             if (CanSeePlayer())
@@ -280,7 +297,14 @@ public class EnemyPatrol : MonoBehaviour
                 yield break;
             }
 
+            // Garante índice válido
+            if (currentPatrolIndex >= patrolPoints.Length) currentPatrolIndex = 0;
+            
             Transform targetPoint = patrolPoints[currentPatrolIndex];
+            
+            // Se o ponto foi deletado durante o jogo, ignora
+            if(targetPoint == null) { yield return null; continue; }
+
             Vector2 direction = (targetPoint.position - transform.position).normalized;
 
             // --- FASE 1: MOVIMENTO (WALK) ---
@@ -291,7 +315,12 @@ public class EnemyPatrol : MonoBehaviour
                     SetState(EnemyState.Alert);
                     yield break;
                 }
-                transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+
+                // BUG 3: Só move se NÃO estiver bloqueado por parede
+                if (!IsPathBlocked(direction, moveSpeed))
+                {
+                    transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+                }
                 
                 // Atualiza animação de movimento
                 UpdateAnimation(direction, moveSpeed, false); 
@@ -299,16 +328,14 @@ public class EnemyPatrol : MonoBehaviour
                 yield return null;
             }
 
-            // Garante que a posição final é o ponto, e o movimento para
-            transform.position = targetPoint.position;
+            // Garante que a posição final é o ponto (só se chegou perto)
+            if(Vector2.Distance(transform.position, targetPoint.position) <= 0.2f)
+                transform.position = targetPoint.position;
 
             // --- FASE 2: PATRULHA (LOOK AROUND/ESPECIAL) ---
-            // 1. Ativa a animação de Patrulha
-
             TocarSFX(SFXManager.instance.somPatrulha, volPatrulha);
             UpdateAnimation(Vector2.zero, 0f, true);
             
-            // 2. Espera pelo tempo de Patrulha
             float timer = 0f;
             while (timer < lookAroundDuration)
             {
@@ -321,17 +348,11 @@ public class EnemyPatrol : MonoBehaviour
                 yield return null; 
             }
             
-            // 3. Desativa a animação de Patrulha especial
             UpdateAnimation(Vector2.zero, 0f, false); 
-            
-            // Pausa (1 frame) para garantir que a animação 'Patrol' foi desativada no Animator
             yield return null;
             
-            // --- FASE 3: MUDANÇA DE PONTO E RETORNO AO INÍCIO ---
-            // Calcula o próximo ponto
+            // --- FASE 3: MUDANÇA DE PONTO ---
             currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
-            
-            // O loop 'while(true)' irá recomeçar a Fase 1 (Movimento)
         }
     }
 
@@ -345,14 +366,20 @@ public class EnemyPatrol : MonoBehaviour
 
             if (!CanSeePlayer()) 
             {
-                SetState(EnemyState.Alert); // Vai para o estado de Alerta (fica parado olhando)
+                SetState(EnemyState.Alert); 
                 yield break; 
             }
 
             Vector2 direction = (player.position - transform.position).normalized;
-            transform.position += (Vector3)(direction * chaseSpeed * Time.deltaTime);
+
+            // BUG 3: Checagem de colisão na perseguição
+            if (!IsPathBlocked(direction, chaseSpeed))
+            {
+                transform.position += (Vector3)(direction * chaseSpeed * Time.deltaTime);
+            }
+            // Opcional: Se quiser que ele deslize na parede, precisaria de uma lógica de Slide aqui,
+            // mas só travar já resolve o problema dele passar por dentro.
             
-            // Atualiza animação
             UpdateAnimation(direction, chaseSpeed, false);
 
             yield return null;
@@ -368,15 +395,13 @@ public class EnemyPatrol : MonoBehaviour
         hitPlayerThisDash = false;
         lastAttackTime = Time.time;
 
-        UpdateAnimation(Vector2.zero, 0f, false); // Para o movimento antes do dash (Speed=0)
+        UpdateAnimation(Vector2.zero, 0f, false); // Para o movimento antes do dash
 
         yield return new WaitForSeconds(initialAttackDelay);
         
         Vector2 dashDirection = (player.position - transform.position).normalized;
-        // Garante que o sprite encare a direção do dash
         UpdateAnimation(dashDirection, 0.01f, false); 
         
-        // --- NOVO: Dispara a animação de Ataque ---
         if (anim != null) anim.SetTrigger("Attack");
 
         TocarSFX(SFXManager.instance.somDash, volAtaque);
@@ -389,8 +414,18 @@ public class EnemyPatrol : MonoBehaviour
 
         float timer = 0f;
 
+        // Loop do Dash
         while (timer < attackDashDuration && !hitPlayerThisDash)
         {
+            // --- CORREÇÃO BUG 3 NO ATAQUE ---
+            // Se tiver parede na frente, para o dash imediatamente
+            if (IsPathBlocked(dashDirection, attackDashSpeed))
+            {
+                // Opcional: Se quiser dar um efeitinho de impacto na parede, coloque aqui.
+                break; // Sai do loop e para de andar
+            }
+            // --------------------------------
+
             transform.position += (Vector3)(dashDirection * attackDashSpeed * Time.deltaTime);
             timer += Time.deltaTime;
 
@@ -600,6 +635,22 @@ public class EnemyPatrol : MonoBehaviour
         {
             MusicManager.instance.UnregisterEnemyVisible();
         }
+    }
+
+    private bool IsPathBlocked(Vector2 dir, float speed)
+    {
+        // Lança um raio um pouco à frente da posição atual
+        float distanceToCheck = (speed * Time.deltaTime) + 0.3f; // 0.3f é uma margem de segurança
+        
+        // Usa a obstacleMask que você já configurou no Inspector
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, distanceToCheck, obstacleMask);
+
+        if (hit.collider != null)
+        {
+            // Se bateu em algo com a tag Obstacle, retorna verdadeiro (está bloqueado)
+            if (hit.collider.CompareTag("Obstacle")) return true;
+        }
+        return false;
     }
 
 
