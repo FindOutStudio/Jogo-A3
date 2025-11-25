@@ -8,7 +8,7 @@
   - Layers:
     - Default, TransparentFX, Ignore Raycast, CrownColision, Water, UI, Player, Enemy, Crown, Web, PlayerColision, EnemyProjectile, Ground, Hole, Post Processing, No Light, CrownRecall, Obstacle
 - Active game object:
-  - Name: Musicmanager
+  - Name: Tiro
   - Tag: Untagged
-  - Layer: Default
+  - Layer: EnemyProjectile
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
