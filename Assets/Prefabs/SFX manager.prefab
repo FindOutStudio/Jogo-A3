@@ -167,7 +167,6 @@ MonoBehaviour:
   somDanoB: {fileID: 8300000, guid: 9d34f7d16e1433d448f2be2ad466814a, type: 3}
   somMorteB: {fileID: 8300000, guid: fabd846fa98484e4887a78fb959fde91, type: 3}
   somExplosaoB: {fileID: 8300000, guid: 89afc2173a6352a4089dd075df403cff, type: 3}
-  somCastelo: {fileID: 0}
-  somFloresta: {fileID: 0}
-  somPenhasco: {fileID: 0}
-  somDentro: {fileID: 0}
+  somCura: {fileID: 8300000, guid: a94b3eb09f1347e4daa36b0683a355e3, type: 3}
+  somFlutuar: {fileID: 8300000, guid: 4537ceafdd60b6b46880e00e1bfbbaed, type: 3}
+  somPowerUp: {fileID: 8300000, guid: a8974efae1954f642ba390377fc6d639, type: 3}

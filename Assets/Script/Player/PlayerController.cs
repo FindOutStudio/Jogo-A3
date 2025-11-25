@@ -110,19 +110,37 @@ public class PlayerController : MonoBehaviour
         _damageFlash = GetComponent<DamageFlash>();
         _heartSystem = FindAnyObjectByType<HeartSystem>();
 
-
-
         if (spriteRenderer != null)
             originalColor = spriteRenderer.color;
 
         currentHealth = maxHealth;
 
-        if (PlayerPrefs.GetInt("TemRicochete", 0) == 1)
-        {
-            hasRicochetAbility = true;
-            Debug.Log("Poder carregado da memória!");
-        }
+        // --- LÓGICA DE BLOQUEIO DO RICOCHETE ---
+        
+        string sceneName = SceneManager.GetActiveScene().name;
+        bool temPoderSalvo = PlayerPrefs.GetInt("TemRicochete", 0) == 1;
 
+        // Lista de fases onde o poder deve começar DESATIVADO
+        // (Ajuste os nomes abaixo conforme suas cenas na Unity)
+        bool ehFaseInicial = (sceneName == "Lvl 1" || sceneName == "Lvl 2" || sceneName == "Lvl 3" || sceneName == "Lvl 4");
+
+        if (ehFaseInicial)
+        {
+            // Se for fase 1, 2, 3 ou 4, força desligado mesmo que tenha save
+            hasRicochetAbility = false;
+            Debug.Log($"Fase Inicial ({sceneName}): Ricochete começou DESATIVADO.");
+        }
+        else if (temPoderSalvo)
+        {
+            // Se for Fase 5 em diante E tiver o save, ativa
+            hasRicochetAbility = true;
+            Debug.Log("Fase Avançada: Ricochete CARREGADO da memória.");
+        }
+        else
+        {
+            // Fase avançada mas ainda não pegou o poder
+            hasRicochetAbility = false;
+        }
     }
 
   

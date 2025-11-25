@@ -1,47 +1,67 @@
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class Cura : MonoBehaviour
 {
-    [Header("Configs")]
-    [SerializeField] private int healAmount = 1; // Quanto de vida o item cura
-    [SerializeField] private GameObject healEffect; // Efeito opcional (partÌculas, etc.)
+    [Header("Configs de Cura")]
+    [SerializeField] private int healAmount = 1; 
+    [SerializeField] private GameObject healEffect; 
+
+    [Header("Mixagem de √Åudio")]
+    [Tooltip("Volume do som de quando pega o item")]
+    [Range(0f, 1f)] 
+    [SerializeField] private float volumeCura = 1f; 
+
+    [Tooltip("Volume do som constante (Loop)")]
+    [Range(0f, 1f)] 
+    [SerializeField] private float volumeFlutuar = 0.5f;
+
+    private AudioSource sourceFlutuar;
+
+    private void Start()
+    {
+        sourceFlutuar = GetComponent<AudioSource>();
+        
+        if (SFXManager.instance != null && SFXManager.instance.somFlutuar != null)
+        {
+            sourceFlutuar.clip = SFXManager.instance.somFlutuar;
+            sourceFlutuar.volume = volumeFlutuar;
+            sourceFlutuar.loop = true;
+            sourceFlutuar.spatialBlend = 0.8f;
+            sourceFlutuar.Play();
+        }
+    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // --- Player pega a cura diretamente ---
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            if (player != null)
-            {
-                HealPlayer(player);
-                SpawnEffect();
-                Destroy(gameObject);
-            }
+            if (player != null) ColetarItem(player);
         }
-
-        // --- Coroa pega a cura, mas aplica no Player ---
         else if (other.CompareTag("Crown") && other.isTrigger)
         {
-            // Encontrar o Player na cena (pode ser singleton, referÍncia est·tica ou via FindObjectOfType)
             PlayerController player = FindObjectOfType<PlayerController>();
-            if (player != null)
-            {
-                HealPlayer(player);
-                SpawnEffect();
-                Destroy(gameObject);
-            }
+            if (player != null) ColetarItem(player);
         }
     }
 
-    private void HealPlayer(PlayerController player)
+    private void ColetarItem(PlayerController player)
     {
-        player.Heal(healAmount);
-    }
+        // --- CORRE√á√ÉO: Para o som de flutuar IMEDIATAMENTE ---
+        if (sourceFlutuar != null) sourceFlutuar.Stop();
+        // -----------------------------------------------------
 
-    private void SpawnEffect()
-    {
+        if (SFXManager.instance != null)
+        {
+            SFXManager.instance.TocarSom(SFXManager.instance.somCura, volumeCura); 
+        }
+
+        player.Heal(healAmount);
+        
         if (healEffect != null)
             Instantiate(healEffect, transform.position, Quaternion.identity);
+            
+        Destroy(gameObject);
     }
 }

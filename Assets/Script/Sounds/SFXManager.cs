@@ -41,6 +41,11 @@ public class SFXManager : MonoBehaviour
     public AudioClip somMorteB;
     public AudioClip somExplosaoB;
 
+    [Header("Sons Itens")]
+    public AudioClip somCura;
+    public AudioClip somFlutuar;
+    public AudioClip somPowerUp;
+
 
     private void Awake()
     {
