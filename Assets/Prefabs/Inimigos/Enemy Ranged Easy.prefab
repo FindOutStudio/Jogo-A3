@@ -41,6 +41,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
+      propertyPath: retreatCooldown
+      value: 0.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: dangerZoneRadius
       value: 1
       objectReference: {fileID: 0}
@@ -74,11 +78,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7394464237808881029, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 33.39
+      value: 7.8
       objectReference: {fileID: 0}
     - target: {fileID: 7394464237808881029, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 8.74
+      value: 9.7
       objectReference: {fileID: 0}
     - target: {fileID: 7394464237808881029, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_LocalPosition.z

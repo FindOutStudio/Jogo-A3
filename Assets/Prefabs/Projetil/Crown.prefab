@@ -170,7 +170,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   physicsColliders: []
   minCollisionAngle: 45
-  volRicochete: 1
+  volRicochete: 0.5
 --- !u!58 &3688156258688397908
 CircleCollider2D:
   m_ObjectHideFlags: 0

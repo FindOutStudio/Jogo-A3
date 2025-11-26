@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 7782958148662901508}
   - component: {fileID: 6201623726595535298}
   - component: {fileID: 1649174973477621587}
+  - component: {fileID: 656596055036079858}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -228,8 +229,15 @@ MonoBehaviour:
   hitStop: {fileID: 140100290423003614, guid: 270eacf22635910469aab2b50a7cfe5e, type: 3}
   cooldownReadyEffect: {fileID: 4797586587018278494, guid: 25cda96342761fd489819a04e9ce5e58, type: 3}
   maxHealth: 5
+  currentHealth: 0
   invulnerabilityDuration: 0.5
   flashInterval: 0.1
+  volAndar: 0.3
+  volAtaque: 0.5
+  volTeleport: 0.3
+  volDash: 0.1
+  volDano: 0.7
+  volMorte: 0.3
   moveSpd: 4
   maxSpd: 7
   accel: 14
@@ -243,12 +251,14 @@ MonoBehaviour:
   VelReturn: 14
   Delay: 0.5
   hasRicochetAbility: 0
+  feetCollider: {fileID: 656596055036079858}
   dashForce: 13
   dashDuration: 0.17
   dashCooldown: 0.65
   shadowPrefab: {fileID: 1375171563940659917, guid: 1f4f2a285f43d9f48b61884608492610, type: 3}
   shadowInterval: 0.015
   cooldownColor: {r: 1, g: 0.85550094, b: 0.3160377, a: 1}
+  passoIntervalo: 0.4
   shrinkRate: 3
   fallDuration: 1
   fallDelay: 0.1
@@ -455,3 +465,40 @@ MonoBehaviour:
     DissipationDistance: 100
     PropagationSpeed: 343
   DefaultVelocity: {x: -1, y: -1, z: 0}
+--- !u!70 &656596055036079858
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4028713626492036423}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: -0.31}
+  m_Size: {x: 0.39, y: 0.33}
+  m_Direction: 0
