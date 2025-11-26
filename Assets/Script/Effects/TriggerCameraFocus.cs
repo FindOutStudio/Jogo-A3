@@ -11,17 +11,17 @@ public class TriggerCameraFocus : MonoBehaviour
         FocusAndZoomOut
     }
 
-    [Header("Configuração")]
+    [Header("Configuraï¿½ï¿½o")]
     [SerializeField] private CameraMode mode = CameraMode.FocusMidpoint;
     [SerializeField] private CinemachineCamera vcam;
     [SerializeField] private Transform player;
     [SerializeField] private Transform focusTarget; // usado nos modos com foco
     [SerializeField] private string playerTag = "Player";
 
-    [Header("Zoom (2D ortográfico)")]
+    [Header("Zoom (2D ortogrï¿½fico)")]
     // ===== CHANGED: usar OrthographicSize para zoom em 2D =====
     [SerializeField] private float zoomOutOrthographicSize = 12f; // valor alvo para zoom-out
-    [SerializeField] private bool temporarilyDisablePixelPerfect = false; // CHANGED: opção para desabilitar temporariamente
+    [SerializeField] private bool temporarilyDisablePixelPerfect = false; // CHANGED: opï¿½ï¿½o para desabilitar temporariamente
     [SerializeField] private bool snapToPixelPerfectSteps = true;         // CHANGED: quantizar ao passo do Pixel Perfect
 
     // Snapshot
@@ -30,7 +30,7 @@ public class TriggerCameraFocus : MonoBehaviour
     private float originalOrthoSize;
     private bool hasSnapshot = false;
 
-    // alvo temporário
+    // alvo temporï¿½rio
     private Transform midpointTarget;
 
     // Pixel Perfect (opcional)
@@ -77,7 +77,7 @@ public class TriggerCameraFocus : MonoBehaviour
             Vector3 midpoint = (player.position + focusTarget.position) * 0.5f;
             midpointTarget.position = midpoint;
 
-            // ===== CHANGED: troca alvo da câmera para o ponto médio =====
+            // ===== CHANGED: troca alvo da cï¿½mera para o ponto mï¿½dio =====
             vcam.Follow = midpointTarget;
             vcam.LookAt = midpointTarget;
         }
@@ -87,7 +87,7 @@ public class TriggerCameraFocus : MonoBehaviour
             // ===== CHANGED: aplicar zoom via OrthographicSize =====
             float targetSize = zoomOutOrthographicSize;
 
-            // Se manter Pixel Perfect ligado e quiser “quantizar” ao passo dele:
+            // Se manter Pixel Perfect ligado e quiser ï¿½quantizarï¿½ ao passo dele:
             if (pixelPerfect != null && !temporarilyDisablePixelPerfect && snapToPixelPerfectSteps)
             {
                 targetSize = QuantizeOrthographicSize(targetSize, vcam.Lens.OrthographicSize);
@@ -105,6 +105,9 @@ public class TriggerCameraFocus : MonoBehaviour
 
     private void SaveSnapshot()
     {
+        if (hasSnapshot) return; 
+        // =====================
+
         originalFollow = vcam.Follow;
         originalLookAt = vcam.LookAt;
         originalOrthoSize = vcam.Lens.OrthographicSize;
@@ -134,12 +137,12 @@ public class TriggerCameraFocus : MonoBehaviour
         hasSnapshot = false;
     }
 
-    // ===== CHANGED: quantiza o tamanho ortográfico para o “passo” do Pixel Perfect =====
+    // ===== CHANGED: quantiza o tamanho ortogrï¿½fico para o ï¿½passoï¿½ do Pixel Perfect =====
     private float QuantizeOrthographicSize(float desired, float current)
     {
-        // Aproxima para o múltiplo mais próximo do tamanho atual (passos discretos)
-        // Isso evita “luta” com o Pixel Perfect, que força níveis de zoom discretos.
-        float step = Mathf.Max(0.5f, current * 0.25f); // passo heurístico; ajuste se necessário
+        // Aproxima para o mï¿½ltiplo mais prï¿½ximo do tamanho atual (passos discretos)
+        // Isso evita ï¿½lutaï¿½ com o Pixel Perfect, que forï¿½a nï¿½veis de zoom discretos.
+        float step = Mathf.Max(0.5f, current * 0.25f); // passo heurï¿½stico; ajuste se necessï¿½rio
         float levels = Mathf.Round(desired / step);
         return Mathf.Max(step, levels * step);
     }
