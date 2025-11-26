@@ -204,4 +204,32 @@ public class MusicManager : MonoBehaviour
             ambienceSource.Stop(); 
         }
     }
+
+    public void StopBattleMusic()
+    {
+        // 1. Zera contadores para o sistema saber que acabou o combate
+        visibleEnemiesCount = 0;
+        isBossFight = false;
+
+        // 2. Tira o volume imediatamente (Silêncio na hora da morte)
+        if (battleSource != null)
+        {
+            battleSource.volume = 0f;
+            
+            // TRUQUE: Usamos Pause() em vez de Stop().
+            // Assim, o seu comando 'UnPause()' no Update continua funcionando
+            // quando os inimigos aparecerem de novo!
+            battleSource.Pause();
+            
+            // (Opcional) Rebobina a música para o começo para a próxima luta
+            battleSource.time = 0f; 
+        }
+
+        // 3. Para e Zera Boss (esse pode usar Stop, pois ele sempre reinicia com Play no EntrarNoBoss)
+        if (bossSource != null)
+        {
+            bossSource.Stop();
+            bossSource.volume = 0f;
+        }
+    }
 }

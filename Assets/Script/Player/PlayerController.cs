@@ -75,6 +75,9 @@ public class PlayerController : MonoBehaviour
     // Essa variável define se estamos no Nível 1-3 (false) ou 4+ com powerup (true)
     public bool hasRicochetAbility = false;
 
+    [Header("Colisões")]
+    [SerializeField] private Collider2D feetCollider;
+
     [Header("Dash")]
     [SerializeField] private float dashForce = 15f;
     [SerializeField] private float dashDuration = 0.2f;
@@ -560,6 +563,12 @@ public class PlayerController : MonoBehaviour
 
         SFXManager.instance.TocarSom(SFXManager.instance.somMorte, volMorte);
 
+        if (MusicManager.instance != null)
+        {
+            // Chama a função que vamos criar no passo 2
+            MusicManager.instance.StopBattleMusic(); 
+        }
+
         isDead = true;
         Debug.Log("Player Morreu! Iniciando rotina de Game Over...");
 
@@ -682,22 +691,27 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // 1. Segurança básica: se estiver morto ou caindo, ignora tudo
+        // 1. Segurança básica
         if (isDead || isFalling) return;
         
         // 2. Se bateu no BURACO
         if (other.CompareTag("Hole"))
         {
-            // Pega a posição central do buraco
-            holeCenterPosition = other.transform.position;
-            // Inicia o delay antes da queda
-            StartCoroutine(FallDelayRoutine());
+            // === MODIFICAÇÃO AQUI ===
+            // Só cai se o colisor que estiver tocando no buraco for o colisor dos PÉS
+            if (feetCollider != null && feetCollider.IsTouching(other)) 
+            {
+                // Pega a posição central do buraco
+                holeCenterPosition = other.transform.position;
+                // Inicia o delay antes da queda
+                StartCoroutine(FallDelayRoutine());
+            }
         }
-        // 3. Se bateu no POWER UP (NOVO!)
+        // 3. Se bateu no POWER UP (Power ups geralmente pegamos com o corpo todo, então não precisa do filtro)
         else if (other.CompareTag("PowerUp"))
         {
-            EnableRicochet();           // Ativa o poder
-            Destroy(other.gameObject);  // Destrói o objeto da cena
+            EnableRicochet();           
+            Destroy(other.gameObject);  
         }
     }
 

@@ -222,18 +222,17 @@ public class RangedEnemyController : MonoBehaviour
 
     private void CheckBattleMusic()
     {
-        // Se não está patrulhando e não está morto, é combate!
+        // Consideramos "Em Batalha" qualquer estado que NÃO seja Patrulha e NÃO seja Morto
         bool inCombat = (currentState != EnemyState.Patrolling && currentState != EnemyState.Dead);
 
-        if (inCombat && !musicRegistered)
+        if (inCombat)
         {
-            if (MusicManager.instance != null) MusicManager.instance.RegisterEnemyVisible();
-            musicRegistered = true;
+            TentarRegistrarMusica();
         }
-        else if (!inCombat && musicRegistered)
+        else 
         {
-            if (MusicManager.instance != null) MusicManager.instance.UnregisterEnemyVisible();
-            musicRegistered = false;
+            // Se saiu do combate (voltou a patrulhar ou morreu), tenta remover
+            TentarDesregistrarMusica();
         }
     }
 
@@ -459,8 +458,13 @@ public class RangedEnemyController : MonoBehaviour
     private void Die()
     {
         if (currentState == EnemyState.Dead) return;
-        
+
         currentState = EnemyState.Dead;
+        
+        // === CORREÇÃO: Remove a música imediatamente ===
+        TentarDesregistrarMusica();
+        // ===============================================
+
         isDashActive = false;
 
         StopAllCoroutines(); // Pára de voar/atirar/patrulhar na hora
@@ -511,29 +515,39 @@ public class RangedEnemyController : MonoBehaviour
         }
     }
 
-    void OnBecameVisible()
+    private void TentarRegistrarMusica()
     {
-        if (currentHealth > 0 && MusicManager.instance != null)
+        // Só registra se ainda NÃO estiver registrado e tiver vida
+        if (!musicRegistered && currentHealth > 0 && MusicManager.instance != null)
         {
             MusicManager.instance.RegisterEnemyVisible();
+            musicRegistered = true;
         }
     }
 
-    void OnBecameInvisible()
+    private void TentarDesregistrarMusica()
     {
-        if (currentHealth > 0 && MusicManager.instance != null)
-        {
-            MusicManager.instance.UnregisterEnemyVisible();
-        }
-    }
-
-    private void OnDisable()
-    {
+        // Só desregistra se JÁ estiver registrado
         if (musicRegistered && MusicManager.instance != null)
         {
             MusicManager.instance.UnregisterEnemyVisible();
             musicRegistered = false;
         }
+    }
+
+    void OnBecameVisible()
+    {
+        TentarRegistrarMusica();
+    }
+
+    void OnBecameInvisible()
+    {
+        TentarDesregistrarMusica();
+    }
+
+    private void OnDisable()
+    {
+        TentarDesregistrarMusica();
     }
 
     void OnDrawGizmosSelected()

@@ -246,17 +246,14 @@ public class EnemyPatrol : MonoBehaviour
         // Consideramos "Em Batalha" qualquer estado que NÃO seja Patrulha e NÃO seja Morto
         bool inCombat = (currentState != EnemyState.Patrolling && currentState != EnemyState.Dead);
 
-        if (inCombat && !musicRegistered)
+        if (inCombat)
         {
-            // Entrou em combate agora: Avisa o MusicManager
-            if (MusicManager.instance != null) MusicManager.instance.RegisterEnemyVisible();
-            musicRegistered = true;
+            TentarRegistrarMusica();
         }
-        else if (!inCombat && musicRegistered)
+        else 
         {
-            // Saiu do combate (voltou a patrulhar ou morreu): Remove aviso
-            if (MusicManager.instance != null) MusicManager.instance.UnregisterEnemyVisible();
-            musicRegistered = false;
+            // Se saiu do combate (voltou a patrulhar ou morreu), tenta remover
+            TentarDesregistrarMusica();
         }
     }
 
@@ -588,8 +585,13 @@ public class EnemyPatrol : MonoBehaviour
         // Evita morrer duas vezes
         if (currentState == EnemyState.Dead) return;
 
-        currentState = EnemyState.Dead; // Trava o Update imediatamente
-        isDashActive = false; // Destrava flags de dash
+        currentState = EnemyState.Dead; 
+
+        // === CORREÇÃO: Remove a música imediatamente ===
+        TentarDesregistrarMusica();
+        // ===============================================
+
+        isDashActive = false; 
 
         // Pára TODAS as corrotinas (Movimento, Dash, Ataque, Patrulha)
         StopAllCoroutines(); 
@@ -599,7 +601,7 @@ public class EnemyPatrol : MonoBehaviour
         {
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
-            rb.isKinematic = true; // Trava física
+            rb.isKinematic = true; 
         }
 
         // Desliga colisão para o player não bater no cadáver
@@ -637,31 +639,39 @@ public class EnemyPatrol : MonoBehaviour
 
     void OnBecameVisible()
     {
-        if (currentHealth > 0 && MusicManager.instance != null)
-        {
-            MusicManager.instance.RegisterEnemyVisible();
-        }
+        TentarRegistrarMusica();
     }
 
-    // Quando sai da câmera
     void OnBecameInvisible()
     {
-        if (currentHealth > 0 && MusicManager.instance != null)
+        TentarDesregistrarMusica();
+    }
+
+    private void OnDisable() 
+    {
+        TentarDesregistrarMusica();
+    }
+
+    private void TentarRegistrarMusica()
+    {
+        // Só registra se ainda NÃO estiver registrado e tiver vida
+        if (!musicRegistered && currentHealth > 0 && MusicManager.instance != null)
         {
-            MusicManager.instance.UnregisterEnemyVisible();
+            MusicManager.instance.RegisterEnemyVisible();
+            musicRegistered = true;
         }
     }
 
-    // IMPORTANTE: Se o inimigo morrer enquanto está visível, precisamos avisar pra diminuir o contador!
-    private void OnDisable() 
+    private void TentarDesregistrarMusica()
     {
-        // Se for desativado/destruído e ainda estiver "segurando" a música, solta ela
+        // Só desregistra se JÁ estiver registrado
         if (musicRegistered && MusicManager.instance != null)
         {
             MusicManager.instance.UnregisterEnemyVisible();
             musicRegistered = false;
         }
     }
+
 
     private bool IsPathBlocked(Vector2 dir, float speed)
     {
