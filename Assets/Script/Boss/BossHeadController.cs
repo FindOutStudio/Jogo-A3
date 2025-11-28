@@ -570,6 +570,11 @@ public class BossHeadController : MonoBehaviour
         Debug.Log("Iniciando sequência de morte do Boss...");
         SFXManager.instance.TocarSom(SFXManager.instance.somMorteB, volMorte);
 
+        if (MusicManager.instance != null && MusicManager.instance.bossL != null)
+        {
+            MusicManager.instance.StopBattleMusic(); // ou Pause(), dependendo da sua implementação
+        }
+
         // 1. Aciona o Camera Shake (Câmera tremendo)
         if (CameraShake.instance != null && impulseSource != null)
         {
@@ -603,10 +608,17 @@ public class BossHeadController : MonoBehaviour
                 Destroy(segment.gameObject);
             }
         }
-        
+
         // Destrói a Coroa se ainda existir
+        //CrownControllerBoss crown = FindObjectOfType<CrownControllerBoss>();
+        //if (crown != null) Destroy(crown.gameObject);
+
         CrownControllerBoss crown = FindObjectOfType<CrownControllerBoss>();
-        if (crown != null) Destroy(crown.gameObject);
+        if (crown != null)
+        {
+            crown.DropOnGround(); // ativa BoxCollider2D e desliga o movimento
+            Debug.Log("[Boss] Coroa deixada no chão.");
+        }
 
         // 4. Efeito Final (Explosão na Cabeça)
         if (explosionPrefab != null)
