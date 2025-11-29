@@ -54,7 +54,7 @@ PrefabInstance:
       objectReference: {fileID: 4834671800637921802, guid: fa23554acaaba454aa17726f70e1ec42, type: 3}
     - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: obstacleMask.m_Bits
-      value: 131073
+      value: 139264
       objectReference: {fileID: 0}
     - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: patrolPoints.Array.size
@@ -62,7 +62,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: obstacleMaskPlayer.m_Bits
-      value: 131072
+      value: 139264
       objectReference: {fileID: 0}
     - target: {fileID: 6267381811527074934, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_LocalPosition.x
@@ -78,15 +78,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7394464237808881029, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 7.8
+      value: -2.288
       objectReference: {fileID: 0}
     - target: {fileID: 7394464237808881029, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 9.7
+      value: -0.835
       objectReference: {fileID: 0}
     - target: {fileID: 7394464237808881029, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.066542365
+      value: 0.033271182
       objectReference: {fileID: 0}
     - target: {fileID: 7394464237808881029, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_LocalRotation.w

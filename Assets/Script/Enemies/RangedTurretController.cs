@@ -55,6 +55,8 @@ public class RangedTurretController : MonoBehaviour
 
     void Update()
     {
+
+        if (currentHealth <= 0) return;
         if (player == null || isAttacking) return;
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
@@ -189,14 +191,21 @@ public class RangedTurretController : MonoBehaviour
 
     private void Die()
     {
+        // 1. Pára qualquer tiro que esteja sendo carregado
+        StopAllCoroutines();
+        isAttacking = false;
+
         TocarSFX(SFXManager.instance.somMorteR, volMorte);
+
         if (anim != null) anim.SetTrigger("IsDeath");
-        
-        // Desativa colisor para não bloquear mais
+
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
 
-        Destroy(gameObject, 1.5f); // Espera animação de morte
+        // Desabilita este script para garantir que o Update pare de rodar
+        this.enabled = false;
+
+        Destroy(gameObject, 1.5f);
     }
 
     private void TocarSFX(AudioClip clip, float volume)

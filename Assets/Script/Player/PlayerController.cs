@@ -116,6 +116,12 @@ public class PlayerController : MonoBehaviour
         if (spriteRenderer != null)
             originalColor = spriteRenderer.color;
 
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.linearVelocity = Vector2.zero;
+        }
+
         currentHealth = maxHealth;
 
         // --- LÓGICA DE BLOQUEIO DO RICOCHETE ---
@@ -146,8 +152,29 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-  
 
+    void Start()
+    {
+        // 1. Garante que o tempo não está pausado (MUITO IMPORTANTE)
+        Time.timeScale = 1f;
+
+        // 2. Destrava a física se estiver travada
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        // 3. Garante que os Inputs estão ligados
+        if (inputActions != null)
+        {
+            inputActions.Player.Enable();
+        }
+
+        isDead = false;
+        isFalling = false;
+        canDash = true;
+    }
     private void OnEnable()
     {
         if (inputActions != null)
@@ -607,14 +634,13 @@ public class PlayerController : MonoBehaviour
         // Reinicia a cena
         RestartScene();
     }
-    
+
     // Método para reiniciar a cena
     private void RestartScene()
     {
-        // Pega o índice da cena atual
-        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        // Carrega a cena novamente
-        SceneManager.LoadScene(currentSceneIndex);
+        // Garante que o tempo volta ao normal antes de recarregar
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void OnDashPerformed(InputAction.CallbackContext context)
@@ -638,38 +664,31 @@ public class PlayerController : MonoBehaviour
         canDash = false;
         isInvulnerable = true;
         isDashing = true;
-
         SFXManager.instance.TocarSom(SFXManager.instance.somDash, volDash);
-
         anim.SetBool("IsDashing", true);
 
-        // Desabilita todas as ações do jogador para que nenhum input funcione
-        inputActions.Player.Disable();
+        // Mantém input desativado brevemente, mas não bloqueia a lógica
+        // inputActions.Player.Disable(); // <-- REMOVIDO PARA EVITAR BUGS DE INPUT TRAVADO
 
-        // Aplica o impulso do dash
-        rb.linearVelocity = Vector2.zero; // Garante que não haja velocidade anterior
+        rb.linearVelocity = Vector2.zero;
         rb.AddForce(direction * dashForce, ForceMode2D.Impulse);
 
-        // Opcional: Para impedir que outras forças ajam durante o dash
         float originalGravity = rb.gravityScale;
         rb.gravityScale = 0;
 
         float timer = 0f;
         float intervalTimer = 0f;
 
-        // Loop que acontece durante toda a duração do dash
         while (timer < dashDuration)
         {
             timer += Time.deltaTime;
             intervalTimer += Time.deltaTime;
-
             if (intervalTimer >= shadowInterval)
             {
                 GameObject shadow = Instantiate(shadowPrefab, transform.position, transform.rotation);
                 Destroy(shadow, 0.5f);
                 intervalTimer = 0f;
             }
-
             yield return null;
         }
 
@@ -678,13 +697,6 @@ public class PlayerController : MonoBehaviour
         isDashing = false;
         anim.SetBool("IsDashing", false);
 
-        // Reabilita as ações do jogador (só se não estiver morto ou caindo)
-        if (!isDead && !isFalling) 
-        {
-            inputActions.Player.Enable();
-        }
-
-        // Cooldown do dash
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }

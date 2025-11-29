@@ -1,10 +1,9 @@
 using System.Collections;
-using Unity.Cinemachine; 
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class RangedEnemyController : MonoBehaviour
 {
-    // --- ENUM DE ESTADOS ---
     public enum EnemyState
     {
         Patrolling,
@@ -24,12 +23,11 @@ public class RangedEnemyController : MonoBehaviour
     private int currentHealth;
 
     [Header("Volumes SFX (0.0 a 1.0)")]
-    [Range(0f, 1f)] [SerializeField] private float volVoo = 1f;
-    [Range(0f, 1f)] [SerializeField] private float volCuspe = 1f;
-    [Range(0f, 1f)] [SerializeField] private float volDano = 1f;
-    [Range(0f, 1f)] [SerializeField] private float volMorte = 1f;
+    [Range(0f, 1f)][SerializeField] private float volVoo = 1f;
+    [Range(0f, 1f)][SerializeField] private float volCuspe = 1f;
+    [Range(0f, 1f)][SerializeField] private float volDano = 1f;
+    [Range(0f, 1f)][SerializeField] private float volMorte = 1f;
 
-    // --- COOLDOWN DE DANO DE TEIA ---
     [Header("Web Damage Cooldown")]
     [SerializeField] private float webDamageCooldown = 0.3f;
     private bool isInvulnerableFromWeb = false;
@@ -40,58 +38,49 @@ public class RangedEnemyController : MonoBehaviour
     public float lookAroundDuration = 2f;
 
     [Header("ZONAS DE COMPORTAMENTO")]
-    [Tooltip("Área Azul: Distância máxima para manter a 'Memória'.")]
     [SerializeField] private float memoryRange = 15f;
-    [Tooltip("Área Azul Claro: Distância máxima para detectar o player (Visão 360).")]
     [SerializeField] private float visionRange = 10f;
-    [Tooltip("Área Verde: Distância ideal para PARAR e ATACAR (Tiro).")]
     [SerializeField] private float combatRange = 5f;
-    [Tooltip("Área Vermelha: Distância de Perigo. Acionará a Bomba e o Recuo.")]
     [SerializeField] private float dangerZoneRadius = 2f;
-    [SerializeField] private LayerMask obstacleMask; 
+    [SerializeField] private LayerMask obstacleMask;
 
     [Header("Detecção e Alvos")]
-    public Transform player; 
-    public LayerMask obstacleMaskPlayer; 
-    public float chaseSpeed = 3.5f; 
+    public Transform player;
+    public LayerMask obstacleMaskPlayer;
+    public float chaseSpeed = 3.5f;
 
     [Header("ATAQUE (Ranged)")]
     [SerializeField] private float attackCooldown = 2f;
-    [SerializeField] private GameObject projectilePrefab; 
-    [Tooltip("Tempo até o frame exato do disparo.")]
+    [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float timeToShootFrame = 0.2f;
     [SerializeField] private float projectileSpeed = 10f;
-    [Tooltip("Ângulo lateral para os tiros diagonais.")]
     [SerializeField] private float lateralAngle = 20f;
 
     [Header("RECUO (Dash/Bomba)")]
-    [SerializeField] private GameObject bombPrefab; 
-    [Tooltip("Tempo que espera na animação 'IsBomb' antes do dash.")]
+    [SerializeField] private GameObject bombPrefab;
     [SerializeField] private float bombAnimationDuration = 0.1f;
-    [SerializeField] private float retreatDashSpeed = 6f; 
-    [SerializeField] private float retreatDashDuration = 0.3f; 
-    [SerializeField] private float postRetreatDelay = 0.5f; 
+    [SerializeField] private float retreatDashSpeed = 6f;
+    [SerializeField] private float retreatDashDuration = 0.3f;
+    [SerializeField] private float postRetreatDelay = 0.5f;
 
     [Header("COOLDOWN DE RECUO")]
-    [SerializeField] private float retreatCooldown = 0.0f; 
-    private float lastRetreatTime = -Mathf.Infinity; 
+    [SerializeField] private float retreatCooldown = 0.0f;
+    private float lastRetreatTime = -Mathf.Infinity;
 
     [Header("Audio Settings")]
-    [Tooltip("Tempo entre cada som de 'flap' ou passo enquanto voa.")]
-    [SerializeField] private float intervaloSomVoo = 0.3f; // Ajuste conforme o tamanho do áudio
+    [SerializeField] private float intervaloSomVoo = 0.3f;
     private float proximoSomVoo = 0f;
 
-    // Variáveis internas
     private Animator anim;
     private Rigidbody2D rb;
     private int currentPatrolIndex = 0;
     private bool hasPlayerBeenSeen = false;
-    private Vector2 currentFacingDirection = Vector2.right; 
+    private Vector2 currentFacingDirection = Vector2.right;
     private DamageFlash _damageFlashRanged;
 
     private const float MIN_DISTANCE_TO_DANGER = 0.05f;
     private float lastAttackTime = -Mathf.Infinity;
-    private bool isDashActive = false; 
+    private bool isDashActive = false;
     private SpriteRenderer sr;
     private bool musicRegistered = false;
 
@@ -107,20 +96,18 @@ public class RangedEnemyController : MonoBehaviour
         anim = GetComponent<Animator>();
         impulseSource = GetComponent<CinemachineImpulseSource>();
         _damageFlashRanged = GetComponent<DamageFlash>();
+        sr = GetComponent<SpriteRenderer>(); // Importante pegar o SR aqui
 
         if (rb != null)
         {
-            rb.gravityScale = 0f; 
-            rb.mass = 50f;          // Pesado pra caramba (player não consegue empurrar fácil)
-            rb.linearDamping = 10f; // Alto atrito: se for empurrado, para quase na hora
-            rb.freezeRotation = true; 
+            rb.gravityScale = 0f;
+            rb.mass = 50f;
+            rb.linearDamping = 10f;
+            rb.freezeRotation = true;
         }
 
         currentHealth = maxHealth;
-        
-        // Inicia direto na Patrulha (com verificação de segurança)
         currentBehavior = StartCoroutine(PatrolRoutine());
-        sr = GetComponent<SpriteRenderer>();
     }
 
     private void Update()
@@ -158,7 +145,6 @@ public class RangedEnemyController : MonoBehaviour
         SetState(nextState);
     }
 
-    // --- ANIMAÇÃO ---
     private void UpdateAnimation(Vector2 direction, float speed)
     {
         if (anim == null) return;
@@ -172,7 +158,6 @@ public class RangedEnemyController : MonoBehaviour
         }
     }
 
-    // --- DETECÇÃO ---
     private bool IsPlayerInMemory()
     {
         return hasPlayerBeenSeen && Vector2.Distance(transform.position, player.position) <= memoryRange;
@@ -190,20 +175,19 @@ public class RangedEnemyController : MonoBehaviour
         return hit.collider == null || hit.collider.transform == player;
     }
 
-    // --- MÁQUINA DE ESTADOS ---
     private void SetState(EnemyState newState)
     {
         if (currentState == newState) return;
-        if (isDashActive) return; 
+        if (isDashActive) return;
 
         if (currentBehavior != null) StopCoroutine(currentBehavior);
 
         currentState = newState;
         hasPlayerBeenSeen = (newState != EnemyState.Patrolling);
 
-        // --- ATUALIZA A MÚSICA ---
-        CheckBattleMusic();
-        // -------------------------
+        // --- CORREÇÃO: Atualiza a música com a nova lógica ---
+        AtualizarMusica();
+        // ----------------------------------------------------
 
         if (newState != EnemyState.Attacking && newState != EnemyState.Retreating)
         {
@@ -213,25 +197,41 @@ public class RangedEnemyController : MonoBehaviour
         switch (currentState)
         {
             case EnemyState.Patrolling: currentBehavior = StartCoroutine(PatrolRoutine()); break;
-            case EnemyState.Alert:      currentBehavior = StartCoroutine(WaitForCooldownRoutine()); break;
-            case EnemyState.Chasing:    currentBehavior = StartCoroutine(ChasePlayerRoutine()); break;
-            case EnemyState.Attacking:  currentBehavior = StartCoroutine(RangedAttackRoutine()); break;
+            case EnemyState.Alert: currentBehavior = StartCoroutine(WaitForCooldownRoutine()); break;
+            case EnemyState.Chasing: currentBehavior = StartCoroutine(ChasePlayerRoutine()); break;
+            case EnemyState.Attacking: currentBehavior = StartCoroutine(RangedAttackRoutine()); break;
             case EnemyState.Retreating: currentBehavior = StartCoroutine(RetreatDashRoutine()); break;
         }
     }
 
-    private void CheckBattleMusic()
+    // --- NOVA LÓGICA DE MÚSICA ---
+    private void AtualizarMusica()
     {
-        // Consideramos "Em Batalha" qualquer estado que NÃO seja Patrulha e NÃO seja Morto
-        bool inCombat = (currentState != EnemyState.Patrolling && currentState != EnemyState.Dead);
+        // 1. Se estiver morto, remove
+        if (currentHealth <= 0)
+        {
+            TentarDesregistrarMusica();
+            return;
+        }
 
-        if (inCombat)
+        // 2. Se não estiver visível na câmera, remove
+        if (sr == null || !sr.isVisible)
+        {
+            TentarDesregistrarMusica();
+            return;
+        }
+
+        // 3. Se estiver visível, SÓ TOCA se estiver agressivo (Alert, Chasing, Attacking)
+        // Se estiver Patrulhando (EnemyState.Patrolling), NÃO TOCA.
+        bool estaAgressivo = (currentState != EnemyState.Patrolling);
+
+        if (estaAgressivo)
         {
             TentarRegistrarMusica();
         }
-        else 
+        else
         {
-            // Se saiu do combate (voltou a patrulhar ou morreu), tenta remover
+            // Se voltou a patrulhar, para a música
             TentarDesregistrarMusica();
         }
     }
@@ -239,7 +239,7 @@ public class RangedEnemyController : MonoBehaviour
     private IEnumerator WaitForCooldownRoutine()
     {
         currentState = EnemyState.Alert;
-        UpdateAnimation(Vector2.zero, 0f); 
+        UpdateAnimation(Vector2.zero, 0f);
 
         while (currentState == EnemyState.Alert)
         {
@@ -256,13 +256,11 @@ public class RangedEnemyController : MonoBehaviour
     {
         currentState = EnemyState.Patrolling;
 
-        // --- CORREÇÃO DO CRASH: Verifica se existem pontos antes de tentar andar ---
         if (patrolPoints == null || patrolPoints.Length == 0)
         {
             SetState(EnemyState.Alert);
             yield break;
         }
-        // -------------------------------------------------------------------------
 
         while (true)
         {
@@ -271,7 +269,6 @@ public class RangedEnemyController : MonoBehaviour
             Transform targetPoint = patrolPoints[currentPatrolIndex];
             Vector2 direction = (targetPoint.position - transform.position).normalized;
 
-            // Move
             while (Vector2.Distance(transform.position, targetPoint.position) > 0.1f)
             {
                 if (CanSeePlayer()) { SetState(EnemyState.Alert); yield break; }
@@ -282,8 +279,6 @@ public class RangedEnemyController : MonoBehaviour
             }
 
             transform.position = targetPoint.position;
-
-            // Espera/Olha em volta
             UpdateAnimation(Vector2.zero, 0f);
             float timer = 0f;
             while (timer < lookAroundDuration)
@@ -304,13 +299,8 @@ public class RangedEnemyController : MonoBehaviour
         while (true)
         {
             if (player == null) yield break;
+            if (!CanSeePlayer()) { SetState(EnemyState.Alert); yield break; }
 
-            if (!CanSeePlayer()) 
-            {
-                SetState(EnemyState.Alert);
-                yield break; 
-            }
-            
             float distanceToPlayer = Vector2.Distance(transform.position, player.position);
             if (distanceToPlayer <= combatRange) yield break;
 
@@ -330,7 +320,7 @@ public class RangedEnemyController : MonoBehaviour
         lastAttackTime = Time.time;
         UpdateAnimation(Vector2.zero, 0f);
         Vector2 directionToPlayer = (player.position - transform.position).normalized;
-        UpdateAnimation(directionToPlayer, 0.01f); 
+        UpdateAnimation(directionToPlayer, 0.01f);
 
         if (anim != null) anim.SetTrigger("IsAttacking");
         TocarSFX(SFXManager.instance.somCuspe, volCuspe);
@@ -367,65 +357,39 @@ public class RangedEnemyController : MonoBehaviour
 
     private IEnumerator RetreatDashRoutine()
     {
-        // Se o player sumiu, cancela
-        if (player == null)
-        {
-            isDashActive = false;
-            SetState(EnemyState.Alert);
-            yield break;
-        }
+        if (player == null) { isDashActive = false; SetState(EnemyState.Alert); yield break; }
 
         isDashActive = true;
         lastRetreatTime = Time.time;
-
-        // 1. Zera movimento físico imediatamente
         if (rb != null) rb.linearVelocity = Vector2.zero;
 
-        // 2. Dispara a Animação SEM esperar virar (Reação Imediata)
         if (anim != null)
         {
             anim.ResetTrigger("IsAttacking");
             anim.ResetTrigger("IsDashing");
-            
-            // Isso deve fazer a animação tocar no frame seguinte
-            anim.SetTrigger("IsBomb"); 
+            anim.SetTrigger("IsBomb");
         }
 
         yield return new WaitForSeconds(bombAnimationDuration);
 
-        // 3. Spawna a Bomba
-        if (bombPrefab != null)
-        {
-            Instantiate(bombPrefab, transform.position, Quaternion.identity);
-        }
-
-        // 4. Inicia o Dash (Arrancada)
+        if (bombPrefab != null) Instantiate(bombPrefab, transform.position, Quaternion.identity);
         if (anim != null) anim.SetTrigger("IsDashing");
 
         Vector2 retreatDir = (transform.position - player.position).normalized;
         float currentDashDuration = 0f;
 
-        // Loop do Dash
         while (currentDashDuration < retreatDashDuration)
         {
-            // Move
             transform.position += (Vector3)(retreatDir * retreatDashSpeed * Time.deltaTime);
-
-            // Aqui mantemos a atualização visual APENAS enquanto ele corre, para não ficar estático
             if (player != null)
             {
                 Vector2 dirDuringDash = (player.position - transform.position).normalized;
-                // Speed 0 garante que toque a animação de Dash (se configurada) ou Idle deslizante
-                UpdateAnimation(dirDuringDash, 0f); 
+                UpdateAnimation(dirDuringDash, 0f);
             }
-
             currentDashDuration += Time.deltaTime;
             yield return null;
         }
-
-        // 5. Finalização
         yield return new WaitForSeconds(postRetreatDelay);
-
         isDashActive = false;
         SetState(EnemyState.Alert);
     }
@@ -458,16 +422,11 @@ public class RangedEnemyController : MonoBehaviour
     private void Die()
     {
         if (currentState == EnemyState.Dead) return;
-
         currentState = EnemyState.Dead;
-        
-        // === CORREÇÃO: Remove a música imediatamente ===
-        TentarDesregistrarMusica();
-        // ===============================================
 
+        TentarDesregistrarMusica(); // Garante que a música pare
         isDashActive = false;
-
-        StopAllCoroutines(); // Pára de voar/atirar/patrulhar na hora
+        StopAllCoroutines();
 
         if (rb != null)
         {
@@ -475,7 +434,6 @@ public class RangedEnemyController : MonoBehaviour
             rb.angularVelocity = 0f;
             rb.isKinematic = true;
         }
-
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
 
@@ -485,27 +443,20 @@ public class RangedEnemyController : MonoBehaviour
     private IEnumerator DieRoutine()
     {
         TocarSFX(SFXManager.instance.somMorteR, volMorte);
-
-        if (anim != null)
-        {
-            // Força a animação de morte
-            anim.SetTrigger("IsDeath");
-        }
-
+        if (anim != null) anim.SetTrigger("IsDeath");
         yield return new WaitForSeconds(1.5f);
         Destroy(gameObject);
     }
 
     private void TentarTocarSomVoo()
-{
-    float intervaloReal = intervaloSomVoo <= 0 ? 0.3f : intervaloSomVoo;
-    if (Time.time >= proximoSomVoo)
     {
-        // Passa o volume do voo aqui
-        TocarSFX(SFXManager.instance.somVoo, volVoo); 
-        proximoSomVoo = Time.time + intervaloReal;
+        float intervaloReal = intervaloSomVoo <= 0 ? 0.3f : intervaloSomVoo;
+        if (Time.time >= proximoSomVoo)
+        {
+            TocarSFX(SFXManager.instance.somVoo, volVoo);
+            proximoSomVoo = Time.time + intervaloReal;
+        }
     }
-}
 
     private void TocarSFX(AudioClip clip, float volume)
     {
@@ -517,7 +468,6 @@ public class RangedEnemyController : MonoBehaviour
 
     private void TentarRegistrarMusica()
     {
-        // Só registra se ainda NÃO estiver registrado e tiver vida
         if (!musicRegistered && currentHealth > 0 && MusicManager.instance != null)
         {
             MusicManager.instance.RegisterEnemyVisible();
@@ -527,7 +477,6 @@ public class RangedEnemyController : MonoBehaviour
 
     private void TentarDesregistrarMusica()
     {
-        // Só desregistra se JÁ estiver registrado
         if (musicRegistered && MusicManager.instance != null)
         {
             MusicManager.instance.UnregisterEnemyVisible();
@@ -537,11 +486,13 @@ public class RangedEnemyController : MonoBehaviour
 
     void OnBecameVisible()
     {
-        TentarRegistrarMusica();
+        // Ao aparecer na câmera, checa se deve tocar música (só se estiver agressivo)
+        AtualizarMusica();
     }
 
     void OnBecameInvisible()
     {
+        // Ao sair da câmera, sempre desregistra
         TentarDesregistrarMusica();
     }
 
