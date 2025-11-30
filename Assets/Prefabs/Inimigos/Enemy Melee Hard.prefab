@@ -169,6 +169,9 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 139264
+  holeMask:
+    serializedVersion: 2
+    m_Bits: 8192
   player: {fileID: 0}
   viewAngle: 360
   obstacleMaskPlayer:

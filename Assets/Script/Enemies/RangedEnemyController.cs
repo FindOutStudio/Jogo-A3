@@ -256,9 +256,15 @@ public class RangedEnemyController : MonoBehaviour
     {
         currentState = EnemyState.Patrolling;
 
+        // Se não tiver pontos, fica parado em Idle
         if (patrolPoints == null || patrolPoints.Length == 0)
         {
-            SetState(EnemyState.Alert);
+            UpdateAnimation(Vector2.zero, 0f);
+            while (currentState == EnemyState.Patrolling)
+            {
+                if (CanSeePlayer()) { SetState(EnemyState.Alert); yield break; }
+                yield return null;
+            }
             yield break;
         }
 
@@ -266,19 +272,48 @@ public class RangedEnemyController : MonoBehaviour
         {
             if (CanSeePlayer()) { SetState(EnemyState.Alert); yield break; }
 
-            Transform targetPoint = patrolPoints[currentPatrolIndex];
-            Vector2 direction = (targetPoint.position - transform.position).normalized;
+            // Segurança: Garante que o index existe
+            if (currentPatrolIndex >= patrolPoints.Length) currentPatrolIndex = 0;
 
-            while (Vector2.Distance(transform.position, targetPoint.position) > 0.1f)
+            Transform targetPoint = patrolPoints[currentPatrolIndex];
+
+            // Segurança: Se o objeto do ponto foi destruído, pula
+            if (targetPoint == null)
+            {
+                currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
+                yield return null;
+                continue;
+            }
+
+            // --- TRAVA DE SEGURANÇA (LEASH) ---
+            // Se o inimigo for jogado muito longe (30m+), puxa de volta pro ponto
+            if (Vector2.Distance(transform.position, targetPoint.position) > 30f)
+            {
+                transform.position = targetPoint.position;
+            }
+            // ----------------------------------
+
+            // Loop de Movimento BLINDADO com MoveTowards
+            // Margem de erro reduzida para 0.01f para precisão total
+            while (Vector2.Distance(transform.position, targetPoint.position) > 0.01f)
             {
                 if (CanSeePlayer()) { SetState(EnemyState.Alert); yield break; }
-                transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+
+                // Calcula direção apenas para a animação
+                Vector2 direction = (targetPoint.position - transform.position).normalized;
+
+                // MoveTowards: Move o necessário e para EXATAMENTE no destino, sem passar direto
+                transform.position = Vector2.MoveTowards(transform.position, targetPoint.position, moveSpeed * Time.deltaTime);
+
                 UpdateAnimation(direction, moveSpeed);
-                TentarTocarSomVoo();
+                TentarTocarSomVoo(); // Mantive o som de voo que você já tinha
                 yield return null;
             }
 
+            // Garante a posição exata no final
             transform.position = targetPoint.position;
+
+            // Chegou no ponto: Espera um pouco
             UpdateAnimation(Vector2.zero, 0f);
             float timer = 0f;
             while (timer < lookAroundDuration)
@@ -288,6 +323,7 @@ public class RangedEnemyController : MonoBehaviour
                 yield return null;
             }
 
+            // Vai para o próximo ponto
             currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
         }
     }

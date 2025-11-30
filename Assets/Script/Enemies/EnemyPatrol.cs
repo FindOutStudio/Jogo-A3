@@ -44,6 +44,7 @@ public class EnemyPatrol : MonoBehaviour
     [SerializeField] private float combatRange = 5f;
     [SerializeField] private float dangerZoneRadius = 2f;
     [SerializeField] private LayerMask obstacleMask;
+    [SerializeField] private LayerMask holeMask;
 
     [Header("Detecção e Delays")]
     public Transform player;
@@ -130,13 +131,22 @@ public class EnemyPatrol : MonoBehaviour
         // PRIORIDADE 3: DETECÇÃO/CHASE/ALERTA
         else if (IsPlayerInMemory() || CanSeePlayer())
         {
+            // Checa se tem buraco no caminho
+            bool temBuraco = IsHoleInPath(player.position);
+
             if (currentState == EnemyState.Patrolling)
             {
                 nextState = EnemyState.Alert;
             }
             else
             {
-                if (distanceToPlayer <= combatRange + MIN_DISTANCE_TO_DANGER && Time.time < lastAttackTime + attackCooldown)
+                // SE TEM BURACO: Força o estado de Alerta (espera)
+                if (temBuraco)
+                {
+                    nextState = EnemyState.Alert;
+                }
+                // Se não tem buraco, segue a vida (Ataque ou Perseguição)
+                else if (distanceToPlayer <= combatRange + MIN_DISTANCE_TO_DANGER && Time.time < lastAttackTime + attackCooldown)
                 {
                     nextState = EnemyState.Alert;
                 }
@@ -252,6 +262,7 @@ public class EnemyPatrol : MonoBehaviour
     {
         currentState = EnemyState.Patrolling;
 
+        // Se não tiver pontos, fica parado
         if (patrolPoints == null || patrolPoints.Length == 0)
         {
             UpdateAnimation(Vector2.zero, 0f, false);
@@ -266,29 +277,52 @@ public class EnemyPatrol : MonoBehaviour
         while (true)
         {
             if (CanSeePlayer()) { SetState(EnemyState.Alert); yield break; }
+
+            // Segurança: Se o index estourar, reseta
             if (currentPatrolIndex >= patrolPoints.Length) currentPatrolIndex = 0;
 
             Transform targetPoint = patrolPoints[currentPatrolIndex];
-            if (targetPoint == null) { yield return null; continue; }
 
-            Vector2 direction = (targetPoint.position - transform.position).normalized;
+            // Segurança: Se o ponto foi deletado, passa para o próximo ou sai
+            if (targetPoint == null)
+            {
+                currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
+                yield return null;
+                continue;
+            }
 
-            while (Vector2.Distance(transform.position, targetPoint.position) > 0.1f)
+            // --- TRAVA DE SEGURANÇA EXTREMA (O LEASH) ---
+            // Se por algum motivo bizarro da física ele for jogado muito longe (ex: 30 metros) do ponto, teleporte ele de volta.
+            if (Vector2.Distance(transform.position, targetPoint.position) > 30f)
+            {
+                transform.position = targetPoint.position;
+            }
+            // ---------------------------------------------
+
+            // Lógica de Movimento BLINDADA com MoveTowards
+            while (Vector2.Distance(transform.position, targetPoint.position) > 0.01f) // Margem bem pequena
             {
                 if (CanSeePlayer()) { SetState(EnemyState.Alert); yield break; }
+
+                // Recalcula direção a cada frame para garantir precisão
+                Vector2 direction = (targetPoint.position - transform.position).normalized;
+
                 if (!IsPathBlocked(direction, moveSpeed))
                 {
-                    transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+                    // MoveTowards: Move em direção ao alvo mas NUNCA passa dele
+                    transform.position = Vector2.MoveTowards(transform.position, targetPoint.position, moveSpeed * Time.deltaTime);
                 }
+
                 UpdateAnimation(direction, moveSpeed, false);
                 yield return null;
             }
 
-            if (Vector2.Distance(transform.position, targetPoint.position) <= 0.2f)
-                transform.position = targetPoint.position;
+            // Garante posição exata no final do movimento
+            transform.position = targetPoint.position;
 
+            // Chegou no ponto: Toca som, animação e espera
             TocarSFX(SFXManager.instance.somPatrulha, volPatrulha);
-            UpdateAnimation(Vector2.zero, 0f, true);
+            UpdateAnimation(Vector2.zero, 0f, true); // Idle de patrulha
 
             float timer = 0f;
             while (timer < lookAroundDuration)
@@ -300,6 +334,8 @@ public class EnemyPatrol : MonoBehaviour
 
             UpdateAnimation(Vector2.zero, 0f, false);
             yield return null;
+
+            // Vai para o próximo ponto
             currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
         }
     }
@@ -518,6 +554,22 @@ public class EnemyPatrol : MonoBehaviour
         if (hit.collider != null)
         {
             if (hit.collider.CompareTag("Obstacle")) return true;
+        }
+        return false;
+    }
+
+    private bool IsHoleInPath(Vector2 targetPos)
+    {
+        Vector2 dirToTarget = targetPos - (Vector2)transform.position;
+        float distance = dirToTarget.magnitude;
+
+        // Lança um raio na direção do alvo procurando pela Layer 'holeMask'
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToTarget.normalized, distance, holeMask);
+
+        // Se bateu em algo na layer de buraco, retorna verdadeiro
+        if (hit.collider != null)
+        {
+            return true;
         }
         return false;
     }

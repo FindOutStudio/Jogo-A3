@@ -13,6 +13,10 @@ PrefabInstance:
       value: 8
       objectReference: {fileID: 0}
     - target: {fileID: -4440151978022281884, guid: 0a48ac3b8d8cf494aa818cdc2bf59b4d, type: 3}
+      propertyPath: holeMask.m_Bits
+      value: 8192
+      objectReference: {fileID: 0}
+    - target: {fileID: -4440151978022281884, guid: 0a48ac3b8d8cf494aa818cdc2bf59b4d, type: 3}
       propertyPath: dangerZoneRadius
       value: 0
       objectReference: {fileID: 0}
@@ -22,7 +26,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -4440151978022281884, guid: 0a48ac3b8d8cf494aa818cdc2bf59b4d, type: 3}
       propertyPath: obstacleMask.m_Bits
-      value: 140288
+      value: 131072
       objectReference: {fileID: 0}
     - target: {fileID: -4440151978022281884, guid: 0a48ac3b8d8cf494aa818cdc2bf59b4d, type: 3}
       propertyPath: patrolPoints.Array.size
@@ -30,15 +34,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -4440151978022281884, guid: 0a48ac3b8d8cf494aa818cdc2bf59b4d, type: 3}
       propertyPath: obstacleMaskPlayer.m_Bits
-      value: 140288
+      value: 131072
       objectReference: {fileID: 0}
     - target: {fileID: 1022291813781295973, guid: 0a48ac3b8d8cf494aa818cdc2bf59b4d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 8.971986
+      value: -35.72
       objectReference: {fileID: 0}
     - target: {fileID: 1022291813781295973, guid: 0a48ac3b8d8cf494aa818cdc2bf59b4d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 14.624773
+      value: 5.86
       objectReference: {fileID: 0}
     - target: {fileID: 1022291813781295973, guid: 0a48ac3b8d8cf494aa818cdc2bf59b4d, type: 3}
       propertyPath: m_LocalPosition.z

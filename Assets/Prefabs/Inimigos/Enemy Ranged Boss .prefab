@@ -29,8 +29,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
+      propertyPath: obstacleMask.m_Bits
+      value: 131073
+      objectReference: {fileID: 0}
+    - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: patrolPoints.Array.size
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
+      propertyPath: obstacleMaskPlayer.m_Bits
+      value: 131072
       objectReference: {fileID: 0}
     - target: {fileID: 6842674454476929583, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_Name
