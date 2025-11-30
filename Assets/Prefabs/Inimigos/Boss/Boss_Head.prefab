@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1995194394357266706}
   - component: {fileID: 397017769513575301}
   - component: {fileID: 9001733942789627843}
+  - component: {fileID: 7930527661853461010}
   - component: {fileID: 6133408941007881912}
   - component: {fileID: 2208062585765083753}
   - component: {fileID: 2591521582997355765}
@@ -59,7 +60,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: -876546973899608171, guid: ab3ddbfa0ea38f145a6f1f56edae7261, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -104,10 +105,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 10
+  hitsForGuaranteedDrop: 3
+  hitComboResetTime: 3
+  volRastejar: 1
+  volSprint: 1
+  volSummon: 1
+  volDano: 1
+  volMorte: 1
+  volExplosao: 1
   explosionPrefab: {fileID: 4787644528525156860, guid: 8a6c3b79ead05ae429d1b0462170a826, type: 3}
   deathShakeDuration: 2
   deathShakeIntensity: 0.3
-  intervaloSomRastejar: 0.5
   damageCooldown: 0.5
   segmentPrefab: {fileID: 5513071304715001082, guid: 9464d5084918a9a4eabfe5d442ca1b51, type: 3}
   crownPrefab: {fileID: 1945027312225001967, guid: 1f48814981ee73c44bdf6a30bd71e44b, type: 3}
@@ -116,12 +124,17 @@ MonoBehaviour:
   crownSpacing: 1
   baseSortingOrder: 19
   flyingEnemyPrefab: {fileID: 5793878613363902743, guid: f01b4b3dfc3db4247b96e74e57f45cd0, type: 3}
+  healthPickupPrefab: {fileID: 0}
   spawnPoints:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  numberOfEnemiesPerSpawn: 4
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  checkRadius: 1
+  chanceForHealthDrop: 10
   patrolPoints:
   - {fileID: 0}
   - {fileID: 0}
@@ -130,12 +143,14 @@ MonoBehaviour:
   moveSpeed: 5
   waypointTolerance: 0.1
   patrolWaitTime: 2
+  maxPatrolTimePerPoint: 6
   player: {fileID: 0}
   visionRange: 5
   attackRange: 3
   obstacleMaskPlayer:
     serializedVersion: 2
     m_Bits: 64
+  memoryRange: 15
   dashSpeed: 12
   attackCooldown: 2
   wallMask:
@@ -144,6 +159,20 @@ MonoBehaviour:
   preDashWarningTime: 0.6
   dashCooldownDuration: 2
   playerHitCooldown: 1
+--- !u!114 &7930527661853461010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5253462300994889660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8289ea351c020c848bfd26fc9c480329, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _flashColor: {r: 1, g: 1, b: 1, a: 1}
+  _flashTime: 0.25
 --- !u!50 &6133408941007881912
 Rigidbody2D:
   serializedVersion: 5

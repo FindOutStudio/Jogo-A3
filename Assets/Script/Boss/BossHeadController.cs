@@ -42,6 +42,7 @@ public class BossHeadController : MonoBehaviour
     [SerializeField] private float deathShakeIntensity = 0.3f;
     private CinemachineImpulseSource impulseSource;
 
+
     [Header("Dano & Cooldown")]
     [SerializeField] private float damageCooldown = 0.5f;
     private bool canTakeDamage = true;
@@ -94,6 +95,8 @@ public class BossHeadController : MonoBehaviour
     // Componentes
     private Animator anim;
     private Rigidbody2D rb;
+    private DamageFlash _damageFlash;
+
     private int currentPatrolIndex = 0;
     private Coroutine currentBehavior;
     private SpriteRenderer headSpriteRenderer;
@@ -120,6 +123,7 @@ public class BossHeadController : MonoBehaviour
         anim = GetComponent<Animator>();
         headSpriteRenderer = GetComponent<SpriteRenderer>();
         impulseSource = GetComponent<CinemachineImpulseSource>();
+        _damageFlash = GetComponent<DamageFlash>();
 
         if (rb != null) { rb.isKinematic = true; rb.freezeRotation = true; }
 
@@ -412,6 +416,10 @@ public class BossHeadController : MonoBehaviour
 
         currentHealth--;
         consecutiveHitsTaken++;
+        if (_damageFlash != null)
+        {
+            _damageFlash.CallDamageFlash();
+        }
 
         if (bodySegments.Count > 0)
         {

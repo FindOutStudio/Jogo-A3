@@ -20,11 +20,12 @@ public class PowerUpRicochete : MonoBehaviour
     [SerializeField] private TMP_Text[] uiTexts; // arraste textos TMP no Canvas
 
     private AudioSource sourceFlutuar;
+    private bool alreadyCollected = false;
 
     void Start()
     {
-        sourceFlutuar = GetComponent<AudioSource>();
         
+
         if (SFXManager.instance != null && SFXManager.instance.somFlutuar != null)
         {
             sourceFlutuar.clip = SFXManager.instance.somFlutuar;
@@ -37,6 +38,7 @@ public class PowerUpRicochete : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (alreadyCollected) return; // evita reentradas
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
@@ -51,6 +53,9 @@ public class PowerUpRicochete : MonoBehaviour
 
     private void ActivatePowerUp(PlayerController player)
     {
+        if (alreadyCollected) return;
+
+        alreadyCollected = true;
         // --- CORREÇÃO: Mata o loop antes de tocar o PowerUp ---
         if (sourceFlutuar != null) sourceFlutuar.Stop();
         // ------------------------------------------------------
@@ -68,13 +73,12 @@ public class PowerUpRicochete : MonoBehaviour
             if (txt != null) txt.gameObject.SetActive(true);
         }
 
-
-        // Lógica do PowerUp no Player...
+        
         // player.AtivarRicochete();
         Debug.Log("PowerUp Ricochete Ativado!");
-
         Destroy(gameObject);
 
-
     }
+
+
 }
