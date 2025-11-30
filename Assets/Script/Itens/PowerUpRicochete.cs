@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
@@ -14,6 +15,9 @@ public class PowerUpRicochete : MonoBehaviour
     [Tooltip("Volume do som constante (Loop)")]
     [Range(0f, 1f)] 
     [SerializeField] private float volumeFlutuar = 0.5f;
+
+    [Header("Textos (TextMeshPro)")]
+    [SerializeField] private TMP_Text[] uiTexts; // arraste textos TMP no Canvas
 
     private AudioSource sourceFlutuar;
 
@@ -59,10 +63,18 @@ public class PowerUpRicochete : MonoBehaviour
         if (collectEffect != null)
             Instantiate(collectEffect, transform.position, Quaternion.identity);
 
+        foreach (TMP_Text txt in uiTexts)
+        {
+            if (txt != null) txt.gameObject.SetActive(true);
+        }
+
+
         // Lógica do PowerUp no Player...
         // player.AtivarRicochete();
         Debug.Log("PowerUp Ricochete Ativado!");
 
         Destroy(gameObject);
+
+
     }
 }

@@ -21,6 +21,10 @@ PrefabInstance:
       value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: coneAngle
       value: 0
       objectReference: {fileID: 0}
@@ -33,12 +37,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 5671363189448418434, guid: d17ecf3d9b1e89644a6537cf296416d3, type: 3}
     - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
-      propertyPath: memoryRange
+      propertyPath: combatRange
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
+      propertyPath: memoryRange
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: visionRange
-      value: 3
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
+      propertyPath: lateralAngle
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: retreatCooldown
@@ -46,15 +58,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: dangerZoneRadius
-      value: 1
+      value: 1.3
       objectReference: {fileID: 0}
     - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: projectilePrefab
       value: 
       objectReference: {fileID: 4834671800637921802, guid: fa23554acaaba454aa17726f70e1ec42, type: 3}
     - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
+      propertyPath: retreatDashSpeed
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: obstacleMask.m_Bits
       value: 139264
+      objectReference: {fileID: 0}
+    - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
+      propertyPath: bombAnimationDuration
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 4655834959530901425, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: patrolPoints.Array.size
@@ -78,11 +98,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7394464237808881029, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.288
+      value: 13.517376
       objectReference: {fileID: 0}
     - target: {fileID: 7394464237808881029, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.835
+      value: -8.762732
       objectReference: {fileID: 0}
     - target: {fileID: 7394464237808881029, guid: e14c26ad0308de643b5f7c5934f143ac, type: 3}
       propertyPath: m_LocalPosition.z

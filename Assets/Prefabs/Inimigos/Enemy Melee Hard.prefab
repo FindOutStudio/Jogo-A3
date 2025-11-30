@@ -188,7 +188,7 @@ MonoBehaviour:
   postAttackCollisionTime: 0.05
   damageAmount: 1
   attackCooldown: 2.5
-  retreatDashSpeed: 14
+  retreatDashSpeed: 17
   retreatDashDuration: 4
   retreatRotationSpeed: 720
   postRetreatDelay: 0.5

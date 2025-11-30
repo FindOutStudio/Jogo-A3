@@ -23,10 +23,6 @@ public class MenuManager : MonoBehaviour
         if (cutscenePanel != null) cutscenePanel.SetActive(false);
         if (continueButton != null) continueButton.gameObject.SetActive(false);
 
-        // Listener para quando o vídeo terminar
-        if (videoPlayer != null)
-            videoPlayer.loopPointReached += OnVideoFinished;
-
         // Listener para botão continuar
         if (continueButton != null)
             continueButton.onClick.AddListener(CarregarJogo);
@@ -53,17 +49,16 @@ public class MenuManager : MonoBehaviour
         {
             painelMenuPrincipal.SetActive(false);
         }
+
+        if (continueButton != null)
+        {
+            continueButton.gameObject.SetActive(true);
+        }
     }
 
     public void CarregarJogo()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-    }
-
-    void OnVideoFinished(VideoPlayer vp)
-    {
-        if (continueButton != null)
-            continueButton.gameObject.SetActive(true);
     }
 
     public void AbrirOpcoes()
