@@ -168,7 +168,7 @@ MonoBehaviour:
   dangerZoneRadius: 1
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 139264
+    m_Bits: 131072
   holeMask:
     serializedVersion: 2
     m_Bits: 8192
@@ -176,7 +176,7 @@ MonoBehaviour:
   viewAngle: 360
   obstacleMaskPlayer:
     serializedVersion: 2
-    m_Bits: 139264
+    m_Bits: 131072
   initialChaseDelay: 0.5
   initialAttackDelay: 0.3
   lookAroundDuration: 3

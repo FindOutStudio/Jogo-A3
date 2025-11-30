@@ -347,13 +347,41 @@ public class EnemyPatrol : MonoBehaviour
         while (true)
         {
             if (player == null) yield break;
-            if (!CanSeePlayer()) { SetState(EnemyState.Alert); yield break; }
+
+            // --- CORREÇÃO AQUI ---
+            // Antes você tinha: if (!CanSeePlayer()) { SetState(EnemyState.Alert); yield break; }
+            // Isso cancelava a memória imediatamente.
+
+            bool isVisible = CanSeePlayer();
+            bool isInMemory = IsPlayerInMemory();
+            bool hasHole = IsHoleInPath(player.position); // Verifica o buraco
+
+            // 1. CONDIÇÃO DE PARADA:
+            // Se não vê MAIS não lembra (longe demais) OU tem um buraco no caminho
+            if ((!isVisible && !isInMemory) || hasHole)
+            {
+                SetState(EnemyState.Alert);
+                yield break;
+            }
+            // ---------------------
 
             Vector2 direction = (player.position - transform.position).normalized;
+
+            // Move se não tiver obstáculo físico (Parede)
             if (!IsPathBlocked(direction, chaseSpeed))
             {
                 transform.position += (Vector3)(direction * chaseSpeed * Time.deltaTime);
             }
+            else
+            {
+                // Opcional: Se tem parede na cara e não vê o player, desiste
+                if (!isVisible)
+                {
+                    SetState(EnemyState.Alert);
+                    yield break;
+                }
+            }
+
             UpdateAnimation(direction, chaseSpeed, false);
             yield return null;
         }

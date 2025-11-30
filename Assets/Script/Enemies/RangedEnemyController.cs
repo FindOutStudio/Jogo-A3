@@ -335,12 +335,33 @@ public class RangedEnemyController : MonoBehaviour
         while (true)
         {
             if (player == null) yield break;
-            if (!CanSeePlayer()) { SetState(EnemyState.Alert); yield break; }
 
+            // --- CORREÇÃO AQUI ---
+            // Removemos o check estrito de CanSeePlayer() que cancelava a memória
+
+            bool isVisible = CanSeePlayer();
+            bool isInMemory = IsPlayerInMemory();
             float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-            if (distanceToPlayer <= combatRange) yield break;
 
+            // 1. Se saiu da visão E saiu da memória, vai para Alerta
+            if (!isVisible && !isInMemory)
+            {
+                SetState(EnemyState.Alert);
+                yield break;
+            }
+
+            // 2. Se chegou na distância de combate, para de andar para poder atacar (pelo Update)
+            if (distanceToPlayer <= combatRange)
+            {
+                // O Update cuidará de trocar para o estado Attacking
+                yield break;
+            }
+
+            // Lógica de Movimento
             Vector2 direction = (player.position - transform.position).normalized;
+
+            // Dica: Para o Ranged não entrar dentro da parede tentando seguir a memória, 
+            // você pode adicionar um Raycast simples aqui se quiser, mas o padrão é ir reto:
             transform.position += (Vector3)(direction * chaseSpeed * Time.deltaTime);
 
             if (direction.magnitude > 0.01f) UpdateAnimation(direction, chaseSpeed);

@@ -25,7 +25,7 @@ public class BossHeadController : MonoBehaviour
     // --- LÓGICA DE COMBO ---
     private int consecutiveHitsTaken = 0;
     [SerializeField] private int hitsForGuaranteedDrop = 3;
-    [SerializeField] private float hitComboResetTime = 3.0f; // Ajustado para 3s
+    [SerializeField] private float hitComboResetTime = 3.0f;
     private float lastHitTakenTime = -Mathf.Infinity;
 
     [Header("Volumes SFX")]
@@ -41,7 +41,6 @@ public class BossHeadController : MonoBehaviour
     [SerializeField] private float deathShakeDuration = 2.0f;
     [SerializeField] private float deathShakeIntensity = 0.3f;
     private CinemachineImpulseSource impulseSource;
-
 
     [Header("Dano & Cooldown")]
     [SerializeField] private float damageCooldown = 0.5f;
@@ -76,11 +75,15 @@ public class BossHeadController : MonoBehaviour
 
     [Header("ZONAS DE COMPORTAMENTO")]
     public Transform player;
-    [SerializeField] private float visionRange = 10f;
-    [SerializeField] private float attackRange = 4f;
     [SerializeField] public LayerMask obstacleMaskPlayer;
-    [Tooltip("Se estiver aqui, o Boss TENTA ATACAR (Dash) ao invés de perseguir.")]
+
+    // CONFIGURAÇÃO DE ALCANCE
+    [Tooltip("Distância NECESSÁRIA para INICIAR o ataque.")]
+    [SerializeField] private float attackRange = 4f;
+
+    [Tooltip("Distância MÁXIMA que o Boss mantém o ataque antes de desistir.")]
     [SerializeField] private float memoryRange = 15f;
+    // Vision Range REMOVIDO permanentemente.
 
     [Header("ATAQUE (Dash Contínuo)")]
     public float dashSpeed = 12f;
@@ -145,22 +148,36 @@ public class BossHeadController : MonoBehaviour
     {
         if (!isBossActive) return;
 
+        // Recupera o Cooldown do Dash se necessário
         if (!canDashAttack && Time.time >= lastDashTime + dashCooldownDuration)
         {
             canDashAttack = true;
         }
 
+        // Rotaciona a cabeça na direção do movimento
         RotateTowardsDirection(currentMoveDirection);
 
-        if (isDashActive || player == null || currentState == BossState.Dead || currentState == BossState.SpawningEnemies) return;
+        // --- CORREÇÃO CRÍTICA AQUI ---
+        // Se o Boss estiver morto, spawnando OU JÁ ESTIVER ATACANDO:
+        // O Update NÃO deve fazer nada. Quem decide a hora de parar o ataque
+        // é a corrotina AttackDashRoutine, usando a MemoryRange.
+        if (player == null || currentState == BossState.Dead ||
+            currentState == BossState.SpawningEnemies ||
+            currentState == BossState.Attacking) // <--- ADICIONEI ISSO
+        {
+            return;
+        }
+        // -----------------------------
 
         BossState nextState = currentState;
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        // --- LÓGICA ALTERADA AQUI ---
-        // Se pode atacar E está dentro da Memória (15m) -> ATACA
-        // Antes era 'attackRange' (4m), agora ele usa a memória para ser agressivo de longe
-        if (canDashAttack && distanceToPlayer <= memoryRange && CanSeePlayer() && Time.time >= lastAttackTime + attackCooldown)
+        // --- GATILHO DO ATAQUE ---
+        // Aqui ele só decide se VAI COMEÇAR o ataque.
+        // Uma vez que comece (currentState vira Attacking), o bloco if acima impede
+        // que essa lógica rode novamente, garantindo que o ataque vá até o fim
+        // ou até sair da MemoryRange.
+        if (canDashAttack && distanceToPlayer <= attackRange && HasLineOfSightForAttack() && Time.time >= lastAttackTime + attackCooldown)
         {
             nextState = BossState.Attacking;
         }
@@ -215,13 +232,14 @@ public class BossHeadController : MonoBehaviour
         }
     }
 
-    private bool CanSeePlayer()
+    // Verifica visão APENAS dentro do Attack Range (para não iniciar dash através de paredes)
+    private bool HasLineOfSightForAttack()
     {
         if (player == null) return false;
         Vector2 dirToPlayer = (player.position - transform.position);
         float distance = dirToPlayer.magnitude;
 
-        if (distance > memoryRange) return false;
+        if (distance > attackRange) return false; // Longe demais para iniciar
 
         RaycastHit2D hit = Physics2D.Raycast(transform.position, dirToPlayer.normalized, distance, obstacleMaskPlayer);
         return hit.collider == null || hit.collider.transform == player;
@@ -272,6 +290,13 @@ public class BossHeadController : MonoBehaviour
             {
                 if (giveUpTimer > maxPatrolTimePerPoint) break;
 
+                // Interrompe patrulha se entrar no Attack Range (Gatilho)
+                if (canDashAttack && HasLineOfSightForAttack())
+                {
+                    SetState(BossState.Attacking);
+                    yield break;
+                }
+
                 Vector2 direction = (targetPoint.position - transform.position).normalized;
                 currentMoveDirection = direction;
                 transform.position = Vector2.MoveTowards(transform.position, targetPoint.position, moveSpeed * Time.deltaTime);
@@ -316,7 +341,7 @@ public class BossHeadController : MonoBehaviour
 
         if (headSpriteRenderer != null) headSpriteRenderer.color = originalColor;
 
-        // FASE 2: DASH
+        // FASE 2: DASH (Loop de Ataque)
         isDashActive = true;
         lastAttackTime = Time.time;
         SFXManager.instance.TocarSom(SFXManager.instance.somSprint, volSprint);
@@ -327,7 +352,6 @@ public class BossHeadController : MonoBehaviour
 
         currentMoveDirection = dashDirection;
 
-        // Dash dura um tempo ou até colisão
         float maxDashTime = 2.0f;
         float currentDashTimer = 0f;
 
@@ -335,11 +359,16 @@ public class BossHeadController : MonoBehaviour
         {
             if (player == null) break;
 
-            // --- AJUSTE ---
-            // Se o Boss passar muito da área de memória, ele para.
-            // (Como ele ataca de longe, aumentamos a tolerância para 1.5x a Memória)
-            float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-            if (distanceToPlayer > memoryRange * 1.5f) break;
+            float dist = Vector2.Distance(transform.position, player.position);
+
+            // --- LÓGICA DE MEMORY RANGE (STOP) ---
+            // Se o player sair da Memory Range, o Boss DESISTE (Aborta o ataque).
+            // Caso contrário, ele continua o dash até o tempo acabar ou bater, 
+            // mesmo que o player tenha saído da Attack Range.
+            if (dist > memoryRange)
+            {
+                break; // Sai do loop e encerra o ataque
+            }
 
             transform.position += (Vector3)(dashDirection * dashSpeed * Time.deltaTime);
             currentDashTimer += Time.deltaTime;
@@ -403,7 +432,6 @@ public class BossHeadController : MonoBehaviour
     {
         if (!canTakeDamage || currentState == BossState.SpawningEnemies || currentState == BossState.Dead) return;
 
-        // Lógica de Combo
         if (Time.time > lastHitTakenTime + hitComboResetTime)
         {
             consecutiveHitsTaken = 0;
@@ -595,9 +623,11 @@ public class BossHeadController : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         Vector3 center = transform.position;
-        Gizmos.color = Color.cyan; Gizmos.DrawWireSphere(center, visionRange);
+        // Desenha Memory Range (Limite de desistência)
         Gizmos.color = Color.blue; Gizmos.DrawWireSphere(center, memoryRange);
-        Gizmos.color = canDashAttack ? Color.red : Color.gray; Gizmos.DrawWireSphere(center, attackRange);
+
+        // Desenha Attack Range (Gatilho)
+        Gizmos.color = Color.red; Gizmos.DrawWireSphere(center, attackRange);
 
         Gizmos.color = Color.yellow;
         if (patrolPoints != null)
