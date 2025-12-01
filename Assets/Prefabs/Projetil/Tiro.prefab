@@ -178,4 +178,4 @@ MonoBehaviour:
   speed: 13
   damage: 1
   lifetime: 0.75
-  volumeImpacto: 0.6
+  volumeImpacto: 0.2

@@ -1,27 +1,29 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class MusicManager : MonoBehaviour
 {
     public static MusicManager instance;
 
-    [Header("Alto-Falantes")]
+    [Header("Alto-Falantes (Ajuste o volume MÁXIMO aqui no Inspector)")]
     public AudioSource musicSource;
     public AudioSource ambienceSource;
     public AudioSource battleSource;
     public AudioSource bossSource;
 
-    [Header("Configuração")]
+    [Header("Configuração de Fade")]
     [SerializeField] private float battleFadeInDuration = 1.0f;
     [SerializeField] private float battleFadeOutDuration = 2.0f;
     [SerializeField] private float maxBattleVolume = 0.8f;
-    [SerializeField] private float maxBossVolume = 1.0f;
 
-    // Variável visível no Inspector para Debug
+    // Variável interna para Debug
     public int visibleEnemiesCount = 0;
 
-    private float defaultMusicVolume = 0.5f;
-    private float defaultAmbienceVolume = 0.5f;
+    private float defaultMusicVolume;
+    private float defaultAmbienceVolume;
+    private float defaultBossVolume;
+
     private bool isBossFight = false;
 
     [Header("Músicas")]
@@ -32,31 +34,43 @@ public class MusicManager : MonoBehaviour
     public AudioClip luta;
     public AudioClip bossL;
     public AudioClip ambiente;
-    public AudioClip trilhaCronvs;
 
     private void Awake()
     {
-        if (instance == null) { instance = this; DontDestroyOnLoad(gameObject); }
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+
+            if (musicSource != null) defaultMusicVolume = musicSource.volume;
+            if (ambienceSource != null) defaultAmbienceVolume = ambienceSource.volume;
+            if (bossSource != null) defaultBossVolume = bossSource.volume;
+        }
         else { Destroy(gameObject); }
     }
 
     private void OnEnable() { SceneManager.sceneLoaded += OnSceneLoaded; }
     private void OnDisable() { SceneManager.sceneLoaded -= OnSceneLoaded; }
 
-    // Roda sempre que a fase carrega
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 1. RESETA O CONTADOR (Correção do bug de música infinita)
         visibleEnemiesCount = 0;
         isBossFight = false;
 
-        Debug.Log($"[MusicManager] Fase carregada: {scene.name}. Resetando contadores.");
+        Debug.Log($"[MusicManager] Fase carregada: {scene.name}. Resetando tudo.");
 
-        // 2. PARA SONS DE COMBATE
-        if (battleSource != null) { battleSource.Stop(); battleSource.volume = 0f; }
+        // 1. BLINDAGEM DA MÚSICA DE BATALHA
+        if (battleSource != null)
+        {
+            battleSource.volume = 0f;
+            // Se ela parou (por morte ou troca de fase), damos Play de novo
+            if (!battleSource.isPlaying) battleSource.Play();
+        }
+
+        // Reseta o Boss
         if (bossSource != null) { bossSource.Stop(); bossSource.volume = 0f; }
 
-        // 3. RETOMA MÚSICA AMBIENTE
+        // Retoma música da fase no volume original
         if (musicSource != null)
         {
             musicSource.volume = defaultMusicVolume;
@@ -76,15 +90,12 @@ public class MusicManager : MonoBehaviour
 
     private void Start()
     {
-        if (musicSource != null) defaultMusicVolume = musicSource.volume;
-        if (ambienceSource != null) defaultAmbienceVolume = ambienceSource.volume;
-
         if (battleSource != null)
         {
             battleSource.clip = luta;
             battleSource.loop = true;
             battleSource.volume = 0f;
-            battleSource.Play(); // Começa tocando mudo
+            battleSource.Play();
         }
     }
 
@@ -102,11 +113,11 @@ public class MusicManager : MonoBehaviour
     {
         if (battleSource == null || musicSource == null) return;
 
-        // Só toca batalha se tiver inimigos > 0
         float targetVol = (visibleEnemiesCount > 0) ? maxBattleVolume : 0f;
         float fadeSpeed = (visibleEnemiesCount > 0) ? (1f / battleFadeInDuration) : (1f / battleFadeOutDuration);
 
-        battleSource.volume = Mathf.MoveTowards(battleSource.volume, targetVol, fadeSpeed * Time.deltaTime);
+        // Se o jogo estiver pausado (TimeScale 0), usamos unscaledDeltaTime para o som não travar
+        battleSource.volume = Mathf.MoveTowards(battleSource.volume, targetVol, fadeSpeed * Time.unscaledDeltaTime);
 
         float battleRatio = (maxBattleVolume > 0.001f) ? (battleSource.volume / maxBattleVolume) : 0f;
         musicSource.volume = Mathf.Lerp(defaultMusicVolume, 0f, battleRatio);
@@ -117,10 +128,14 @@ public class MusicManager : MonoBehaviour
 
     private void HandleBossFade()
     {
-        if (bossSource == null) return;
-        bossSource.volume = Mathf.MoveTowards(bossSource.volume, maxBossVolume, Time.deltaTime * 0.5f);
-        if (musicSource != null) musicSource.volume = Mathf.MoveTowards(musicSource.volume, 0f, Time.deltaTime * 0.5f);
-        if (battleSource != null) battleSource.volume = Mathf.MoveTowards(battleSource.volume, 0f, Time.deltaTime * 0.5f);
+        if (bossSource != null)
+            bossSource.volume = Mathf.MoveTowards(bossSource.volume, defaultBossVolume, Time.unscaledDeltaTime * 0.5f);
+
+        if (musicSource != null)
+            musicSource.volume = Mathf.MoveTowards(musicSource.volume, 0f, Time.unscaledDeltaTime * 0.5f);
+
+        if (battleSource != null)
+            battleSource.volume = Mathf.MoveTowards(battleSource.volume, 0f, Time.unscaledDeltaTime * 0.5f);
     }
 
     public void RegisterEnemyVisible()
@@ -128,8 +143,8 @@ public class MusicManager : MonoBehaviour
         if (!isBossFight)
         {
             visibleEnemiesCount++;
-            // Esse log vai te dizer quem é o culpado!
-            Debug.Log($"[Audio] Inimigo AGRESSIVO detectado! Contagem: {visibleEnemiesCount}");
+            // 2. SEGURANÇA EXTRA: Se por algum milagre a música parou, reinicia ela aqui
+            if (battleSource != null && !battleSource.isPlaying) battleSource.Play();
         }
     }
 
@@ -144,9 +159,16 @@ public class MusicManager : MonoBehaviour
 
     public void EntrarNoBoss()
     {
+        if (isBossFight) return;
         isBossFight = true;
         visibleEnemiesCount = 0;
-        if (bossSource != null) { bossSource.clip = bossL; bossSource.Play(); }
+
+        if (bossSource != null)
+        {
+            bossSource.volume = 0f;
+            bossSource.clip = bossL;
+            bossSource.Play();
+        }
     }
 
     public void SairDoBoss()
@@ -178,7 +200,27 @@ public class MusicManager : MonoBehaviour
     {
         visibleEnemiesCount = 0;
         isBossFight = false;
-        if (battleSource != null) { battleSource.volume = 0f; }
-        if (bossSource != null) { bossSource.volume = 0f; }
+        StartCoroutine(StopBossMusicRoutine());
+    }
+
+    private IEnumerator StopBossMusicRoutine()
+    {
+        float startVolumeBoss = (bossSource != null) ? bossSource.volume : 0f;
+        float timer = 0f;
+        float fadeDuration = 2.0f;
+
+        while (timer < fadeDuration)
+        {
+            timer += Time.unscaledDeltaTime; // Usa unscaled para funcionar mesmo se o jogo pausar
+            float t = timer / fadeDuration;
+
+            if (bossSource != null) bossSource.volume = Mathf.Lerp(startVolumeBoss, 0f, t);
+            if (musicSource != null) musicSource.volume = Mathf.Lerp(musicSource.volume, defaultMusicVolume, t);
+
+            yield return null;
+        }
+
+        if (bossSource != null) { bossSource.Stop(); bossSource.volume = 0f; }
+        if (musicSource != null) musicSource.volume = defaultMusicVolume;
     }
 }

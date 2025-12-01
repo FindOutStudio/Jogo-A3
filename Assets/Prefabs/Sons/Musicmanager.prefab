@@ -45,11 +45,11 @@ AudioSource:
   m_GameObject: {fileID: 561529816699737863}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: a202d9b1aed6f0848859cdad5a9fb28b, type: 3}
-  m_Resource: {fileID: 8300000, guid: a202d9b1aed6f0848859cdad5a9fb28b, type: 3}
+  OutputAudioMixerGroup: {fileID: -2728270499310072525, guid: c96a495f90e66294eb464382e64ae183, type: 2}
+  m_audioClip: {fileID: 8300000, guid: 06f4be42b276d374282807aaf4abcb7b, type: 3}
+  m_Resource: {fileID: 8300000, guid: 06f4be42b276d374282807aaf4abcb7b, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.2
+  m_Volume: 0.03
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -149,9 +149,9 @@ MonoBehaviour:
   ambienceSource: {fileID: 1916419306206941353}
   battleSource: {fileID: 2597858324982212799}
   bossSource: {fileID: 6470430083849857582}
-  battleFadeInDuration: 1
-  battleFadeOutDuration: 2
-  maxBattleVolume: 0.8
+  battleFadeInDuration: 4
+  battleFadeOutDuration: 4
+  maxBattleVolume: 0.25
   maxBossVolume: 1
   visibleEnemiesCount: 0
   somCastelo: {fileID: 8300000, guid: 0fdb84a2f6127644f89499839aa85e6a, type: 3}
@@ -171,17 +171,17 @@ AudioSource:
   m_GameObject: {fileID: 561529816699737863}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -2728270499310072525, guid: c96a495f90e66294eb464382e64ae183, type: 2}
+  m_audioClip: {fileID: 8300000, guid: 231109ac05d323449aa7220fabc5b9e2, type: 3}
+  m_Resource: {fileID: 8300000, guid: 231109ac05d323449aa7220fabc5b9e2, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.5
+  m_Volume: 0.4
   m_Pitch: 1
   Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 77
+  Priority: 90
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
@@ -268,7 +268,7 @@ AudioSource:
   m_GameObject: {fileID: 561529816699737863}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -2728270499310072525, guid: c96a495f90e66294eb464382e64ae183, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1

@@ -140,7 +140,14 @@ public class BossHeadController : MonoBehaviour
     {
         if (isBossActive) return;
         isBossActive = true;
-        if (MusicManager.instance != null) MusicManager.instance.TocarMusica(MusicManager.instance.bossL);
+
+        // CORREÇÃO: Chama 'EntrarNoBoss'
+        // Isso ativa o 'bossSource' separado, mantendo o 'ambienceSource' tocando no fundo.
+        if (MusicManager.instance != null)
+        {
+            MusicManager.instance.EntrarNoBoss();
+        }
+
         currentBehavior = StartCoroutine(PatrolRoutine());
     }
 
