@@ -81,12 +81,28 @@ public class MusicManager : MonoBehaviour
     }
 
     private void CheckSceneMusic(string sceneName)
+{
+    // Área da Floresta
+    if (sceneName.Contains("Floresta") || sceneName == "Lvl 1" || sceneName == "Lvl 2" || sceneName == "Lvl 3")
     {
-        if (sceneName.Contains("Floresta") || sceneName == "Level 1" || sceneName == "Level 2" || sceneName == "Level 3")
-            TocarFloresta();
-        else if (sceneName.Contains("Castelo") || sceneName == "Level 5")
-            TocarNivel5();
+        TocarFloresta();
     }
+    // Área Externa do Castelo
+    else if (sceneName.Contains("Castelo") || sceneName == "Lvl 5")
+    {
+        TocarNivel5();
+    }
+    // --- CORREÇÃO AQUI: Adicionar o Level 6 (Arena do Boss) ---
+    else if (sceneName == "Lvl 6")
+    {
+        // Toca a música "Dentro do Castelo"
+        TocarMusica(somDentro);
+
+        // Opcional: Se dentro do castelo não deve ter barulho de vento (ambiente), 
+        // você pode parar o som ambiente aqui:
+        if (ambienceSource != null) ambienceSource.Stop();
+    }
+}
 
     private void Start()
     {

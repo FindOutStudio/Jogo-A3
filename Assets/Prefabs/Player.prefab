@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 579059414677622817}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.25122213, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -219,7 +219,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4028713626492036423}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4a2f57337d5c82e428a0ce413524bb07, type: 3}
   m_Name: 
@@ -237,7 +237,7 @@ MonoBehaviour:
   volTeleport: 0.3
   volDash: 0.1
   volDano: 0.7
-  volMorte: 0.3
+  volMorte: 0.5
   moveSpd: 4
   maxSpd: 7
   accel: 14
@@ -254,7 +254,7 @@ MonoBehaviour:
   feetCollider: {fileID: 656596055036079858}
   dashForce: 13
   dashDuration: 0.17
-  dashCooldown: 0.65
+  dashCooldown: 0.5
   shadowPrefab: {fileID: 1375171563940659917, guid: 1f4f2a285f43d9f48b61884608492610, type: 3}
   shadowInterval: 0.015
   cooldownColor: {r: 1, g: 0.85550094, b: 0.3160377, a: 1}
@@ -337,8 +337,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: -0.05}
-  m_Size: {x: 0.38, y: 0.795}
+  m_Offset: {x: 0, y: -0.2}
+  m_Size: {x: 0.38, y: 0.52}
   m_Direction: 0
 --- !u!114 &7782958148662901508
 MonoBehaviour:
