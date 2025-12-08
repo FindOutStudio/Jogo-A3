@@ -17,6 +17,8 @@ public class Cura : MonoBehaviour
     [SerializeField] private float volumeFlutuar = 0.5f;
 
     private AudioSource sourceFlutuar;
+    private bool alreadyHealed;
+
 
     private void Start()
     {
@@ -34,6 +36,8 @@ public class Cura : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+
+        if (alreadyHealed) return;
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
@@ -48,6 +52,7 @@ public class Cura : MonoBehaviour
 
     private void ColetarItem(PlayerController player)
     {
+        alreadyHealed = true;
         // --- CORREÇÃO: Para o som de flutuar IMEDIATAMENTE ---
         if (sourceFlutuar != null) sourceFlutuar.Stop();
         // -----------------------------------------------------
@@ -61,6 +66,8 @@ public class Cura : MonoBehaviour
         
         if (healEffect != null)
             Instantiate(healEffect, transform.position, Quaternion.identity);
+
+        Debug.Log("Player Curado");
             
         Destroy(gameObject);
     }

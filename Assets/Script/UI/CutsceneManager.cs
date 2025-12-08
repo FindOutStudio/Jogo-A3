@@ -55,7 +55,7 @@ public class CutsceneManager : MonoBehaviour
 
     }
 
-    private void CarregarProximaCena()
+    public void CarregarProximaCena()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
