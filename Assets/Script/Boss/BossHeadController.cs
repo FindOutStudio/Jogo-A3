@@ -61,6 +61,7 @@ public class BossHeadController : MonoBehaviour
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private float checkRadius = 1.0f;
     [SerializeField] private int chanceForHealthDrop = 10;
+    [SerializeField] private RangedTurretController linkedTurret;
 
     private readonly List<int> spawnHealthThresholds = new List<int> { 7, 4, 1 };
     private List<int> activeSpawnThresholds;
@@ -587,6 +588,12 @@ public class BossHeadController : MonoBehaviour
         if (currentBehavior != null) StopCoroutine(currentBehavior);
         if (rb != null) rb.linearVelocity = Vector2.zero;
         StartCoroutine(DeathRoutine());
+
+        RangedTurretController[] turrets = FindObjectsOfType<RangedTurretController>();
+        foreach (var turret in turrets)
+        {
+            turret.ForceDie();
+        }
     }
 
     private IEnumerator DeathRoutine()

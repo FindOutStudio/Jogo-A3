@@ -135,6 +135,7 @@ MonoBehaviour:
     m_Bits: 0
   checkRadius: 1
   chanceForHealthDrop: 10
+  linkedTurret: {fileID: 6365332192905540152, guid: f01b4b3dfc3db4247b96e74e57f45cd0, type: 3}
   patrolPoints:
   - {fileID: 0}
   - {fileID: 0}

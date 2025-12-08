@@ -59,4 +59,14 @@ public class CutsceneManager : MonoBehaviour
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
+
+    public void FecharJogo()
+    {
+        Application.Quit();
+        Debug.Log("Saindo do Jogo...");
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false; // Para o jogo no editor
+#endif
+    }
 }

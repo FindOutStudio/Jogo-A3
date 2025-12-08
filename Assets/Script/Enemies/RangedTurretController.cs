@@ -208,6 +208,12 @@ public class RangedTurretController : MonoBehaviour
         Destroy(gameObject, 1.5f);
     }
 
+    public void ForceDie()
+    {
+        currentHealth = 0;
+        Die();
+    }
+
     private void TocarSFX(AudioClip clip, float volume)
     {
         if (sr != null && sr.isVisible)
