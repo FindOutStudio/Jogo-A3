@@ -3481,6 +3481,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2025006490}
   - component: {fileID: 2025006491}
+  - component: {fileID: 2025006492}
   m_Layer: 5
   m_Name: Menu inicial
   m_TagString: Untagged
@@ -3534,6 +3535,20 @@ MonoBehaviour:
   m_Spacing: {x: 0, y: 69.46}
   m_Constraint: 1
   m_ConstraintCount: 1
+--- !u!114 &2025006492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2025006489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 0
 --- !u!1001 &391399367206330380
 PrefabInstance:
   m_ObjectHideFlags: 0
